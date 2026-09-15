@@ -50,27 +50,46 @@ def process(file, pages_text, time_period, unit, subject):
     results: list[PageResult] = []
     for index, page in enumerate(pages, 1):
         preview = pipeline.render_page(pdf_path, page)
-        yield _state(preview, f"Page {page} / {n_pages}, reading", results, None, None)
+        yield _state(preview, f"Page {page} / {n_pages}, reading", results, None)
         result = pipeline.run_page(pdf_path, page, **options)
         if not result.long.empty:
             results.append(result)
-        yield _state(preview, f"Page {page} / {n_pages}, {index} of {len(pages)} done", results, result, None)
+        yield _state(preview, f"Page {page} / {n_pages}, {index} of {len(pages)} done", results, result)
 
-    archive = _write_archive(pdf_path, results) if results else None
-    yield _state(None, f"Done, {len(pages)} pages read", results, results[-1] if results else None, archive)
+    if not results:
+        yield _state(None, f"Done, {len(pages)} pages read, no table found", results, None)
+        return
+    files = _output_files(pdf_path, results)
+    archive = _write_archive(pdf_path, files)
+    yield _state(None, f"Done, {len(pages)} pages read", results, results[-1], archive, files)
 
 
-def _state(preview, progress, results, current, archive):
+def _state(preview, progress, results, current, archive=None, files=None):
+    """Values for every output component, in the order declared in build()."""
+    files = files or {}
     return (
         gr.update(value=preview, visible=True) if preview is not None else gr.update(),
         progress,
         summary_markdown(results),
+        gr.update(value=archive, visible=archive is not None),
         *table_slots(current),
+        pipeline.combine(results) if results else pd.DataFrame(),
+        _preview_text(files, "_sdmx.csv"),
+        _preview_text(files, "_data.xml"),
         checks_frame(results),
         attempts_frame(results),
-        pipeline.combine(results) if results else pd.DataFrame(),
-        gr.update(value=archive, visible=archive is not None),
     )
+
+
+def _preview_text(files: dict[str, str | bytes], suffix: str, max_lines: int = 80) -> str:
+    """First lines of an output file, shown once the run is complete."""
+    match = next((v for k, v in files.items() if k.endswith(suffix)), None)
+    if match is None:
+        return "Available when the run is complete."
+    text = match.decode() if isinstance(match, bytes) else match
+    lines = text.splitlines()
+    tail = f"\n... {len(lines) - max_lines} more lines in the download" if len(lines) > max_lines else ""
+    return "\n".join(lines[:max_lines]) + tail
 
 
 def table_slots(current: PageResult | None) -> list:
@@ -144,20 +163,23 @@ def attempts_frame(results: list[PageResult]) -> pd.DataFrame:
     return pd.DataFrame(rows, columns=["page", "stage", "gate", "failed checks", "seconds"])
 
 
-def _write_archive(pdf_path: Path, results: list[PageResult]) -> str:
-    """One zip: long CSV, SDMX-CSV, SDMX-ML structure and data, cells to review."""
+def _output_files(pdf_path: Path, results: list[PageResult]) -> dict[str, str | bytes]:
+    """Long CSV, SDMX-CSV, SDMX-ML structure and data, cells to review, for the whole document."""
     long = pipeline.combine(results)
     structure_xml, data_xml = sdmx_out.to_sdmx_ml(long)
     to_review = pd.concat([r.to_review.assign(page=r.page) for r in results], ignore_index=True)
     stem = pdf_path.stem
-    files = {
+    return {
         f"{stem}_long.csv": long.to_csv(index=False),
         f"{stem}_sdmx.csv": sdmx_out.to_sdmx_csv(long),
         f"{stem}_structure.xml": structure_xml,
         f"{stem}_data.xml": data_xml,
         f"{stem}_to_review.csv": to_review.to_csv(index=False),
     }
-    out = Path(tempfile.mkdtemp(prefix="pdf2sdmx_")) / f"{stem}_sdmx.zip"
+
+
+def _write_archive(pdf_path: Path, files: dict[str, str | bytes]) -> str:
+    out = Path(tempfile.mkdtemp(prefix="pdf2sdmx_")) / f"{pdf_path.stem}_sdmx.zip"
     with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as zf:
         for name, content in files.items():
             zf.writestr(name, content if isinstance(content, bytes) else content.encode())
@@ -197,20 +219,27 @@ def build() -> gr.Blocks:
                     subject = gr.Textbox(label="Table subject", placeholder="e.g. Campagne agricole")
             with gr.Column(scale=2):
                 status = gr.Markdown(PLACEHOLDER, elem_id="status")
-                tables = [
-                    gr.Dataframe(wrap=True, interactive=False, max_height=600, visible=False)
-                    for _ in range(TABLE_SLOTS)
-                ]
-                archive = gr.File(label="Download: long CSV, SDMX-CSV, SDMX-ML, cells to review", visible=False)
-                with gr.Accordion("Details", open=False), gr.Tabs():
-                    with gr.Tab("Failed and warned checks"):
+                archive = gr.File(label="Download the zip: long CSV, SDMX-CSV, SDMX-ML, cells to review", visible=False)
+                with gr.Tabs():
+                    with gr.Tab("Tables as printed"):
+                        tables = [
+                            gr.Dataframe(wrap=True, interactive=False, max_height=600, visible=False)
+                            for _ in range(TABLE_SLOTS)
+                        ]
+                    with gr.Tab("CSV, one row per number"):
+                        long = gr.Dataframe(interactive=False, wrap=True, max_height=700)
+                    with gr.Tab("SDMX-CSV"):
+                        sdmx_csv = gr.Code(language=None, interactive=False, max_lines=40)
+                    with gr.Tab("SDMX-ML"):
+                        sdmx_xml = gr.Code(language=None, interactive=False, max_lines=40)
+                    with gr.Tab("Checks"):
+                        gr.Markdown("Failed and warned checks. A failed cell is kept in the CSV with OBS_STATUS = E.")
                         checks = gr.Dataframe(interactive=False, wrap=True)
-                    with gr.Tab("Stages per page"):
+                    with gr.Tab("Stages"):
+                        gr.Markdown("Which extraction stage ran on each page, and how many checks its tables failed.")
                         attempts = gr.Dataframe(interactive=False)
-                    with gr.Tab("All observations"):
-                        long = gr.Dataframe(interactive=False, wrap=True)
 
-        outputs = [preview, progress, status, *tables, checks, attempts, long, archive]
+        outputs = [preview, progress, status, archive, *tables, long, sdmx_csv, sdmx_xml, checks, attempts]
         run_event = start.click(process, [file, pages_text, time_period, unit, subject], outputs)
         stop.click(None, cancels=[run_event])
         sample.click(load_sample, outputs=[file, preview])
