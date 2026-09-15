@@ -1,0 +1,95 @@
+row,column,value
+Mil / Superficie,AGADEZ,297
+Mil / Superficie,DIFFA,92176
+Mil / Superficie,DOSSO,1230265
+Mil / Superficie,MARADI,1443720
+Mil / Superficie,TAHOUA,1301904
+Mil / Superficie,TILLABERY,1252813
+Mil / Superficie,ZINDER,1464619
+Mil / Superficie,NIAMEY,18682
+Mil / Superficie,ENSEMBLE,6804476
+Mil / Rendement,AGADEZ,475
+Mil / Rendement,DIFFA,363
+Mil / Rendement,DOSSO,588
+Mil / Rendement,MARADI,655
+Mil / Rendement,TAHOUA,638
+Mil / Rendement,TILLABERY,462
+Mil / Rendement,ZINDER,488
+Mil / Rendement,NIAMEY,519
+Mil / Rendement,ENSEMBLE,564
+Mil / Production,AGADEZ,141
+Mil / Production,DIFFA,33476
+Mil / Production,DOSSO,723479
+Mil / Production,MARADI,945050
+Mil / Production,TAHOUA,830511
+Mil / Production,TILLABERY,578250
+Mil / Production,ZINDER,715408
+Mil / Production,NIAMEY,9698
+Mil / Production,ENSEMBLE,3836013
+Sorgho / Production,AGADEZ,147
+Sorgho / Production,DIFFA,8816
+Sorgho / Production,DOSSO,168389
+Sorgho / Production,MARADI,645912
+Sorgho / Production,TAHOUA,358435
+Sorgho / Production,TILLABERY,157597
+Sorgho / Production,ZINDER,567772
+Sorgho / Production,NIAMEY,352
+Sorgho / Production,ENSEMBLE,1907420
+Riz / Superficie,DIFFA,4065
+Riz / Superficie,DOSSO,6702
+Riz / Superficie,MARADI,1213
+Riz / Superficie,TAHOUA,2047
+Riz / Superficie,TILLABERY,11473
+Riz / Superficie,ZINDER,7556
+Riz / Superficie,ENSEMBLE,33056
+Niébé / Production,AGADEZ,72
+Niébé / Production,DIFFA,19955
+Niébé / Production,DOSSO,554733
+Niébé / Production,MARADI,668219
+Niébé / Production,TAHOUA,468397
+Niébé / Production,TILLABERY,424918
+Niébé / Production,ZINDER,620265
+Niébé / Production,NIAMEY,6461
+Niébé / Production,ENSEMBLE,2763020
+Arachide / Superficie,AGADEZ,4
+Arachide / Superficie,DIFFA,5840
+Arachide / Superficie,DOSSO,96098
+Arachide / Superficie,MARADI,361591
+Arachide / Superficie,TAHOUA,74947
+Arachide / Superficie,TILLABERY,28884
+Arachide / Superficie,ZINDER,474900
+Arachide / Superficie,ENSEMBLE,1042264
+Oignon / Production,AGADEZ,99020
+Oignon / Production,DOSSO,11032
+Oignon / Production,TAHOUA,6261
+Oignon / Production,ZINDER,5761
+Oignon / Production,ENSEMBLE,122074
+Manioc / Rendement,AGADEZ,18941
+Manioc / Rendement,DIFFA,30104
+Manioc / Rendement,DOSSO,21053
+Manioc / Rendement,MARADI,23701
+Manioc / Rendement,TAHOUA,34159
+Manioc / Rendement,TILLABERY,23662
+Manioc / Rendement,ZINDER,33540
+Manioc / Rendement,NIAMEY,26241
+Manioc / Rendement,ENSEMBLE,29822
+Patate douce / Production,DIFFA,75211
+Patate douce / Production,DOSSO,16484
+Patate douce / Production,MARADI,103787
+Patate douce / Production,TAHOUA,6227
+Patate douce / Production,TILLABERY,15983
+Patate douce / Production,ZINDER,11282
+Patate douce / Production,ENSEMBLE,228974
+Poivron / Superficie,AGADEZ,290
+Poivron / Superficie,TAHOUA,9
+Poivron / Superficie,TILLABERY,107
+Poivron / Superficie,ZINDER,860
+Poivron / Superficie,ENSEMBLE,1266
+Poivron / Rendement,AGADEZ,22955
+Poivron / Rendement,TAHOUA,21111
+Poivron / Rendement,ZINDER,23294
+Poivron / Rendement,ENSEMBLE,21232
+Poivron / Production,AGADEZ,6657
+Poivron / Production,TAHOUA,190
+Poivron / Production,ZINDER,20033
+Poivron / Production,ENSEMBLE,26880

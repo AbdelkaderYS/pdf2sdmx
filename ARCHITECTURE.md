@@ -1,0 +1,124 @@
+# Architecture
+
+Technical choices, thresholds and tool names. The README says what the project does and
+how well. This file says how.
+
+## The chain
+
+```
+PDF page
+  -> stage 1  pdfplumber        text layer, ruling lines then whitespace alignment
+  -> stage 2  Camelot 2.0 ml    Table Transformer finds rows and columns, text from the PDF
+  -> stage 3  Docling           TableFormer, vision, OCR if needed, flagged for review
+  -> gate     quality.gate_table
+  -> checks   validate.run_checks
+  -> long     reshape.to_long   one observation per row, codes from mapping/labels_to_codes.csv
+  -> out      sdmx_out          SDMX-CSV 2.0, SDMX-ML 2.1 structure and data messages
+```
+
+The cascade stops early at a stage whose table passes the gate with zero failed checks.
+Otherwise every stage runs, the one with the fewest failed checks wins, and its unreadable
+or gappy rows are repaired from the other stages (see below). If no stage passes the gate,
+the best attempt is still shown, labelled `manual`, and nothing is trusted.
+
+## Row repair (`ingest/cascade.py: repair_rows`)
+
+Measured on the 3T 2025 bulletin: pdfplumber glues the last three rows of the page into
+one (8 unreadable cells), Camelot ml reads those rows correctly but merges label cells
+elsewhere (40 failed checks). Neither stage alone gets the page. So the winner keeps its
+frame and, row by row, a donor row with the same label replaces:
+
+- a row with unreadable cells, if the page-level failed-check count goes down;
+- a row with gaps, if the donor has a number where the winner has none, never disagrees on
+  a cell both have read, and the failed-check count does not go up.
+
+Donor rows must share the data column headers. `EXTRACTION_METHOD` is written per
+observation, so a repaired page reads `pdfplumber` on most rows and `camelot_ml` on the
+repaired ones. Result on that page: 94 of 94 truth cells, against 84 for stage 1 alone.
+
+## Why these three stages
+
+| Stage | Tool | Decisive property | Source |
+|---|---|---|---|
+| 1 | pdfplumber 0.11 | Reads the text layer. Deterministic, no model, no cost. | pdfplumber docs |
+| 2 | Camelot 2.0.0 (June 2026), `flavor="ml"` | Table Transformer (`microsoft/table-transformer-detection` and `table-transformer-structure-recognition-v1.1-all`) supplies the structure, cell text comes from the PDF text layer, so the model cannot alter a value. `parsing_report` gives a per-table score. | camelot release notes v2.0.0 |
+| 3 | Docling 2.x, TableFormer | Best table detection score on the heterogeneous scientific document benchmark, about 3 s per page on x86 CPU, MIT licence. Only stage that can misread a digit, so its output is always flagged. | Docling technical report, arXiv 2408.09869 |
+
+Not used, and why:
+
+- MinerU 3.x and PaddleOCR-VL lead OmniDocBench (95 to 96 overall) but need a GPU for the
+  VLM backends. The Hugging Face free tier is CPU only.
+- MinerU `pipeline` backend runs on CPU but downloads several models and is slow. Docling
+  covers the same need with one dependency.
+
+## Gate thresholds (`core/quality.py`)
+
+| Rule | Value | Why |
+|---|---|---|
+| minimum size | 2 rows x 2 columns | anything smaller is a caption, not a table |
+| numeric share of body cells | >= 50% | INS tables are mostly numbers; a text block is not a table |
+| unreadable share of body cells | <= 15% | above that the columns are probably shifted |
+
+Score = numeric share x (1 - unreadable share). Used only to break ties between stages
+with the same number of failed checks.
+
+## Checks (`core/validate.py`)
+
+| Check | Rule | Tolerance | On failure |
+|---|---|---|---|
+| unreadable | every body cell parses as a number or a missing marker | none | fail, cell listed |
+| bounds | no value above 1e9; negatives only in rate columns | none | fail or warn |
+| column_total | a row named Total, Ensemble, Niger or National equals the sum of the others | 0.5% | fail, or warn if the column header looks like a rate |
+| row_total | a column named Total equals the sum of the other columns | 0.5% | fail |
+| area_x_yield | production (t) = area (ha) x yield (kg/ha) / 1000 | 2% | fail |
+| year_jump | adjacent years in one table differ by less than a factor of 5 | none | warn |
+| period_jump | same area and indicator across editions differ by less than a factor of 5 (refresh only) | none | warn, listed in `data/processed/to_review.csv` |
+
+Every failed cell sets `OBS_STATUS = E` on its observation and goes to `to_review.csv`.
+Nothing is dropped silently.
+
+## Number parsing (`core/numbers.py`)
+
+INS prints thousands with a regular, non-breaking or narrow space and decimals with a comma.
+Dots are treated as thousands separators only in the pattern `1.234.567`. A single dot
+followed by three digits, as in `1.234`, is also read as thousands. This is a documented
+ambiguity; INS does not print decimal dots.
+
+## Long format and SDMX
+
+Columns: `REF_AREA, INDICATOR, TIME_PERIOD, OBS_VALUE, UNIT_MEASURE, OBS_STATUS,
+EXTRACTION_METHOD, SOURCE`, plus the two printed labels for traceability.
+
+Which axis holds what:
+
+| Row labels look like regions | Column headers are years | REF_AREA | INDICATOR | TIME_PERIOD |
+|---|---|---|---|---|
+| yes | no | row | column header | user or page text |
+| yes | yes | row | table subject | column |
+| no | yes | NE | row | column |
+| no | no | NE | row / column | user or page text |
+
+Region codes are ISO 3166-2:NE. Totals use the SDMX `_T` convention. The mapping file
+`mapping/labels_to_codes.csv` is matched exactly first, then fuzzily (rapidfuzz WRatio,
+cutoff 88). An unknown label gets an upper-case slug, never a guessed code.
+
+The DSD is built on the fly with sdmx1 (`INS_NE:DSD_PDF2SDMX(1.0)`). No official INS DSD
+was available when this was written; see BRIEF.md question Q4.
+
+## Layering
+
+`core` has no import from `api` or `ui`. Both call `core.pipeline.run_page`.
+
+Deviation from the shared standard: the Hugging Face Space runs the Gradio UI and the
+FastAPI routes in one process (`app.py` mounts Gradio on the FastAPI app). The UI calls
+`core` directly instead of going through HTTP, because the free tier gives one container
+and no second process. The API contract (`/health`, `/metadata`, `/extract`, `/metrics`)
+is still served on the same port, so integrators do not need the UI.
+
+## Refresh
+
+INS publishes the quarterly bulletin four times a year. `refresh.yml` runs quarterly,
+downloads any PDF in `data/sources.csv` that is not already cached, extracts the listed
+pages, runs `check_long_dataset`, and only then writes `data/processed/observations.csv`
+with a `DATA_DATE` column. A cached PDF is never re-downloaded. A failed gate keeps the
+previous file.

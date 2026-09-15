@@ -1,0 +1,12 @@
+# One command brings up the whole thing: docker compose up
+# The UI and the API share one process on port 7860 (see ARCHITECTURE.md).
+
+services:
+  app:
+    build: .
+    ports:
+      - "7860:7860"
+    env_file: .env
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped

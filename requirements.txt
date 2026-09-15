@@ -1,0 +1,13 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch>=2.2
+pandas>=2.2
+pdfplumber>=0.11
+camelot-py[ml]>=2.0
+sdmx1>=2.20
+rapidfuzz>=3.9
+pydantic>=2.6
+pydantic-settings>=2.2
+fastapi>=0.110
+uvicorn[standard]>=0.29
+python-multipart>=0.0.9
+gradio>=5.0

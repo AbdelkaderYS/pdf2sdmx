@@ -1,0 +1,31 @@
+name: Scheduled data refresh
+
+# INS Niger publishes the statistical bulletin quarterly. Check once a quarter.
+on:
+  schedule:
+    - cron: "0 3 5 1,4,7,10 *"
+  workflow_dispatch:
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+
+      - name: Install
+        run: sudo apt-get install -y ghostscript && uv pip install --system .
+
+      - name: Fetch new PDFs, extract, run quality gate
+        run: python -m pdf2sdmx.core.ingest.refresh
+
+      # Only reached if the quality gate passed. A failure leaves the last good
+      # snapshot in place and fails the run, which notifies you.
+      - name: Commit refreshed data
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add data/processed
+          git diff --staged --quiet || git commit -m "chore: refresh extracted data"
+          git push
