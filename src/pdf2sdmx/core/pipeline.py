@@ -17,20 +17,44 @@ PERIOD_IN_TEXT = re.compile(r"\b((?:19|20)\d{2}\s*[/-]\s*(?:19|20)?\d{2}|(?:19|2
 
 
 @dataclass
+class TableResult:
+    frame: pd.DataFrame
+    checks: list[Check]
+    long: pd.DataFrame
+    resolved_by: str
+
+
+@dataclass
 class PageResult:
     source: str
     page: int
     resolved_by: str
     accepted: bool
-    table: pd.DataFrame
-    checks: list[Check]
-    long: pd.DataFrame
+    tables: list[TableResult]
     attempts: list[cascade.Attempt]
     time_period: str
+    rejected: pd.DataFrame = field(default_factory=pd.DataFrame)
     sdmx_csv: str = ""
     sdmx_structure_xml: bytes = b""
     sdmx_data_xml: bytes = b""
-    to_review: pd.DataFrame = field(default_factory=pd.DataFrame)
+
+    @property
+    def table(self) -> pd.DataFrame:
+        """First table, or the best rejected attempt for display."""
+        return self.tables[0].frame if self.tables else self.rejected
+
+    @property
+    def checks(self) -> list[Check]:
+        return [c for t in self.tables for c in t.checks]
+
+    @property
+    def long(self) -> pd.DataFrame:
+        frames = [t.long.assign(TABLE=i) for i, t in enumerate(self.tables, 1)]
+        return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
+
+    @property
+    def to_review(self) -> pd.DataFrame:
+        return validate.failed_cells(self.checks)
 
     @property
     def check_counts(self) -> dict[str, int]:
@@ -44,44 +68,48 @@ def run_page(
     pdf_path: Path,
     page: int,
     *,
-    time_period: str = "",
-    unit: str = "",
-    subject: str = "UNKNOWN",
+    time_period: str | None = "",
+    unit: str | None = "",
+    subject: str | None = "UNKNOWN",
     mapping_path: Path | None = None,
 ) -> PageResult:
-    """Extract, validate, reshape and serialise one page. Never raises on a bad page."""
+    """Extract, validate, reshape and serialise every table on one page. Never raises on a bad page.
+
+    Text options may arrive as None from an empty UI field.
+    """
     result = cascade.run(pdf_path, page)
     source = pdf_path.name
-    period = time_period.strip() or detect_period(pdf_path, page)
-
-    if result.frame.empty:
-        return PageResult(source, page, "manual", False, pd.DataFrame(), [], pd.DataFrame(), result.attempts, period)
-
-    frame = result.frame
-    checks = validate.run_checks(frame)
+    period = (time_period or "").strip() or detect_period(pdf_path, page)
+    unit = (unit or "").strip() or "UNKNOWN"
+    subject = (subject or "").strip() or "UNKNOWN"
     mapping = reshape.load_mapping(mapping_path or settings.mapping_file)
-    long = reshape.to_long(
-        frame,
-        mapping=mapping,
-        time_period=period,
-        unit=unit or "UNKNOWN",
-        method=result.row_methods,
-        source=source,
-        checks=checks,
-        subject=subject,
-    )
+
+    tables = []
+    for resolved in result.tables:
+        checks = validate.run_checks(resolved.frame)
+        long = reshape.to_long(
+            resolved.frame,
+            mapping=mapping,
+            time_period=period,
+            unit=unit,
+            method=resolved.row_methods,
+            source=source,
+            checks=checks,
+            subject=subject,
+        )
+        tables.append(TableResult(resolved.frame, checks, long, resolved.resolved_by))
+
     page_result = PageResult(
         source,
         page,
         result.resolved_by,
         result.accepted,
-        frame,
-        checks,
-        long,
+        tables,
         result.attempts,
         period,
-        to_review=validate.failed_cells(checks),
+        rejected=result.rejected if result.rejected is not None else pd.DataFrame(),
     )
+    long = page_result.long
     if not long.empty:
         page_result.sdmx_csv = sdmx_out.to_sdmx_csv(long)
         page_result.sdmx_structure_xml, page_result.sdmx_data_xml = sdmx_out.to_sdmx_ml(long)

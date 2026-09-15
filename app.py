@@ -14,7 +14,7 @@ import pandas as pd  # noqa: E402
 from pdf2sdmx.api.main import app  # noqa: E402
 from pdf2sdmx.config import settings  # noqa: E402
 from pdf2sdmx.core.ingest import camelot_stage, refresh  # noqa: E402
-from pdf2sdmx.ui.app import build  # noqa: E402
+from pdf2sdmx.ui.app import CSS, build, theme  # noqa: E402
 
 log = logging.getLogger("pdf2sdmx")
 
@@ -35,7 +35,7 @@ def _warm_up() -> None:
 
 
 threading.Thread(target=_warm_up, daemon=True).start()
-app = gr.mount_gradio_app(app, build(), path="/")
+app = gr.mount_gradio_app(app, build(), path="/", theme=theme(), css=CSS)
 
 if __name__ == "__main__":
     import uvicorn

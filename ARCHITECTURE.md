@@ -16,10 +16,15 @@ PDF page
   -> out      sdmx_out          SDMX-CSV 2.0, SDMX-ML 2.1 structure and data messages
 ```
 
-The cascade stops early at a stage whose table passes the gate with zero failed checks.
-Otherwise every stage runs, the one with the fewest failed checks wins, and its unreadable
-or gappy rows are repaired from the other stages (see below). If no stage passes the gate,
-the best attempt is still shown, labelled `manual`, and nothing is trusted.
+A page may hold several tables; every stage returns all of them. The cascade stops early at
+a stage whose tables all pass the gate with zero failed checks. Otherwise every stage runs,
+the stage with the most accepted tables (then the fewest failed checks) wins, and each of
+its tables is repaired from the matching table of another stage (see below). If no stage
+passes the gate, the best attempt is still shown, labelled `manual`, and nothing is trusted.
+
+Tables are matched across stages by identical data column headers and the number of cells
+that read the same number. Two tables on one page often share headers and row labels
+(livestock 2024 and 2025 on the same page), so labels alone would pair them wrongly.
 
 ## Row repair (`ingest/cascade.py: repair_rows`)
 
@@ -28,9 +33,13 @@ one (8 unreadable cells), Camelot ml reads those rows correctly but merges label
 elsewhere (40 failed checks). Neither stage alone gets the page. So the winner keeps its
 frame and, row by row, a donor row with the same label replaces:
 
-- a row with unreadable cells, if the page-level failed-check count goes down;
-- a row with gaps, if the donor has a number where the winner has none, never disagrees on
-  a cell both have read, and the failed-check count does not go up.
+- a row with unreadable cells, if the table-level failed-check count goes down;
+- a row with gaps, if the donor has a number where the winner has none and the count does
+  not go up.
+
+In both cases a donor row that disagrees on any cell both stages read as a number is
+refused. Arithmetic consistency alone is not enough: a row from the wrong table on the
+same page can be consistent with its own total.
 
 Donor rows must share the data column headers. `EXTRACTION_METHOD` is written per
 observation, so a repaired page reads `pdfplumber` on most rows and `camelot_ml` on the

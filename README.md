@@ -47,8 +47,9 @@ unreadable cell was refused and listed rather than passed through.
 ## What comes out
 
 Drop a PDF, press Start. Every page is read in turn; the left panel shows the page being
-read, the right panel the table found on it and a running count of tables, observations
-and flagged cells. At the end one zip holds five files for the whole document.
+read, the right panel the tables found on it (a page can hold several) and a running count
+of tables, observations and flagged cells. At the end one zip holds five files for the
+whole document.
 
 | File | Content |
 |---|---|

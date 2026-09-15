@@ -6,6 +6,7 @@ flavor when the ml extra is not installed.
 """
 
 import threading
+import warnings
 from pathlib import Path
 
 from pdf2sdmx.core.table import ExtractedTable
@@ -22,7 +23,10 @@ def extract(pdf_path: Path, page_number: int) -> list[ExtractedTable]:
     import camelot
 
     flavor, method = ("ml", METHOD) if _ml_available() else ("lattice", FALLBACK_METHOD)
-    with _ML_LOCK:
+    with _ML_LOCK, warnings.catch_warnings():
+        # torch and transformers print one line per layer when loading Table Transformer
+        warnings.filterwarnings("ignore", message=".*meta parameter.*")
+        warnings.filterwarnings("ignore", message=".*max_size.*")
         tables = camelot.read_pdf(str(pdf_path), pages=str(page_number), flavor=flavor)
     out = []
     for table in tables:

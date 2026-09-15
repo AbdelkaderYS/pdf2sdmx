@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pandas as pd
 
 from pdf2sdmx.core import validate
@@ -61,8 +63,40 @@ def test_donor_with_different_columns_is_ignored():
 
 
 def test_table_with_only_blank_columns_yields_no_candidate():
-    from pdf2sdmx.core.ingest.cascade import _best_candidate
+    from pdf2sdmx.core.ingest.cascade import _gate_all
     from pdf2sdmx.core.table import ExtractedTable
 
     table = ExtractedTable([["Liste des tableaux", ""], ["Tableau 03.01", ""], ["Tableau 03.02", ""]], 1, "pdfplumber")
-    assert _best_candidate("pdfplumber", [table]) is None
+    accepted, rejected = _gate_all("pdfplumber", [table])
+    assert accepted == [] and rejected is None
+
+
+def test_two_tables_on_one_page_are_both_kept_and_matched_to_their_donor():
+    from pdf2sdmx.core.ingest import cascade
+    from pdf2sdmx.core.table import ExtractedTable
+
+    header = ["Région", "Bovins", "Ovins", "Total"]
+    first = [header, ["Agadez", "10", "20", "30"], ["Diffa", "1 2", "5", "6"], ["Total", "11", "25", "36"]]
+    second = [header, ["Agadez", "100", "200", "300"], ["Diffa", "10", "50", "60"], ["Total", "110", "250", "360"]]
+    fixed_first = [header, ["Agadez", "10", "20", "30"], ["Diffa", "1", "5", "6"], ["Total", "11", "25", "36"]]
+    broken_second = [
+        header,
+        ["Agadez", "100 200", "", "300"],
+        ["Diffa", "10", "50", "60"],
+        ["Total", "110", "250", "360"],
+    ]
+
+    def stage_a(_pdf, _page):
+        return [ExtractedTable(first, 1, "a"), ExtractedTable(second, 1, "a")]
+
+    def stage_b(_pdf, _page):
+        return [ExtractedTable(broken_second, 1, "b"), ExtractedTable(fixed_first, 1, "b")]
+
+    result = cascade.run(Path("x.pdf"), 1, stages=[("a", stage_a), ("b", stage_b)])
+    assert len(result.tables) == 2
+    # Stage a wins on a tie. Its first table is repaired from b's matching table, not from
+    # b's other table that shares the same headers and labels but holds different numbers.
+    assert result.tables[0].frame.iloc[1, 1] == "1"
+    assert result.tables[0].row_methods["Diffa"] == "b"
+    assert result.tables[1].frame.iloc[0, 1] == "100"
+    assert result.tables[1].resolved_by == "a"

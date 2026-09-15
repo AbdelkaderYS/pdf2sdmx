@@ -116,3 +116,12 @@ def test_regions_in_upper_case_columns_become_ref_area():
     assert set(long["REF_AREA"]) == {"NE-1", "NE-6", "NE-8", "_T"}
     assert set(long["INDICATOR"]) == {"MILLET_AREA_HA", "MILLET_PROD_T"}
     assert set(long["UNIT_MEASURE"]) == {"ha", "t"}
+
+
+def test_run_page_accepts_none_options(tmp_path):
+    """Gradio sends None for an empty textbox. run_page must not crash on it."""
+    from pdf2sdmx.core import pipeline
+
+    sample = settings.data_raw.parent / "samples" / "ins_bulletin_3T25_p20-23.pdf"
+    result = pipeline.run_page(sample, 1, time_period=None, unit=None, subject=None)
+    assert result.page == 1
