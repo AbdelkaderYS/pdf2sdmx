@@ -58,3 +58,11 @@ def test_donor_with_different_columns_is_ignored():
     donor = Candidate("camelot_ml", pd.DataFrame([["Mil / Production", "1", "2"]], columns=["a", "b", "c"]), None, 0)
     frame, methods = repair_rows(winner, [donor])
     assert frame.iloc[0, 1] == "1 2 3"
+
+
+def test_table_with_only_blank_columns_yields_no_candidate():
+    from pdf2sdmx.core.ingest.cascade import _best_candidate
+    from pdf2sdmx.core.table import ExtractedTable
+
+    table = ExtractedTable([["Liste des tableaux", ""], ["Tableau 03.01", ""], ["Tableau 03.02", ""]], 1, "pdfplumber")
+    assert _best_candidate("pdfplumber", [table]) is None

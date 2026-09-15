@@ -95,6 +95,8 @@ def run(pdf_path: Path, page_number: int, stages: list[tuple[str, Stage]] | None
     if not candidates:
         return CascadeResult(pd.DataFrame(), None, "manual", attempts=attempts)
     winner = min(candidates, key=lambda c: (not c.gate.accepted, c.failed_checks, -c.gate.score))
+    if not winner.gate.accepted:
+        return CascadeResult(winner.frame, winner.gate, winner.method, attempts=attempts)
     frame, row_methods = repair_rows(winner, [c for c in candidates if c is not winner])
     return CascadeResult(frame, winner.gate, winner.method, row_methods, attempts)
 
@@ -103,6 +105,8 @@ def _best_candidate(method: str, tables: list[ExtractedTable]) -> Candidate | No
     scored = []
     for table in tables:
         frame = table.to_frame()
+        if frame.shape[1] < 2:  # every data column was blank, nothing to gate
+            continue
         gate = gate_table(frame)
         failed = sum(c.status == "fail" for c in validate.run_checks(frame)) if gate.accepted else 10**6
         scored.append(Candidate(method, frame, gate, failed))

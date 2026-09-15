@@ -1,6 +1,7 @@
 """One call from PDF page to validated long table and SDMX files. Used by the API and the UI."""
 
 import re
+from collections.abc import Iterator
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -99,3 +100,38 @@ def detect_period(pdf_path: Path, page: int) -> str:
 
 def page_count(pdf_path: Path) -> int:
     return pdfplumber_stage.page_count(pdf_path)
+
+
+def run_document(pdf_path: Path, pages: list[int] | None = None, **options) -> Iterator[PageResult]:
+    """Yield one PageResult per page, in order. Pages without a table yield an empty result."""
+    for page in pages or range(1, page_count(pdf_path) + 1):
+        yield run_page(pdf_path, page, **options)
+
+
+def combine(results: list[PageResult]) -> pd.DataFrame:
+    """Long table for every page that produced observations, with a PAGE column."""
+    frames = [r.long.assign(PAGE=r.page) for r in results if not r.long.empty]
+    return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
+
+
+def parse_pages(text: str, n_pages: int) -> list[int]:
+    """ "21", "20-25" or "12, 21, 30". Empty means every page."""
+    pages: list[int] = []
+    for part in text.replace(";", ",").split(","):
+        part = part.strip()
+        if not part:
+            continue
+        if "-" in part:
+            start, end = part.split("-", 1)
+            pages.extend(range(int(start), int(end) + 1))
+        else:
+            pages.append(int(part))
+    return [p for p in pages if 1 <= p <= n_pages]
+
+
+def render_page(pdf_path: Path, page: int, resolution: int = 60):
+    """Small raster of one page for a preview panel."""
+    import pdfplumber
+
+    with pdfplumber.open(pdf_path) as pdf:
+        return pdf.pages[page - 1].to_image(resolution=resolution).original

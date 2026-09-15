@@ -35,7 +35,7 @@ agricole 2024/2025), against 94 cells transcribed by hand from the page image.
 | How the cascade got the last 10 | pdfplumber glued the three Poivron rows into one. Camelot ml read that block correctly but broke 30 other cells. The cascade kept pdfplumber and took only the Poivron rows from Camelot, because each swap lowered the number of failed checks. Every observation carries the stage it came from (816 pdfplumber, 13 camelot_ml). |
 | Extraction errors intercepted by the checks | 8 unreadable cells on that page before repair, 0 after, 0 silent |
 | Source errors surfaced by comparing editions | 32 cross-campaign jumps above a factor of 5 listed in `data/processed/to_review.csv`, including Niamey cowpea area printed as 1 316 237 ha in the 1T 2024 bulletin (15 632 ha a year later) |
-| Pages processed so far | 2 bulletins (1T 2024, 3T 2025), same table, identical layout 18 months apart |
+| Pages processed so far | 2 bulletins (1T 2024, 3T 2025), same table, identical layout 18 months apart. A whole 71-page bulletin takes 2 to 4 minutes on CPU. |
 
 The 100% is on one page of one table type and should be read as "the cascade and the
 checks work on this layout", not as a general accuracy figure. The number that matters
@@ -46,8 +46,9 @@ unreadable cell was refused and listed rather than passed through.
 
 ## What comes out
 
-For one page: the table as printed, which stage resolved it, the check results, and five
-files.
+Drop a PDF, press Start. Every page is read in turn; the left panel shows the page being
+read, the right panel the table found on it and a running count of tables, observations
+and flagged cells. At the end one zip holds five files for the whole document.
 
 | File | Content |
 |---|---|
@@ -70,9 +71,10 @@ make install-ml       # adds Camelot ml with CPU torch, about 400 MB
 python app.py         # UI and API on http://localhost:7860, docs at /docs
 ```
 
-Or `docker compose up`. Sample PDFs: `python -m pdf2sdmx.core.ingest.refresh` downloads
-the two bulletins listed in `data/sources.csv`, extracts the listed pages and writes
-`data/processed/observations.csv` with a `DATA_DATE` column.
+Or `docker compose up`. The Load sample button opens `data/samples/ins_bulletin_3T25_p20-23.pdf`,
+four pages of the INS quarterly bulletin (about 40 s on CPU). The full bulletins used for
+the measurements are downloaded by `python -m pdf2sdmx.core.ingest.refresh`, which also
+writes `data/processed/observations.csv` with a `DATA_DATE` column.
 
 API: `GET /health`, `GET /metadata`, `POST /extract` (multipart PDF + page), `GET /metrics`.
 
