@@ -95,8 +95,29 @@ ambiguity; INS does not print decimal dots.
 
 ## Long format and SDMX
 
-Columns: `REF_AREA, INDICATOR, TIME_PERIOD, OBS_VALUE, UNIT_MEASURE, OBS_STATUS,
-EXTRACTION_METHOD, SOURCE`, plus the two printed labels for traceability.
+Columns: `FREQ, REF_AREA, INDICATOR, TIME_PERIOD, OBS_VALUE, UNIT_MEASURE, UNIT_MULT,
+OBS_STATUS, TIME_PERIOD_LABEL, EXTRACTION_METHOD, SOURCE`, plus the two printed labels for
+traceability.
+
+### Conventions checked against published DSDs (2026-09-16)
+
+| Component | World Bank WDI DSD `WB:WDI(1.0)` | pdf2sdmx | Status |
+|---|---|---|---|
+| Dimensions | `FREQ, SERIES, REF_AREA, TIME_PERIOD` | `FREQ, REF_AREA, INDICATOR, TIME_PERIOD` | verified, read from api.worldbank.org/v2/sdmx/rest |
+| Measure | `OBS_VALUE` | `OBS_VALUE` | verified |
+| Attributes | `UNIT_MULT` | `UNIT_MEASURE, UNIT_MULT, OBS_STATUS, TIME_PERIOD_LABEL, EXTRACTION_METHOD, SOURCE` | verified for WDI; the extra ones are SDMX cross-domain concepts plus two provenance attributes |
+| OBS_STATUS | not used in WDI | `A` normal, `U` low reliability (failed a check) | codes verified in CL_OBS_STATUS 2.3 from registry.sdmx.org. `E` means estimated and is not used |
+| TIME_PERIOD | calendar year `2024` | `2024` for a year, `2024-A1` for a campaign printed `2024/2025` | SDMX reporting-year format, the year the period starts. The printed text is kept in `TIME_PERIOD_LABEL` |
+| REF_AREA | ISO 3166-1 alpha-3 (`NER`) | ISO 3166-1 alpha-2 (`NE`) and ISO 3166-2 (`NE-1` to `NE-8`), `_T` for totals | the SDMX cross-domain `CL_AREA` uses alpha-2; regions have no WDI equivalent |
+| Indicator codes | WDI series ids such as `AG.PRD.CREL.MT` | `MILLET_PROD_T`, from `mapping/labels_to_codes.csv` | local codes; to be replaced by the INS DSD when one exists |
+
+African Development Bank: ODP 2.0 is announced as SDMX native (workshop Addis Ababa, July
+2025) but its structure documentation sits behind a bot check and could not be read on
+2026-09-16. Nothing here is claimed about its DSD. The ODP 1.x portals
+(niger.opendataforafrica.org) run on Knoema, whose SDMX export builds one DSD per dataset.
+
+Units are written as printed (`ha`, `kg/ha`, `t`); the SDMX `CL_UNIT_MEASURE` codes were not
+verified and are not claimed.
 
 Which axis holds what:
 

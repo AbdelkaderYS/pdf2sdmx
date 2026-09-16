@@ -11,13 +11,18 @@ from pdf2sdmx.core.numbers import parse_number
 from pdf2sdmx.core.table import LABEL_JOIN
 from pdf2sdmx.core.validate import YEAR_HEADER, Check, row_labels
 
+# Column ids follow the SDMX cross-domain concepts (FREQ, REF_AREA, TIME_PERIOD, OBS_VALUE,
+# UNIT_MEASURE, UNIT_MULT, OBS_STATUS), the same ids the World Bank WDI DSD uses.
 LONG_COLUMNS = [
+    "FREQ",
     "REF_AREA",
     "INDICATOR",
     "TIME_PERIOD",
     "OBS_VALUE",
     "UNIT_MEASURE",
+    "UNIT_MULT",
     "OBS_STATUS",
+    "TIME_PERIOD_LABEL",
     "EXTRACTION_METHOD",
     "SOURCE",
     "REF_AREA_LABEL",
@@ -26,6 +31,12 @@ LONG_COLUMNS = [
 MATCH_THRESHOLD = 88
 UNIT_IN_HEADER = re.compile(r"\(([^)]+)\)\s*$")
 DUPLICATE_SUFFIX = re.compile(r"\s\(\d+\)$")
+SPLIT_YEAR = re.compile(r"^((?:19|20)\d{2})\s*[/-]\s*(?:19|20)?\d{2}$")
+PLAIN_YEAR = re.compile(r"^(?:19|20)\d{2}$")
+
+# CL_OBS_STATUS 2.3: A normal value, U low reliability. E means estimated and is not used here.
+STATUS_OK = "A"
+STATUS_FAILED_CHECK = "U"
 
 
 def load_mapping(path: Path) -> pd.DataFrame:
@@ -66,12 +77,15 @@ def to_long(
             indicator_code, mapped_unit = _indicator(indicator_label, mapping)
             records.append(
                 {
+                    "FREQ": "A",
                     "REF_AREA": _code_for(area_label, mapping, "REF_AREA")[0] if area_label else "NE",
                     "INDICATOR": indicator_code,
-                    "TIME_PERIOD": period,
+                    "TIME_PERIOD": sdmx_time_period(period),
                     "OBS_VALUE": parsed.value,
                     "UNIT_MEASURE": _unit_for(indicator_label, mapped_unit, unit),
+                    "UNIT_MULT": "0",
                     "OBS_STATUS": _status(parsed.status, (label, column) in failed),
+                    "TIME_PERIOD_LABEL": period,
                     "EXTRACTION_METHOD": method if isinstance(method, str) else method.get(label, "unknown"),
                     "SOURCE": source,
                     "REF_AREA_LABEL": area_label or "Niger",
@@ -79,6 +93,22 @@ def to_long(
                 }
             )
     return pd.DataFrame(records, columns=LONG_COLUMNS)
+
+
+def sdmx_time_period(printed: str) -> str:
+    """SDMX time format for an annual value.
+
+    "2024" stays "2024". A campaign printed "2024/2025" becomes the SDMX reporting year
+    "2024-A1": the year the period starts, as the SDMX guidelines require. Anything else is
+    returned unchanged and will not validate as a time period.
+    """
+    text = printed.strip()
+    if PLAIN_YEAR.match(text):
+        return text
+    split = SPLIT_YEAR.match(text)
+    if split:
+        return f"{split.group(1)}-A1"
+    return text
 
 
 def _axis_kind(labels: list[str], mapping: pd.DataFrame) -> str:
@@ -148,10 +178,9 @@ def _unit_for(indicator_label: str, mapped_unit: str, default: str) -> str:
 
 
 def _status(parse_status: str, failed_check: bool) -> str:
-    """SDMX OBS_STATUS codes: A normal, E flagged by a failed check."""
     if parse_status == "error" or failed_check:
-        return "E"
-    return "A"
+        return STATUS_FAILED_CHECK
+    return STATUS_OK
 
 
 def _failed_cells(checks: list[Check]) -> set[tuple[str, str]]:

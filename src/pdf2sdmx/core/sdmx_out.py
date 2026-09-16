@@ -7,8 +7,10 @@ DSD_ID = "DSD_PDF2SDMX"
 DATAFLOW_ID = "DF_PDF2SDMX"
 VERSION = "1.0"
 
-DIMENSIONS = ["REF_AREA", "INDICATOR", "TIME_PERIOD"]
-ATTRIBUTES = ["UNIT_MEASURE", "OBS_STATUS", "EXTRACTION_METHOD", "SOURCE"]
+# Same component ids as the World Bank WDI DSD (FREQ, REF_AREA, TIME_PERIOD, UNIT_MULT,
+# OBS_VALUE) with INDICATOR where WDI uses SERIES.
+DIMENSIONS = ["FREQ", "REF_AREA", "INDICATOR", "TIME_PERIOD"]
+ATTRIBUTES = ["UNIT_MEASURE", "UNIT_MULT", "OBS_STATUS", "TIME_PERIOD_LABEL", "EXTRACTION_METHOD", "SOURCE"]
 MEASURE = "OBS_VALUE"
 
 
@@ -40,9 +42,10 @@ def to_sdmx_ml(long: pd.DataFrame) -> tuple[bytes, bytes]:
     )
 
     dsd = DataStructureDefinition(id=DSD_ID, version=VERSION, maintainer=Agency(id=AGENCY))
-    dsd.dimensions.append(Dimension(id="REF_AREA", order=0))
-    dsd.dimensions.append(Dimension(id="INDICATOR", order=1))
-    dsd.dimensions.append(TimeDimension(id="TIME_PERIOD", order=2))
+    dsd.dimensions.append(Dimension(id="FREQ", order=0))
+    dsd.dimensions.append(Dimension(id="REF_AREA", order=1))
+    dsd.dimensions.append(Dimension(id="INDICATOR", order=2))
+    dsd.dimensions.append(TimeDimension(id="TIME_PERIOD", order=3))
     for attr in ATTRIBUTES:
         dsd.attributes.append(DataAttribute(id=attr))
     dsd.measures.append(PrimaryMeasure(id=MEASURE))

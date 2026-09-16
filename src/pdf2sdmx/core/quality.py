@@ -44,6 +44,6 @@ def check_long_dataset(df: pd.DataFrame, *, min_rows: int, max_error_share: floa
     """Gate for the long-format output: enough rows and few validation failures."""
     if len(df) < min_rows:
         raise QualityCheckFailed(f"Expected at least {min_rows} rows, got {len(df)}")
-    error_share = (df["OBS_STATUS"] == "E").mean() if len(df) else 0.0
+    error_share = (df["OBS_STATUS"] != "A").mean() if len(df) else 0.0
     if error_share > max_error_share:
         raise QualityCheckFailed(f"{error_share:.0%} of observations failed validation")

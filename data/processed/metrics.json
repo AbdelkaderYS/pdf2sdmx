@@ -3,7 +3,7 @@
   "baseline_score": 0.8936,
   "baseline_name": "pdfplumber alone",
   "metric": "share of hand-typed truth cells recovered exactly",
-  "evaluated_on": "1 pages, 94 cells, 2026-09-15",
+  "evaluated_on": "1 pages, 94 cells, 2026-09-16",
   "pages": [
     {
       "file": "bulletin_3T25.pdf",

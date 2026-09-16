@@ -53,14 +53,18 @@ whole document.
 
 | File | Content |
 |---|---|
-| `*_long.csv` | one observation per row: `REF_AREA, INDICATOR, TIME_PERIOD, OBS_VALUE, UNIT_MEASURE, OBS_STATUS, EXTRACTION_METHOD, SOURCE` plus the printed labels |
+| `*_long.csv` | one observation per row: `FREQ, REF_AREA, INDICATOR, TIME_PERIOD, OBS_VALUE, UNIT_MEASURE, UNIT_MULT, OBS_STATUS, TIME_PERIOD_LABEL, EXTRACTION_METHOD, SOURCE` plus the printed labels |
 | `*_sdmx.csv` | SDMX-CSV 2.0 |
 | `*_structure.xml` | SDMX-ML 2.1 structure message: DSD and dataflow `INS_NE:DF_PDF2SDMX(1.0)` |
 | `*_data.xml` | SDMX-ML 2.1 data message |
 | `*_to_review.csv` | every cell that failed a check, with the reason |
 
-Region codes follow ISO 3166-2:NE. `OBS_STATUS` is `A` for a value that passed every
-check and `E` for a value that failed one. Nothing is dropped silently.
+Component ids follow the SDMX cross-domain concepts, the same ones the World Bank WDI DSD
+uses (`FREQ, REF_AREA, TIME_PERIOD, OBS_VALUE, UNIT_MULT`). Region codes follow ISO 3166-2:NE.
+`OBS_STATUS` uses CL_OBS_STATUS 2.3: `A` for a value that passed every check, `U` (low
+reliability) for one that failed. A campaign printed `2024/2025` becomes the SDMX reporting
+year `2024-A1`, with the printed text kept in `TIME_PERIOD_LABEL`. Nothing is dropped silently.
+The comparison with the WDI DSD is in `ARCHITECTURE.md`.
 
 ## Run it
 

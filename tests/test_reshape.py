@@ -33,7 +33,9 @@ def test_regions_get_iso_codes_and_units_come_from_headers():
     assert set(long["REF_AREA"]) == {"NE-4", "NE-6", "NE"}
     assert set(long["INDICATOR"]) == {"AREA_HA", "PROD_T"}
     assert set(long["UNIT_MEASURE"]) == {"ha", "t"}
-    assert (long["TIME_PERIOD"] == "2024/2025").all()
+    assert (long["TIME_PERIOD"] == "2024-A1").all()  # SDMX reporting year, start year
+    assert (long["TIME_PERIOD_LABEL"] == "2024/2025").all()
+    assert (long["FREQ"] == "A").all() and (long["UNIT_MULT"] == "0").all()
 
 
 def test_years_in_header_become_time_period():
@@ -66,7 +68,7 @@ def test_failed_check_flags_observation_status():
         checks=checks,
     )
     flagged = long[(long["REF_AREA"] == "NE") & (long["INDICATOR"] == "PROD_T")]
-    assert flagged["OBS_STATUS"].iloc[0] == "E"
+    assert flagged["OBS_STATUS"].iloc[0] == "U"  # CL_OBS_STATUS: low reliability
     assert (long.drop(flagged.index)["OBS_STATUS"] == "A").all()
 
 
@@ -84,7 +86,7 @@ def test_sdmx_csv_and_ml_round_trip():
         checks=run_checks(frame),
     )
     csv = sdmx_out.to_sdmx_csv(long)
-    assert csv.startswith("STRUCTURE,STRUCTURE_ID,ACTION,REF_AREA,INDICATOR,TIME_PERIOD,OBS_VALUE")
+    assert csv.startswith("STRUCTURE,STRUCTURE_ID,ACTION,FREQ,REF_AREA,INDICATOR,TIME_PERIOD,OBS_VALUE")
     assert csv.count("\n") == len(long) + 1
 
     structure_xml, data_xml = sdmx_out.to_sdmx_ml(long)
@@ -125,3 +127,10 @@ def test_run_page_accepts_none_options(tmp_path):
     sample = settings.data_raw.parent / "samples" / "ins_bulletin_3T25_p20-23.pdf"
     result = pipeline.run_page(sample, 1, time_period=None, unit=None, subject=None)
     assert result.page == 1
+
+
+def test_sdmx_time_period_follows_the_reporting_year_convention():
+    assert reshape.sdmx_time_period("2024") == "2024"
+    assert reshape.sdmx_time_period("2024/2025") == "2024-A1"
+    assert reshape.sdmx_time_period("2023-2024") == "2023-A1"
+    assert reshape.sdmx_time_period("UNKNOWN") == "UNKNOWN"

@@ -28,6 +28,8 @@ CSS = """
 #status { min-height: 4.5rem; padding: 0.4rem 0; }
 #status p { margin: 0.15rem 0; }
 #progress { color: var(--body-text-color-subdued); font-size: 0.9rem; }
+#hint { color: var(--body-text-color-subdued); padding: 0.4rem 0 0.8rem 0; }
+#pages .grid-wrap { padding: 0.2rem 0; }
 footer { display: none !important; }
 """
 
@@ -35,7 +37,10 @@ INTRO = (
     "Drop an INS Niger PDF report. Every page is read, each table is checked for arithmetic "
     "consistency, and the result comes out as SDMX. Each number keeps the name of the stage that read it."
 )
-PLACEHOLDER = "The tables will appear here, page by page."
+PLACEHOLDER = (
+    "Drop a PDF on the left and press Start. Each page with a table shows up here as a "
+    "thumbnail; click one to see its tables. The CSV and SDMX files build up as pages are read."
+)
 
 
 def process(file, pages_text, time_period, unit, subject):
@@ -47,31 +52,48 @@ def process(file, pages_text, time_period, unit, subject):
     pages = pipeline.parse_pages(pages_text or "", n_pages) or list(range(1, n_pages + 1))
     options = {"time_period": time_period, "unit": unit, "subject": subject}
 
-    results: list[PageResult] = []
+    found: list[dict] = []  # one entry per page with a table: result and its rendered preview
     for index, page in enumerate(pages, 1):
         preview = pipeline.render_page(pdf_path, page)
-        yield _state(preview, f"Page {page} / {n_pages}, reading", results, None)
+        yield _state(preview, f"Page {page} / {n_pages}, reading", found, None)
         result = pipeline.run_page(pdf_path, page, **options)
         if not result.long.empty:
-            results.append(result)
-        yield _state(preview, f"Page {page} / {n_pages}, {index} of {len(pages)} done", results, result)
+            found.append({"result": result, "preview": preview})
+        yield _state(preview, f"Page {page} / {n_pages}, {index} of {len(pages)} done", found, result)
 
-    if not results:
-        yield _state(None, f"Done, {len(pages)} pages read, no table found", results, None)
+    if not found:
+        yield _state(None, f"Done, {len(pages)} pages read, no table found", found, None)
         return
+    results = [f["result"] for f in found]
     files = _output_files(pdf_path, results)
     archive = _write_archive(pdf_path, files)
-    yield _state(None, f"Done, {len(pages)} pages read", results, results[-1], archive, files)
+    yield _state(None, f"Done, {len(pages)} pages read", found, results[-1], archive, files)
 
 
-def _state(preview, progress, results, current, archive=None, files=None):
+def show_page(found: list[dict], evt: gr.SelectData):
+    """Gallery click: show that page on the left and its tables on the right."""
+    entry = found[evt.index]
+    result = entry["result"]
+    return (
+        gr.update(value=entry["preview"], visible=True),
+        f"Page {result.page}, {len(result.tables)} table{'s' if len(result.tables) > 1 else ''}",
+        *table_slots(result),
+    )
+
+
+def _state(preview, progress, found, current, archive=None, files=None):
     """Values for every output component, in the order declared in build()."""
     files = files or {}
+    results = [f["result"] for f in found]
     return (
         gr.update(value=preview, visible=True) if preview is not None else gr.update(),
         progress,
-        summary_markdown(results),
+        gr.update(visible=not results),
+        gr.update(value=summary_markdown(results), visible=bool(results)),
         gr.update(value=archive, visible=archive is not None),
+        gr.update(visible=bool(found)),
+        gr.update(value=[_gallery_item(f) for f in found], visible=bool(found)),
+        found,
         *table_slots(current),
         pipeline.combine(results) if results else pd.DataFrame(),
         _preview_text(files, "_sdmx.csv"),
@@ -79,6 +101,12 @@ def _state(preview, progress, results, current, archive=None, files=None):
         checks_frame(results),
         attempts_frame(results),
     )
+
+
+def _gallery_item(entry: dict) -> tuple:
+    result = entry["result"]
+    n = len(result.tables)
+    return entry["preview"], f"p. {result.page}, {n} table{'s' if n > 1 else ''}"
 
 
 def _preview_text(files: dict[str, str | bytes], suffix: str, max_lines: int = 80) -> str:
@@ -114,9 +142,9 @@ def table_slots(current: PageResult | None) -> list:
 
 def summary_markdown(results: list[PageResult]) -> str:
     if not results:
-        return PLACEHOLDER
+        return ""
     long = pipeline.combine(results)
-    flagged = int((long["OBS_STATUS"] == "E").sum())
+    flagged = int((long["OBS_STATUS"] != "A").sum())
     fails = sum(r.check_counts["fail"] for r in results)
     stages = long["EXTRACTION_METHOD"].value_counts().to_dict()
     stage_text = ", ".join(f"{k} {v}" for k, v in stages.items())
@@ -218,30 +246,63 @@ def build() -> gr.Blocks:
                     unit = gr.Textbox(label="Default unit", placeholder="used when the header has none")
                     subject = gr.Textbox(label="Table subject", placeholder="e.g. Campagne agricole")
             with gr.Column(scale=2):
-                status = gr.Markdown(PLACEHOLDER, elem_id="status")
+                hint = gr.Markdown(PLACEHOLDER, elem_id="hint")
+                status = gr.Markdown(elem_id="status", visible=False)
                 archive = gr.File(label="Download the zip: long CSV, SDMX-CSV, SDMX-ML, cells to review", visible=False)
+                gallery_title = gr.Markdown("**Pages with tables.** Click one to see it.", visible=False)
+                gallery = gr.Gallery(
+                    show_label=False,
+                    columns=8,
+                    height=140,
+                    object_fit="contain",
+                    allow_preview=False,
+                    visible=False,
+                    elem_id="pages",
+                )
+                found = gr.State([])
                 with gr.Tabs():
-                    with gr.Tab("Tables as printed"):
+                    with gr.Tab("Tables"):
                         tables = [
                             gr.Dataframe(wrap=True, interactive=False, max_height=600, visible=False)
                             for _ in range(TABLE_SLOTS)
                         ]
-                    with gr.Tab("CSV, one row per number"):
+                    with gr.Tab("CSV"):
+                        gr.Markdown(
+                            "One row per number, with region, indicator, period, unit and the stage that read it."
+                        )
                         long = gr.Dataframe(interactive=False, wrap=True, max_height=700)
                     with gr.Tab("SDMX-CSV"):
                         sdmx_csv = gr.Code(language=None, interactive=False, max_lines=40)
                     with gr.Tab("SDMX-ML"):
                         sdmx_xml = gr.Code(language=None, interactive=False, max_lines=40)
-                    with gr.Tab("Checks"):
-                        gr.Markdown("Failed and warned checks. A failed cell is kept in the CSV with OBS_STATUS = E.")
+                    with gr.Tab("Checks and stages"):
+                        gr.Markdown(
+                            "Failed and warned checks. A failed cell stays in the CSV "
+                            "with OBS_STATUS = U (low reliability)."
+                        )
                         checks = gr.Dataframe(interactive=False, wrap=True)
-                    with gr.Tab("Stages"):
                         gr.Markdown("Which extraction stage ran on each page, and how many checks its tables failed.")
                         attempts = gr.Dataframe(interactive=False)
 
-        outputs = [preview, progress, status, archive, *tables, long, sdmx_csv, sdmx_xml, checks, attempts]
+        outputs = [
+            preview,
+            progress,
+            hint,
+            status,
+            archive,
+            gallery_title,
+            gallery,
+            found,
+            *tables,
+            long,
+            sdmx_csv,
+            sdmx_xml,
+            checks,
+            attempts,
+        ]
         run_event = start.click(process, [file, pages_text, time_period, unit, subject], outputs)
         stop.click(None, cancels=[run_event])
+        gallery.select(show_page, found, [preview, progress, *tables])
         sample.click(load_sample, outputs=[file, preview])
         file.upload(show_first_page, file, preview)
     return demo

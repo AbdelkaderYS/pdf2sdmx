@@ -35,8 +35,8 @@ def main() -> None:
     obs = pd.read_csv(ROOT / "data" / "processed" / "observations.csv")
     data_date = obs["DATA_DATE"].iloc[0]
     obs = obs[obs["INDICATOR"].isin(CROPS) & obs["REF_AREA"].isin(REGION_ORDER) & (obs["OBS_STATUS"] == "A")]
-    periods = sorted(obs["TIME_PERIOD"].unique())
-    table = obs.pivot_table(index=["INDICATOR", "REF_AREA"], columns="TIME_PERIOD", values="OBS_VALUE") / 1000
+    periods = sorted(obs["TIME_PERIOD_LABEL"].unique())
+    table = obs.pivot_table(index=["INDICATOR", "REF_AREA"], columns="TIME_PERIOD_LABEL", values="OBS_VALUE") / 1000
 
     setup()
     fig, axes = plt.subplots(1, len(CROPS), figsize=(DOUBLE_COLUMN, 2.4), sharey=False)
