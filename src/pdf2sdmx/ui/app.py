@@ -5,6 +5,7 @@ result on the right as pages are processed. Details stay folded until asked for.
 """
 
 import tempfile
+import time
 import zipfile
 from pathlib import Path
 
@@ -52,22 +53,38 @@ def process(file, pages_text, time_period, unit, subject):
     pages = pipeline.parse_pages(pages_text or "", n_pages) or list(range(1, n_pages + 1))
     options = {"time_period": time_period, "unit": unit, "subject": subject}
 
+    started = time.perf_counter()
     found: list[dict] = []  # one entry per page with a table: result and its rendered preview
+    preview = None
     for index, page in enumerate(pages, 1):
         preview = pipeline.render_page(pdf_path, page)
-        yield _state(preview, f"Page {page} / {n_pages}, reading", found, None)
+        yield _state(preview, f"Reading page {page} of {n_pages} ({index}/{len(pages)})...", found, None)
         result = pipeline.run_page(pdf_path, page, **options)
         if not result.long.empty:
             found.append({"result": result, "preview": preview})
-        yield _state(preview, f"Page {page} / {n_pages}, {index} of {len(pages)} done", found, result)
+            note = f"{len(result.tables)} table{'s' if len(result.tables) > 1 else ''} found"
+        else:
+            note = "no table"
+        yield _state(preview, f"Page {page} of {n_pages}: {note}", found, result)
 
+    # Gradio may drop intermediate yields, so the last one carries the full final state.
+    elapsed = f"{time.perf_counter() - started:.0f} s"
     if not found:
-        yield _state(None, f"Done, {len(pages)} pages read, no table found", found, None)
+        yield _state(preview, f"Done in {elapsed}: {len(pages)} pages read, no table found", found, None)
         return
     results = [f["result"] for f in found]
     files = _output_files(pdf_path, results)
     archive = _write_archive(pdf_path, files)
-    yield _state(None, f"Done, {len(pages)} pages read", found, results[-1], archive, files)
+    n_tables = sum(len(r.tables) for r in results)
+    last = found[-1]
+    yield _state(
+        last["preview"],
+        f"Done in {elapsed}: {len(pages)} pages read, {n_tables} tables found",
+        found,
+        last["result"],
+        archive,
+        files,
+    )
 
 
 def show_page(found: list[dict], evt: gr.SelectData):
@@ -300,11 +317,14 @@ def build() -> gr.Blocks:
             checks,
             attempts,
         ]
-        run_event = start.click(process, [file, pages_text, time_period, unit, subject], outputs)
+        # The page loop reports its own progress; Gradio's elapsed-time overlay would only add noise.
+        run_event = start.click(
+            process, [file, pages_text, time_period, unit, subject], outputs, show_progress="hidden"
+        )
         stop.click(None, cancels=[run_event])
-        gallery.select(show_page, found, [preview, progress, *tables])
-        sample.click(load_sample, outputs=[file, preview])
-        file.upload(show_first_page, file, preview)
+        gallery.select(show_page, found, [preview, progress, *tables], show_progress="hidden")
+        sample.click(load_sample, outputs=[file, preview], show_progress="hidden")
+        file.upload(show_first_page, file, preview, show_progress="hidden")
     return demo
 
 

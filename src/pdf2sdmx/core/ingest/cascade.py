@@ -29,6 +29,10 @@ STAGES: list[tuple[str, Stage]] = [
     (docling_stage.METHOD, docling_stage.extract),
 ]
 
+# Measured on two INS bulletins: text and contents pages carry at most 83 digits, the
+# smallest table page 118. Below this the model stages are not worth their 15 seconds.
+MIN_DIGITS_FOR_A_TABLE = 100
+
 
 @dataclass
 class Attempt:
@@ -91,6 +95,10 @@ def run(pdf_path: Path, page_number: int, stages: list[tuple[str, Stage]] | None
     per_stage: dict[str, list[Candidate]] = {}
     best_rejected: Candidate | None = None
 
+    if stages is None and not _looks_like_a_table_page(pdf_path, page_number):
+        attempts.append(Attempt("text_scan", 0, None, 0.0, error=f"fewer than {MIN_DIGITS_FOR_A_TABLE} digits"))
+        return CascadeResult([], attempts)
+
     for name, stage in stages or STAGES:
         if name == docling_stage.METHOD and not docling_stage.available():
             attempts.append(Attempt(name, 0, None, 0.0, error="not installed"))
@@ -127,6 +135,11 @@ def run(pdf_path: Path, page_number: int, stages: list[tuple[str, Stage]] | None
         frame, row_methods = repair_rows(candidate, [donor] if donor else [])
         resolved.append(ResolvedTable(frame, candidate.gate, winner, row_methods))
     return CascadeResult(resolved, attempts)
+
+
+def _looks_like_a_table_page(pdf_path: Path, page_number: int) -> bool:
+    text = pdfplumber_stage.page_text(pdf_path, page_number)
+    return sum(c.isdigit() for c in text) >= MIN_DIGITS_FOR_A_TABLE
 
 
 def _gate_all(method: str, tables: list[ExtractedTable]) -> tuple[list[Candidate], Candidate | None]:
