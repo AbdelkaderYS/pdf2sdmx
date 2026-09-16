@@ -138,8 +138,8 @@ Where the conventions used here come from. Each was read on 2026-09-16 unless no
 | SDMX tools catalogue | official inventory of SDMX software, where this tool can be submitted once published | https://www.sdmx.io/software/ and https://github.com/SDMX-Outreach/sdmx-tools-catalogue |
 | sdmx1 | the Python library used here to write SDMX-ML | https://sdmx1.readthedocs.io/ |
 | Learning SDMX structural modelling | how a DSD is built: concepts, codelists, dimensions, attributes | https://www.sdmx.io/learning/essential-sdmx-structural-modelling/ |
-| AfDB Open Data Platform, Africa Information Highway | the portals INS Niger publishes on; ODP 2.0 is announced as SDMX native. SDMX documentation page not readable from here (bot check) | https://dataportal.opendataforafrica.org/ and https://dataportal.opendataforafrica.org/dev/opendata/sdmx?lang=en |
-| INS Niger open data portal | the existing Niger datasets, about 100, CC-BY 4.0 | https://niger.opendataforafrica.org/ |
+| AfDB Open Data Platform, Africa Information Highway | the portals INS Niger publishes on. Their SDMX endpoint returns SDMX-ML 2.0 with one KeyFamily per dataset (checked in a browser on 2026-09-16; scripted access is refused). ODP 2.0 is announced as SDMX native | https://dataportal.opendataforafrica.org/ and https://dataportal.opendataforafrica.org/api/1.0/sdmx |
+| INS Niger open data portal | the existing Niger datasets, about 100, CC-BY 4.0. Agriculture datasets: `nxlreub` Production Agricole, `kfvhzqc` Données sur l'Agriculture, `wvovabg` Statistiques de l'Elevage | https://niger.opendataforafrica.org/ and https://niger.opendataforafrica.org/api/1.0/sdmx |
 | INS Niger publications | the PDF bulletins this tool reads | https://www.stat-niger.org/ |
 
 ## Layout

@@ -18,6 +18,8 @@ from pdf2sdmx.core.pipeline import PageResult
 
 ACCENT = "teal"
 TABLE_SLOTS = 3
+COMPACT_HEIGHT = 380
+TALL_HEIGHT = 1000
 SAMPLE = settings.data_raw.parent / "samples" / "ins_bulletin_3T25_p20-23.pdf"
 STATUS_MARK = {"pass": "ok", "fail": "FAIL", "warn": "warn", "skip": "skip"}
 
@@ -38,6 +40,30 @@ INTRO = (
     "Drop an INS Niger PDF report. Every page is read, each table is checked for arithmetic "
     "consistency, and the result comes out as SDMX. Each number keeps the name of the stage that read it."
 )
+GUIDE = """
+**What this does.** INS Niger publishes its statistics as PDF reports. This tool reads every
+page, finds the tables, checks the numbers, and writes them in SDMX, the format that
+statistical offices, the World Bank and the African Development Bank use to exchange data.
+
+**How to use it.** Drop a PDF on the left (or click *Load the sample*), press *Start*, wait.
+Pages scroll on the left as they are read. Every page with a table becomes a thumbnail on the
+right; click one to see its tables. At the end, download the zip.
+
+**How to read the result.**
+
+- *Tables* shows each table as printed in the PDF.
+- *CSV* is the same data with one number per row: region, indicator, period, value, unit.
+- *SDMX-CSV* and *SDMX-ML* are the two standard SDMX formats of that CSV.
+- *Read by* says which tool read each number. `pdfplumber` reads the text layer of the PDF.
+  `camelot_ml` uses a model to find rows and columns when the text layer is ambiguous.
+- *Flagged for review* counts numbers that failed an arithmetic check (regions that do not
+  add up to the total, area x yield that does not match production). They stay in the CSV,
+  marked `OBS_STATUS = U`, low reliability, never silently dropped.
+
+**What it is not.** Not an official INS product. Codes for regions and indicators are the
+tool's own until INS publishes a data structure to replace them.
+"""
+
 PLACEHOLDER = (
     "Drop a PDF on the left and press Start. Each page with a table shows up here as a "
     "thumbnail; click one to see its tables. The CSV and SDMX files build up as pages are read."
@@ -248,6 +274,8 @@ def build() -> gr.Blocks:
     with gr.Blocks(title="pdf2sdmx") as demo:
         with gr.Row(elem_id="header"):
             gr.Markdown(f"# pdf2sdmx\n\n{INTRO}")
+        with gr.Accordion("How it works, in one minute", open=False):
+            gr.Markdown(GUIDE)
         with gr.Row():
             with gr.Column(scale=1):
                 file = gr.File(label="Drop a PDF here", file_types=[".pdf"], type="filepath", height=110)
@@ -279,8 +307,18 @@ def build() -> gr.Blocks:
                 found = gr.State([])
                 with gr.Tabs():
                     with gr.Tab("Tables"):
+                        with gr.Row():
+                            table_height = gr.Radio(
+                                choices=["Compact", "Tall"],
+                                value="Compact",
+                                label="Table height",
+                                show_label=False,
+                                container=False,
+                                scale=0,
+                                min_width=220,
+                            )
                         tables = [
-                            gr.Dataframe(wrap=True, interactive=False, max_height=600, visible=False)
+                            gr.Dataframe(wrap=True, interactive=False, max_height=COMPACT_HEIGHT, visible=False)
                             for _ in range(TABLE_SLOTS)
                         ]
                     with gr.Tab("CSV"):
@@ -292,14 +330,14 @@ def build() -> gr.Blocks:
                         sdmx_csv = gr.Code(language=None, interactive=False, max_lines=40)
                     with gr.Tab("SDMX-ML"):
                         sdmx_xml = gr.Code(language=None, interactive=False, max_lines=40)
-                    with gr.Tab("Checks and stages"):
-                        gr.Markdown(
-                            "Failed and warned checks. A failed cell stays in the CSV "
-                            "with OBS_STATUS = U (low reliability)."
-                        )
-                        checks = gr.Dataframe(interactive=False, wrap=True)
-                        gr.Markdown("Which extraction stage ran on each page, and how many checks its tables failed.")
-                        attempts = gr.Dataframe(interactive=False)
+                with gr.Accordion("Technical details: checks and extraction stages", open=False):
+                    gr.Markdown(
+                        "Failed and warned checks. A failed cell stays in the CSV "
+                        "with OBS_STATUS = U (low reliability)."
+                    )
+                    checks = gr.Dataframe(interactive=False, wrap=True)
+                    gr.Markdown("Which extraction stage ran on each page, and how many checks its tables failed.")
+                    attempts = gr.Dataframe(interactive=False)
 
         outputs = [
             preview,
@@ -322,10 +360,16 @@ def build() -> gr.Blocks:
             process, [file, pages_text, time_period, unit, subject], outputs, show_progress="hidden"
         )
         stop.click(None, cancels=[run_event])
+        table_height.change(resize_tables, table_height, tables, show_progress="hidden")
         gallery.select(show_page, found, [preview, progress, *tables], show_progress="hidden")
         sample.click(load_sample, outputs=[file, preview], show_progress="hidden")
         file.upload(show_first_page, file, preview, show_progress="hidden")
     return demo
+
+
+def resize_tables(choice: str) -> list:
+    height = TALL_HEIGHT if choice == "Tall" else COMPACT_HEIGHT
+    return [gr.update(max_height=height) for _ in range(TABLE_SLOTS)]
 
 
 def show_first_page(file):

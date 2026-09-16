@@ -111,10 +111,21 @@ traceability.
 | REF_AREA | ISO 3166-1 alpha-3 (`NER`) | ISO 3166-1 alpha-2 (`NE`) and ISO 3166-2 (`NE-1` to `NE-8`), `_T` for totals | the SDMX cross-domain `CL_AREA` uses alpha-2; regions have no WDI equivalent |
 | Indicator codes | WDI series ids such as `AG.PRD.CREL.MT` | `MILLET_PROD_T`, from `mapping/labels_to_codes.csv` | local codes; to be replaced by the INS DSD when one exists |
 
-African Development Bank: ODP 2.0 is announced as SDMX native (workshop Addis Ababa, July
-2025) but its structure documentation sits behind a bot check and could not be read on
-2026-09-16. Nothing here is claimed about its DSD. The ODP 1.x portals
-(niger.opendataforafrica.org) run on Knoema, whose SDMX export builds one DSD per dataset.
+African Development Bank and INS Niger portals, checked by the project owner in a browser
+on 2026-09-16 (the endpoints refuse scripted access):
+
+- `https://dataportal.opendataforafrica.org/api/1.0/sdmx` and
+  `https://niger.opendataforafrica.org/api/1.0/sdmx` answer with an SDMX-ML **2.0** structure
+  message (namespaces `.../SDMXML/schemas/v2_0/...`), sender `Knoema`.
+- The message lists one `KeyFamily` (the SDMX 2.0 name for a DSD) per dataset, with an
+  opaque id and a name. Niger datasets relevant here: `nxlreub` Production Agricole,
+  `wvovabg` Statistiques de l'Elevage, `kfvhzqc` Données sur l'Agriculture.
+- The dimension names inside those KeyFamilies were not read yet. Next step for question
+  Q4 of the brief: open `https://niger.opendataforafrica.org/api/1.0/sdmx/nxlreub` and
+  compare its dimensions and codelists with `REF_AREA`, `INDICATOR`, `TIME_PERIOD` here.
+- pdf2sdmx writes SDMX-ML 2.1 and SDMX-CSV 2.0. SDMX 2.1 is the version the World Bank API
+  serves and the one sdmx1 writes; the Knoema portals still speak 2.0. ODP 2.0 is announced
+  as SDMX native (Addis Ababa workshop, July 2025); its version was not verified.
 
 Units are written as printed (`ha`, `kg/ha`, `t`); the SDMX `CL_UNIT_MEASURE` codes were not
 verified and are not claimed.
