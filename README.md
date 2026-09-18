@@ -42,6 +42,25 @@ checks work on this layout", not as a general accuracy figure. The number that m
 more is the zero: no wrong value reached the output on either page, because every
 unreadable cell was refused and listed rather than passed through.
 
+Across two whole 71-page reports, with no page selected by hand:
+
+| | 1st quarter 2024 | 3rd quarter 2025 |
+|---|---|---|
+| Pages holding a table | 42 / 71 | 43 / 71 |
+| Tables read | 53 | 57 |
+| Tables shown under the caption printed above them | 43 | 46 |
+| Observations | 5 943 | 5 875 |
+| Observations covered by an arithmetic check | 10% | 10% |
+| Observations flagged for review | 376 | 373 |
+| Values written as an invalid SDMX time period | 0 | 0 |
+| SDMX-ML 2.1 against the official schemas | valid | valid |
+
+Read the 10% before anything else. It is the share of numbers that an arithmetic check
+actually touched. The other 90% carry `OBS_STATUS = A` because nothing contradicted them,
+not because anything confirmed them, and the interface says so on screen rather than
+leaving a reader to assume otherwise. Raising that share means more checks, not more
+extraction.
+
 ![Cereal production by region](figures/production_by_region.png)
 
 ## What comes out
@@ -84,6 +103,7 @@ make install-ml       # adds Camelot ml with CPU torch, about 400 MB
 # stage 3, vision, optional: Baidu's CPU wheel first, then the OCR package
 pip install paddlepaddle==3.2.1 -i https://www.paddlepaddle.org.cn/packages/stable/cpu/
 pip install "paddleocr[doc-parser]"     # PaddleOCR-VL 1.6 downloads its model on first use
+make schemas          # official SDMX 2.1 schemas, once, for the conformance check
 python app.py         # UI and API on http://localhost:7860, docs at /docs
 ```
 
@@ -93,6 +113,28 @@ the measurements are downloaded by `python -m pdf2sdmx.core.ingest.refresh`, whi
 writes `data/processed/observations.csv` with a `DATA_DATE` column.
 
 API: `GET /health`, `GET /metadata`, `POST /extract` (multipart PDF + page), `GET /metrics`.
+
+## Deploy it
+
+The Space runs on the Gradio SDK, so it installs `requirements.txt` and runs `app.py`. It
+never builds the Dockerfile, which is there for `docker compose up` only. Anything the app
+needs at run time, including the SDMX schemas, is fetched by the warm-up thread in
+`app.py`.
+
+```bash
+huggingface-cli login
+huggingface-cli repo create pdf2sdmx --type space --space_sdk gradio
+git remote add space https://huggingface.co/spaces/<user>/pdf2sdmx
+git push space main
+```
+
+The YAML header at the top of this file is what the Space reads: `sdk_version` pins Gradio,
+`app_file` points at the entry point. Keep `sdk_version` equal to the Gradio version the
+numbers above were measured on, or the interface may shift under you.
+
+First start takes a few minutes: the Table Transformer models are about 230 MB and the
+sample PDFs are downloaded. Until the schemas land, the badge reads "not checked" rather
+than claiming a conformance nobody verified.
 
 ## Measure it yourself
 
@@ -107,20 +149,32 @@ Add a page: transcribe 10 to 30 cells into `truth/<pdf stem>_p<page>_truth.csv`
 
 ## Limits
 
-- Two documents, one table type, one country. The layout logic (nested row labels,
-  regions in columns, a total column named ENSEMBLE) was written against the INS
-  quarterly bulletin. Other publications will need their own mapping rows and possibly
-  new checks.
+- Two documents, one country. The layout logic (nested row labels, regions in columns, a
+  total column, periods as column names) was written against these reports. Other
+  publications will need their own mapping rows and possibly new checks, and the run says
+  page by page when a table was refused and why.
+- Only 10% of the observations are covered by an arithmetic check. A table with no total
+  row, no total column and no area-yield-production triple has every check skipped, and its
+  numbers leave unverified.
+- A check validates numbers, not meaning. A table whose header was misread can still add
+  up. That is why an unnamed header now counts as a failed check, but a header that is
+  wrong rather than missing is not caught.
+- Pages holding a table in landscape, or a table running across two pages, are not handled
+  yet. The caption inventory that would measure what is missed is not built.
 - The DSD is built by the tool. No official INS Niger DSD was found; when one exists the
   codes in `mapping/labels_to_codes.csv` should be replaced by it.
-- Stage 3 (PaddleOCR-VL 1.6, vision) is wired but not installed in the Space. The two sample
-  bulletins have a text layer, so it was never needed. Scanned reports would need it.
+- Conformance is checked against the XSD schemas, which validate the shape of the message.
+  They do not check that a code exists in its code list or that a period is real. A
+  registry such as FMR would.
+- Stage 3 (PaddleOCR-VL 1.6, vision) is wired but not installed in the Space. The sample
+  reports have a text layer, so it was never needed. Scanned reports would need it, and the
+  interface states whether it is installed.
 - Camelot ml downloads two Table Transformer models (about 230 MB) at Space start-up.
   Stage 2 takes about 15 s per page on CPU; stage 1 takes 2 s.
 - Row repair only swaps a row when the donor agrees on every cell the winner already read
   and the page-level failure count does not rise. It cannot fix a row both stages misread.
-- Ground truth was transcribed from the rendered page image by the author of this
-  repository, not by INS. It should be re-checked by a second person.
+- Ground truth was transcribed from the rendered page image for this repository, not by
+  INS. It should be re-checked by a second person.
 - The cross-edition jump check cannot say which edition is wrong. It lists both.
 - No update is guaranteed. The refresh job runs quarterly and only downloads PDFs already
   listed in `data/sources.csv`; someone has to add new bulletins to that list.

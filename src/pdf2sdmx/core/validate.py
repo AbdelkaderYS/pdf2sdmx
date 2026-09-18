@@ -15,7 +15,8 @@ RATE_HEADER = re.compile(r"kg/ha|%|taux|rendement|moyen|ratio|prix|indice|part\b
 AREA_HEADER = re.compile(r"superficie|surface", re.I)
 YIELD_HEADER = re.compile(r"rendement", re.I)
 PRODUCTION_HEADER = re.compile(r"production", re.I)
-YEAR_HEADER = re.compile(r"^(19|20)\d{2}(\s*[/-]\s*(19|20)?\d{2})?$")
+# A year, a range of years, either followed by a footnote marker such as * or (p).
+YEAR_HEADER = re.compile(r"^(19|20)\d{2}(\s*[/-]\s*(19|20)?\d{2})?\s*(\*+|\(\s*[a-z]{1,4}\s*\))?$", re.I)
 # The name table._default_header gives a column when no header row was found.
 PLACEHOLDER_COLUMN = re.compile(r"^col(_\d+)?$")
 

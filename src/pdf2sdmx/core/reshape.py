@@ -9,8 +9,8 @@ from rapidfuzz import fuzz, process
 from rapidfuzz.utils import default_process
 
 from pdf2sdmx.core.numbers import parse_number
-from pdf2sdmx.core.table import LABEL_JOIN
-from pdf2sdmx.core.validate import YEAR_HEADER, Check, row_labels
+from pdf2sdmx.core.table import LABEL_JOIN, PERIOD_HEADER
+from pdf2sdmx.core.validate import Check, row_labels
 
 # Column ids follow the SDMX cross-domain concepts (FREQ, REF_AREA, TIME_PERIOD, OBS_VALUE,
 # UNIT_MEASURE, UNIT_MULT, OBS_STATUS), the same ids the World Bank WDI DSD uses.
@@ -33,9 +33,13 @@ MATCH_THRESHOLD = 88
 UNIT_IN_HEADER = re.compile(r"\(([^)]+)\)\s*$")
 DUPLICATE_SUFFIX = re.compile(r"\s\(\d+\)$")
 SPLIT_YEAR = re.compile(r"^((?:19|20)\d{2})\s*[/-]\s*(?:19|20)?\d{2}$")
-# A quarter written "1 T24" or, less often, "T1 2024".
-QUARTER_THEN_YEAR = re.compile(r"^([1-4])\s*T\s*((?:19|20)?\d{2})$", re.I)
-QUARTER_BEFORE_YEAR = re.compile(r"^T\s*([1-4])\s*((?:19|20)?\d{2})$", re.I)
+# A quarter written "1 T24" or, less often, "T1 2024". Bounded by word breaks rather than
+# anchored, so a quarter is still found inside a name that carries its year as well.
+QUARTER_THEN_YEAR = re.compile(r"\b([1-4])\s*T\s*((?:19|20)?\d{2})\b", re.I)
+QUARTER_BEFORE_YEAR = re.compile(r"\bT\s*([1-4])\s*((?:19|20)?\d{2})\b", re.I)
+# A marker printed next to a period, meaning provisional, estimated or revised:
+# "2010*", "2023 (p)", "2 T23r".
+FOOTNOTE_MARKER = re.compile(r"(?:\s*\*+|\s*\(\s*(?:p|e|r|prov|est|rev)\s*\)|(?<=\d)[pre])\s*$", re.I)
 # Characters an SDMX code id may not contain. The standard allows A-Z a-z 0-9 and _ @ $ -
 NOT_IN_A_CODE = re.compile(r"[^A-Za-z0-9_@$-]+")
 PLAIN_YEAR = re.compile(r"^(?:19|20)\d{2}$")
@@ -110,13 +114,15 @@ def sdmx_time_period(printed: str) -> str:
     printed "1 T24" becomes "2024-Q1". Anything else is returned unchanged and will not
     validate as a time period.
     """
-    text = printed.strip()
+    text = _without_footnote(printed.strip())
     if PLAIN_YEAR.match(text):
         return text
     split = SPLIT_YEAR.match(text)
     if split:
         return f"{split.group(1)}-A1"
-    quarter = QUARTER_THEN_YEAR.match(text) or QUARTER_BEFORE_YEAR.match(text)
+    # A search rather than a match: two header rows merged into "2021 1 T21" name the same
+    # quarter twice, and the quarter is the one that carries the information.
+    quarter = QUARTER_THEN_YEAR.search(text) or QUARTER_BEFORE_YEAR.search(text)
     if quarter:
         return f"{_four_digit_year(quarter.group(2))}-Q{quarter.group(1)}"
     return text
@@ -129,6 +135,16 @@ def sdmx_frequency(time_period: str) -> str:
     return "A"
 
 
+def _without_footnote(text: str) -> str:
+    """Drop a footnote marker glued to a period, so "2010*" and "2023 (p)" become periods.
+
+    The marker usually means provisional or revised. It is not dropped from the printed
+    label, which TIME_PERIOD_LABEL keeps as it stands.
+    """
+    stripped = FOOTNOTE_MARKER.sub("", text).strip()
+    return stripped or text
+
+
 def _four_digit_year(year: str) -> str:
     """A quarter is often printed with a two digit year, as in "1 T24". Read it as 20xx."""
     if len(year) == 2:
@@ -137,9 +153,12 @@ def _four_digit_year(year: str) -> str:
 
 
 def _axis_kind(labels: list[str], mapping: pd.DataFrame) -> str:
-    """ "area", "year" or "other", by majority of the labels on that axis."""
+    """ "area", "year" or "other", by majority of the labels on that axis.
+
+    "year" covers any period, a quarter as much as a year, since both become TIME_PERIOD.
+    """
     clean = [_strip_suffix(lb) for lb in labels]
-    if clean and sum(bool(YEAR_HEADER.match(lb.strip())) for lb in clean) / len(clean) >= 0.5:
+    if clean and sum(bool(PERIOD_HEADER.match(lb.strip())) for lb in clean) / len(clean) >= 0.5:
         return "year"
     if _share_matching(clean, mapping, "REF_AREA") >= 0.5:
         return "area"
@@ -149,11 +168,25 @@ def _axis_kind(labels: list[str], mapping: pd.DataFrame) -> str:
 def _assign_axes(row: str, column: str, row_kind: str, col_kind: str, subject: str, period: str):
     """Returns (area label, indicator label, time period) for one cell."""
     row_clean, col_clean = _strip_suffix(row), column.strip()
+    row_kind = _kind_of_label(row_clean, row_kind)
+    col_kind = _kind_of_label(col_clean, col_kind)
     area = row_clean if row_kind == "area" else col_clean if col_kind == "area" else ""
     time = row_clean if row_kind == "year" else col_clean if col_kind == "year" else period
     leftovers = [lb for lb, kind in ((row_clean, row_kind), (col_clean, col_kind)) if kind == "other"]
     indicator = LABEL_JOIN.join(leftovers) if leftovers else subject
     return area, indicator, time
+
+
+def _kind_of_label(label: str, axis_kind: str) -> str:
+    """The axis is classified by majority, one label at a time can still disagree.
+
+    A table of periods often ends with a column such as a variation or a share. Forcing it
+    into TIME_PERIOD would write a sentence where a period belongs, so it becomes one more
+    indicator instead.
+    """
+    if axis_kind == "year" and not PERIOD_HEADER.match(label):
+        return "other"
+    return axis_kind
 
 
 def _indicator(label: str, mapping: pd.DataFrame) -> tuple[str, str]:

@@ -151,3 +151,47 @@ def test_sdmx_code_replaces_characters_the_standard_forbids():
 def test_sdmx_code_never_returns_an_empty_id():
     assert reshape.sdmx_code("") == "UNKNOWN"
     assert reshape.sdmx_code("   ") == "UNKNOWN"
+
+
+def test_a_quarter_becomes_an_sdmx_quarter_and_carries_its_frequency():
+    assert reshape.sdmx_time_period("1 T24") == "2024-Q1"
+    assert reshape.sdmx_time_period("T1 2024") == "2024-Q1"
+    assert reshape.sdmx_frequency("2024-Q1") == "Q"
+    assert reshape.sdmx_frequency("2024-A1") == "A"
+
+
+def test_a_footnote_marker_does_not_spoil_a_period():
+    """A printed period often carries a provisional or revised marker."""
+    assert reshape.sdmx_time_period("2010*") == "2010"
+    assert reshape.sdmx_time_period("2023 (p)") == "2023"
+    assert reshape.sdmx_time_period("2024/2025*") == "2024-A1"
+
+
+def test_a_marker_on_its_own_is_left_alone():
+    """Stripping everything would invent a period out of nothing."""
+    assert reshape.sdmx_time_period("(p)") == "(p)"
+
+
+def test_a_revision_marker_on_a_quarter_is_dropped():
+    assert reshape.sdmx_time_period("2 T23r") == "2023-Q2"
+
+
+def test_a_merged_two_level_header_keeps_the_quarter():
+    """Two header rows join into one name that says the same period twice."""
+    assert reshape.sdmx_time_period("2021 1 T21") == "2021-Q1"
+
+
+def test_a_column_that_is_not_a_period_stays_an_indicator():
+    """A table of periods often ends with a variation column. It is not a period."""
+    frame = pd.DataFrame(
+        {
+            "Désignation": ["Serie A", "Serie B"],
+            "2022": ["10", "20"],
+            "2023": ["12", "24"],
+            "Variation en glissement annuel (%)": ["20", "20"],
+        }
+    )
+    long = reshape.to_long(frame, mapping=MAPPING, time_period="2023", unit="", method="m", source="s", checks=[])
+    periods = set(long["TIME_PERIOD"])
+    assert periods == {"2022", "2023"}
+    assert any("VARIATION" in code for code in long["INDICATOR"])

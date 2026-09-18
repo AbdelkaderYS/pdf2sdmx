@@ -1,13 +1,19 @@
+# What the Hugging Face Space installs. The Space runs on the Gradio SDK, so it never
+# builds the Dockerfile: anything the app needs has to be here.
+# Versions match the environment the numbers in README.md were measured on.
 --extra-index-url https://download.pytorch.org/whl/cpu
 torch>=2.2
 pandas>=2.2
 pdfplumber>=0.11
 camelot-py[ml]>=2.0
 sdmx1>=2.20
+lxml>=5.0
 rapidfuzz>=3.9
 pydantic>=2.6
 pydantic-settings>=2.2
 fastapi>=0.110
 uvicorn[standard]>=0.29
 python-multipart>=0.0.9
-gradio>=5.0
+matplotlib>=3.8
+requests>=2.31
+gradio>=6.0

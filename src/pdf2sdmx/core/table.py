@@ -11,11 +11,14 @@ MAX_HEADER_ROWS = 3
 MAX_LABEL_COLUMNS = 3
 LABEL_JOIN = " / "
 
-# A period as a table prints it in a column name: 2020, 2024/2025, 1 T24, T1 2024.
-PERIOD_HEADER = re.compile(
-    r"^(?:(?:19|20)\d{2}(?:\s*[/-]\s*(?:19|20)?\d{2})?|[1-4]\s*[TS]\s*\d{2,4}|[TS]\s*[1-4]\s*(?:19|20)?\d{2})$",
-    re.I,
-)
+# A period as a table prints it in a column name, built from four pieces:
+_YEAR = r"(?:19|20)\d{2}"
+_RANGE = rf"{_YEAR}\s*[/-]\s*(?:19|20)?\d{{2}}"  # 2024/2025, 2023-24
+_QUARTER = r"[1-4]\s*[TS]\s*\d{2,4}|[TS]\s*[1-4]\s*(?:19|20)?\d{2}"  # 1 T24, T1 2024
+_MARKER = r"(?:\s*\*+|\s*\(\s*[a-z]{1,4}\s*\)|(?<=\d)[pre])?"  # 2010*, 2023 (p), 2 T23r
+# A two level header merged into one name keeps both, as in "2021 1 T21", so a period may
+# be preceded by the year it sits under.
+PERIOD_HEADER = re.compile(rf"^(?:{_YEAR}\s+)?(?:{_RANGE}|{_QUARTER}|{_YEAR}){_MARKER}$", re.I)
 PERIOD_SHARE = 0.5
 
 
