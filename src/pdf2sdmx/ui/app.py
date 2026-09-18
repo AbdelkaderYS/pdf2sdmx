@@ -1,7 +1,11 @@
 """Gradio front end for the Hugging Face Space.
 
-Two panels, like an OCR demo: drop a PDF on the left and watch the current page, read the
-result on the right as pages are processed. Details stay folded until asked for.
+Two panels. On the left the document: drop a PDF, browse its pages, start the run. On the
+right what came out: a summary, the tables, and the SDMX files. There is one control, the
+page slider, and one folded panel, the cells to review. Everything else is a result.
+
+A page that yields nothing says why on the spot, in the progress line, rather than in a
+diagnostic table nobody opens.
 """
 
 import tempfile
@@ -19,17 +23,15 @@ from pdf2sdmx.core.pipeline import PageResult
 ACCENT = "teal"
 TABLE_SLOTS = 3
 SAMPLE = settings.data_raw.parent / "samples" / "ins_bulletin_3T25_p20-23.pdf"
-STATUS_MARK = {"pass": "ok", "fail": "FAIL", "warn": "warn", "skip": "skip"}
 
 CSS = """
 .gradio-container { max-width: 1280px !important; }
-#header { display: flex; align-items: baseline; gap: 1rem; }
 #header h1 { margin: 0; font-size: 1.4rem; }
-#header p { margin: 0; color: var(--body-text-color-subdued); }
-#status { min-height: 4.5rem; padding: 0.4rem 0; }
-#status p { margin: 0.15rem 0; }
-#progress { color: var(--body-text-color-subdued); font-size: 0.9rem; }
+#summary { min-height: 4.5rem; padding: 0.4rem 0; }
+#summary p { margin: 0.15rem 0; }
+#progress { color: var(--body-text-color-subdued); font-size: 0.9rem; min-height: 1.2rem; }
 #hint { color: var(--body-text-color-subdued); padding: 0.4rem 0 0.8rem 0; }
+#formats { color: var(--body-text-color-subdued); font-size: 0.9rem; }
 #pages .grid-wrap { padding: 0.2rem 0; }
 footer { display: none !important; }
 """
@@ -39,38 +41,41 @@ INTRO = (
     "consistency, and the result comes out as SDMX. Each number keeps the name of the stage that read it."
 )
 PLACEHOLDER = (
-    "Drop a PDF on the left and press Start. Each page with a table shows up here as a "
-    "thumbnail; click one to see its tables. The CSV and SDMX files build up as pages are read."
+    "Drop a PDF on the left, browse it with the page slider, then press Start. Pages that "
+    "hold a table appear here as thumbnails; click one to see its tables."
+)
+FORMATS = (
+    "**SDMX-CSV** is one observation per line, readable in Excel, and assumes the receiver "
+    "already has the data structure. **SDMX-ML** carries the structure itself, so a registry "
+    "can validate the data against it."
 )
 
 
-def process(file, pages_text, time_period, unit, subject):
+def process(file):
     """Generator: yields UI updates as pages are processed."""
     if file is None:
         raise gr.Error("Drop a PDF first")
     pdf_path = Path(file)
     n_pages = pipeline.page_count(pdf_path)
-    pages = pipeline.parse_pages(pages_text or "", n_pages) or list(range(1, n_pages + 1))
-    options = {"time_period": time_period, "unit": unit, "subject": subject}
 
     started = time.perf_counter()
     found: list[dict] = []  # one entry per page with a table: result and its rendered preview
     preview = None
-    for index, page in enumerate(pages, 1):
+    for page in range(1, n_pages + 1):
         preview = pipeline.render_page(pdf_path, page)
-        yield _state(preview, f"Reading page {page} of {n_pages} ({index}/{len(pages)})...", found, None)
-        result = pipeline.run_page(pdf_path, page, **options)
+        yield _state(preview, f"Reading page {page} of {n_pages}...", found, None)
+        result = pipeline.run_page(pdf_path, page)
         if not result.long.empty:
             found.append({"result": result, "preview": preview})
-            note = f"{len(result.tables)} table{'s' if len(result.tables) > 1 else ''} found"
+            note = _table_count(len(result.tables))
         else:
-            note = "no table"
+            note = f"no table, {no_table_reason(result)}"
         yield _state(preview, f"Page {page} of {n_pages}: {note}", found, result)
 
     # Gradio may drop intermediate yields, so the last one carries the full final state.
     elapsed = f"{time.perf_counter() - started:.0f} s"
     if not found:
-        yield _state(preview, f"Done in {elapsed}: {len(pages)} pages read, no table found", found, None)
+        yield _state(preview, f"Done in {elapsed}: {n_pages} pages read, no table found", found, None)
         return
     results = [f["result"] for f in found]
     files = _output_files(pdf_path, results)
@@ -79,12 +84,31 @@ def process(file, pages_text, time_period, unit, subject):
     last = found[-1]
     yield _state(
         last["preview"],
-        f"Done in {elapsed}: {len(pages)} pages read, {n_tables} tables found",
+        f"Done in {elapsed}: {n_pages} pages read, {n_tables} tables found",
         found,
         last["result"],
         archive,
         files,
     )
+
+
+def no_table_reason(result: PageResult) -> str:
+    """Why this page produced nothing, in the words of the stage that gave up.
+
+    A rejected table says more than a stage that never ran, so a gate reason wins over an
+    error. Without any gate the page was skipped before extraction, and the first error
+    holds the reason.
+    """
+    rejected = ""
+    for attempt in result.attempts:
+        if attempt.gate is not None and not attempt.gate.accepted:
+            rejected = attempt.gate.reason
+    if rejected:
+        return rejected
+    for attempt in result.attempts:
+        if attempt.error:
+            return attempt.error
+    return "nothing that looks like a table"
 
 
 def show_page(found: list[dict], evt: gr.SelectData):
@@ -93,7 +117,8 @@ def show_page(found: list[dict], evt: gr.SelectData):
     result = entry["result"]
     return (
         gr.update(value=entry["preview"], visible=True),
-        f"Page {result.page}, {len(result.tables)} table{'s' if len(result.tables) > 1 else ''}",
+        gr.update(value=result.page),
+        f"Page {result.page}, {_table_count(len(result.tables))}",
         *table_slots(result),
     )
 
@@ -116,17 +141,19 @@ def _state(preview, progress, found, current, archive=None, files=None):
         _preview_text(files, "_sdmx.csv"),
         _preview_text(files, "_data.xml"),
         checks_frame(results),
-        attempts_frame(results),
     )
+
+
+def _table_count(n: int) -> str:
+    return f"{n} table{'s' if n > 1 else ''}"
 
 
 def _gallery_item(entry: dict) -> tuple:
     result = entry["result"]
-    n = len(result.tables)
-    return entry["preview"], f"p. {result.page}, {n} table{'s' if n > 1 else ''}"
+    return entry["preview"], f"p. {result.page}, {_table_count(len(result.tables))}"
 
 
-def _preview_text(files: dict[str, str | bytes], suffix: str, max_lines: int = 80) -> str:
+def _preview_text(files: dict[str, str | bytes], suffix: str, max_lines: int = 60) -> str:
     """First lines of an output file, shown once the run is complete."""
     match = next((v for k, v in files.items() if k.endswith(suffix)), None)
     if match is None:
@@ -158,22 +185,37 @@ def table_slots(current: PageResult | None) -> list:
 
 
 def summary_markdown(results: list[PageResult], files: dict[str, str | bytes] | None = None) -> str:
+    """The four lines that matter, in the order a reader wants them."""
     if not results:
         return ""
     long = pipeline.combine(results)
     flagged = int((long["OBS_STATUS"] != "A").sum())
-    fails = sum(r.check_counts["fail"] for r in results)
+    checked = _cells_checked(results)
     stages = long["EXTRACTION_METHOD"].value_counts().to_dict()
     stage_text = ", ".join(f"{k} {v}" for k, v in stages.items())
     lines = [
         f"**{sum(len(r.tables) for r in results)} tables** on pages {', '.join(str(r.page) for r in results)}",
-        f"**{len(long)} observations**, {flagged} flagged for review, {fails} failed checks",
+        f"**{len(long)} observations**, {checked / len(long):.0%} covered by a check, {flagged} flagged for review",
         f"**Read by:** {stage_text}",
     ]
     conformance = conformance_markdown(files or {})
     if conformance:
         lines.append(conformance)
     return "\n\n".join(lines)
+
+
+def _cells_checked(results: list[PageResult]) -> int:
+    """Cells named by at least one arithmetic check.
+
+    Published next to the observation count because a value nobody checked carries
+    OBS_STATUS A for want of a contradiction, not because anything confirmed it.
+    """
+    cells = set()
+    for result in results:
+        for check in result.checks:
+            if check.row and check.column:
+                cells.add((result.page, check.row, check.column))
+    return len(cells)
 
 
 def conformance_markdown(files: dict[str, str | bytes]) -> str:
@@ -192,36 +234,12 @@ def conformance_markdown(files: dict[str, str | bytes]) -> str:
 
 def checks_frame(results: list[PageResult]) -> pd.DataFrame:
     rows = [
-        {
-            "page": r.page,
-            "status": STATUS_MARK[c.status],
-            "check": c.name,
-            "row": c.row,
-            "column": c.column,
-            "detail": c.detail,
-        }
+        {"page": r.page, "check": c.name, "row": c.row, "column": c.column, "detail": c.detail}
         for r in results
         for c in r.checks
         if c.status in ("fail", "warn")
     ]
-    return pd.DataFrame(rows, columns=["page", "status", "check", "row", "column", "detail"])
-
-
-def attempts_frame(results: list[PageResult]) -> pd.DataFrame:
-    rows = [
-        {
-            "page": r.page,
-            "stage": a.method,
-            "gate": "accepted"
-            if (a.gate and a.gate.accepted)
-            else (a.gate.reason if a.gate else (a.error or "no table")[:80]),
-            "failed checks": a.failed_checks,
-            "seconds": round(a.seconds, 1),
-        }
-        for r in results
-        for a in r.attempts
-    ]
-    return pd.DataFrame(rows, columns=["page", "stage", "gate", "failed checks", "seconds"])
+    return pd.DataFrame(rows, columns=["page", "check", "row", "column", "detail"])
 
 
 def _output_files(pdf_path: Path, results: list[PageResult]) -> dict[str, str | bytes]:
@@ -247,8 +265,28 @@ def _write_archive(pdf_path: Path, files: dict[str, str | bytes]) -> str:
     return str(out)
 
 
-def load_sample():
-    return str(SAMPLE), gr.update(value=pipeline.render_page(SAMPLE, 1), visible=True)
+def open_document(file) -> tuple:
+    """Show page 1 and set the slider to the length of this document."""
+    if not file:
+        return gr.update(visible=False), gr.update(visible=False)
+    path = Path(file)
+    n_pages = pipeline.page_count(path)
+    return (
+        gr.update(value=pipeline.render_page(path, 1), visible=True),
+        gr.update(minimum=1, maximum=n_pages, value=1, label=f"Page, 1 to {n_pages}", visible=True),
+    )
+
+
+def show_page_number(file, number):
+    """Slider move: render that page. The run and the gallery set the image directly."""
+    if not file:
+        return gr.update(visible=False)
+    return gr.update(value=pipeline.render_page(Path(file), int(number)), visible=True)
+
+
+def load_sample() -> tuple:
+    preview, slider = open_document(str(SAMPLE))
+    return str(SAMPLE), preview, slider
 
 
 def theme() -> gr.themes.Base:
@@ -273,14 +311,11 @@ def build() -> gr.Blocks:
                 sample = gr.Button("Load the sample: INS bulletin 3T 2025, pages 20 to 23", size="sm")
                 progress = gr.Markdown(elem_id="progress")
                 preview = gr.Image(show_label=False, interactive=False, height=560, container=False, visible=False)
-                with gr.Accordion("Options", open=False):
-                    pages_text = gr.Textbox(label="Pages", placeholder="all pages. Or 21, or 20-25")
-                    time_period = gr.Textbox(label="Reference period", placeholder="auto-detected, e.g. 2024/2025")
-                    unit = gr.Textbox(label="Default unit", placeholder="used when the header has none")
-                    subject = gr.Textbox(label="Table subject", placeholder="e.g. Campagne agricole")
+                # The range is a placeholder: open_document sets it to the document length.
+                page = gr.Slider(minimum=1, maximum=2, value=1, step=1, label="Page", visible=False)
             with gr.Column(scale=2):
                 hint = gr.Markdown(PLACEHOLDER, elem_id="hint")
-                status = gr.Markdown(elem_id="status", visible=False)
+                summary = gr.Markdown(elem_id="summary", visible=False)
                 archive = gr.File(label="Download the zip: long CSV, SDMX-CSV, SDMX-ML, cells to review", visible=False)
                 gallery_title = gr.Markdown("**Pages with tables.** Click one to see it.", visible=False)
                 gallery = gr.Gallery(
@@ -299,29 +334,26 @@ def build() -> gr.Blocks:
                             gr.Dataframe(wrap=True, interactive=False, max_height=600, visible=False)
                             for _ in range(TABLE_SLOTS)
                         ]
-                    with gr.Tab("CSV"):
+                    with gr.Tab("Data"):
                         gr.Markdown(
                             "One row per number, with region, indicator, period, unit and the stage that read it."
                         )
                         long = gr.Dataframe(interactive=False, wrap=True, max_height=700)
-                    with gr.Tab("SDMX-CSV"):
-                        sdmx_csv = gr.Code(language=None, interactive=False, max_lines=40)
-                    with gr.Tab("SDMX-ML"):
-                        sdmx_xml = gr.Code(language=None, interactive=False, max_lines=40)
-                with gr.Accordion("Technical details: checks and extraction stages", open=False):
-                    gr.Markdown(
-                        "Failed and warned checks. A failed cell stays in the CSV "
-                        "with OBS_STATUS = U (low reliability)."
-                    )
+                    with gr.Tab("SDMX"):
+                        gr.Markdown(FORMATS, elem_id="formats")
+                        sdmx_csv = gr.Code(label="SDMX-CSV 2.0", language=None, interactive=False, max_lines=20)
+                        sdmx_xml = gr.Code(
+                            label="SDMX-ML 2.1 data message", language=None, interactive=False, max_lines=20
+                        )
+                with gr.Accordion("Cells flagged for review", open=False):
+                    gr.Markdown("A flagged cell stays in the output with OBS_STATUS = U, low reliability.")
                     checks = gr.Dataframe(interactive=False, wrap=True)
-                    gr.Markdown("Which extraction stage ran on each page, and how many checks its tables failed.")
-                    attempts = gr.Dataframe(interactive=False)
 
         outputs = [
             preview,
             progress,
             hint,
-            status,
+            summary,
             archive,
             gallery_title,
             gallery,
@@ -331,23 +363,15 @@ def build() -> gr.Blocks:
             sdmx_csv,
             sdmx_xml,
             checks,
-            attempts,
         ]
         # The page loop reports its own progress; Gradio's elapsed-time overlay would only add noise.
-        run_event = start.click(
-            process, [file, pages_text, time_period, unit, subject], outputs, show_progress="hidden"
-        )
+        run_event = start.click(process, file, outputs, show_progress="hidden")
         stop.click(None, cancels=[run_event])
-        gallery.select(show_page, found, [preview, progress, *tables], show_progress="hidden")
-        sample.click(load_sample, outputs=[file, preview], show_progress="hidden")
-        file.upload(show_first_page, file, preview, show_progress="hidden")
+        gallery.select(show_page, found, [preview, page, progress, *tables], show_progress="hidden")
+        sample.click(load_sample, outputs=[file, preview, page], show_progress="hidden")
+        file.upload(open_document, file, [preview, page], show_progress="hidden")
+        page.release(show_page_number, [file, page], preview, show_progress="hidden")
     return demo
-
-
-def show_first_page(file):
-    if not file:
-        return gr.update(visible=False)
-    return gr.update(value=pipeline.render_page(Path(file), 1), visible=True)
 
 
 if __name__ == "__main__":

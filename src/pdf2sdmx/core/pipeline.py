@@ -142,21 +142,6 @@ def combine(results: list[PageResult]) -> pd.DataFrame:
     return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
 
 
-def parse_pages(text: str, n_pages: int) -> list[int]:
-    """ "21", "20-25" or "12, 21, 30". Empty means every page."""
-    pages: list[int] = []
-    for part in text.replace(";", ",").split(","):
-        part = part.strip()
-        if not part:
-            continue
-        if "-" in part:
-            start, end = part.split("-", 1)
-            pages.extend(range(int(start), int(end) + 1))
-        else:
-            pages.append(int(part))
-    return [p for p in pages if 1 <= p <= n_pages]
-
-
 def render_page(pdf_path: Path, page: int, resolution: int = 60):
     """Small raster of one page for a preview panel."""
     import pdfplumber
