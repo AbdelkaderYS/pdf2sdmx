@@ -1,10 +1,13 @@
-.PHONY: install install-ml lint fix test run api ui refresh evaluate figures docker clean
+.PHONY: install install-ml schemas lint fix test run api ui refresh evaluate figures docker clean
 
 install:
 	uv pip install --system -e ".[dev]"
 
 install-ml:
 	uv pip install --system --extra-index-url https://download.pytorch.org/whl/cpu -e ".[dev,ml]"
+
+schemas:
+	python -c "import sdmx; print(sdmx.install_schemas(version='2.1'))"
 
 lint:
 	ruff check src tests scripts

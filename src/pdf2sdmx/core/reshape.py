@@ -32,6 +32,8 @@ MATCH_THRESHOLD = 88
 UNIT_IN_HEADER = re.compile(r"\(([^)]+)\)\s*$")
 DUPLICATE_SUFFIX = re.compile(r"\s\(\d+\)$")
 SPLIT_YEAR = re.compile(r"^((?:19|20)\d{2})\s*[/-]\s*(?:19|20)?\d{2}$")
+# Characters an SDMX code id may not contain. The standard allows A-Z a-z 0-9 and _ @ $ -
+NOT_IN_A_CODE = re.compile(r"[^A-Za-z0-9_@$-]+")
 PLAIN_YEAR = re.compile(r"^(?:19|20)\d{2}$")
 
 # CL_OBS_STATUS 2.3: A normal value, U low reliability. E means estimated and is not used here.
@@ -146,17 +148,17 @@ def _code_for(label: str, mapping: pd.DataFrame, dimension: str) -> tuple[str, s
     """Exact then fuzzy match against the mapping file. Unknown labels get a slug, not a guess."""
     candidates = mapping[mapping["dimension"] == dimension]
     if candidates.empty:
-        return _slug(label), ""
+        return sdmx_code(label), ""
     exact = candidates[candidates["label"].str.casefold() == label.casefold()]
     if not exact.empty:
-        return exact["code"].iloc[0], exact["unit"].iloc[0]
+        return sdmx_code(exact["code"].iloc[0]), exact["unit"].iloc[0]
     match = process.extractOne(
         label, candidates["label"].tolist(), scorer=fuzz.WRatio, processor=default_process, score_cutoff=MATCH_THRESHOLD
     )
     if match:
         hit = candidates[candidates["label"] == match[0]].iloc[0]
-        return hit["code"], hit["unit"]
-    return _slug(label), ""
+        return sdmx_code(hit["code"]), hit["unit"]
+    return sdmx_code(label), ""
 
 
 def _share_matching(labels: list[str], mapping: pd.DataFrame, dimension: str) -> float:
@@ -171,10 +173,11 @@ def _share_matching(labels: list[str], mapping: pd.DataFrame, dimension: str) ->
 
 
 def _unit_for(indicator_label: str, mapped_unit: str, default: str) -> str:
+    """The unit as a code. A header printing "(kg/ha)" gives KG_HA, not kg/ha."""
     found = UNIT_IN_HEADER.search(indicator_label)
     if found:
-        return found.group(1).strip()
-    return mapped_unit or default
+        return sdmx_code(found.group(1))
+    return sdmx_code(mapped_unit or default)
 
 
 def _status(parse_status: str, failed_check: bool) -> str:
@@ -191,6 +194,16 @@ def _strip_suffix(label: str) -> str:
     return DUPLICATE_SUFFIX.sub("", label.strip())
 
 
-def _slug(label: str) -> str:
-    slug = re.sub(r"[^A-Za-z0-9]+", "_", label).strip("_").upper()
-    return slug or "UNKNOWN"
+def sdmx_code(text: str) -> str:
+    """A value usable as an SDMX code id.
+
+    The standard allows letters, digits and `_ @ $ -`, so "NE-1" and "_T" pass through
+    unchanged while a unit printed "kg/ha" becomes KG_HA. Applied to every coded
+    component, including codes read from the mapping file, because that file is hand
+    edited. A leading underscore is kept only when the text already had one, so the SDMX
+    total code `_T` survives.
+    """
+    code = NOT_IN_A_CODE.sub("_", text.strip()).upper().rstrip("_")
+    if not text.startswith("_"):
+        code = code.lstrip("_")
+    return code or "UNKNOWN"

@@ -106,7 +106,7 @@ def _state(preview, progress, found, current, archive=None, files=None):
         gr.update(value=preview, visible=True) if preview is not None else gr.update(),
         progress,
         gr.update(visible=not results),
-        gr.update(value=summary_markdown(results), visible=bool(results)),
+        gr.update(value=summary_markdown(results, files), visible=bool(results)),
         gr.update(value=archive, visible=archive is not None),
         gr.update(visible=bool(found)),
         gr.update(value=[_gallery_item(f) for f in found], visible=bool(found)),
@@ -157,7 +157,7 @@ def table_slots(current: PageResult | None) -> list:
     return slots
 
 
-def summary_markdown(results: list[PageResult]) -> str:
+def summary_markdown(results: list[PageResult], files: dict[str, str | bytes] | None = None) -> str:
     if not results:
         return ""
     long = pipeline.combine(results)
@@ -165,13 +165,29 @@ def summary_markdown(results: list[PageResult]) -> str:
     fails = sum(r.check_counts["fail"] for r in results)
     stages = long["EXTRACTION_METHOD"].value_counts().to_dict()
     stage_text = ", ".join(f"{k} {v}" for k, v in stages.items())
-    return "\n\n".join(
-        [
-            f"**{sum(len(r.tables) for r in results)} tables** on pages {', '.join(str(r.page) for r in results)}",
-            f"**{len(long)} observations**, {flagged} flagged for review, {fails} failed checks",
-            f"**Read by:** {stage_text}",
-        ]
-    )
+    lines = [
+        f"**{sum(len(r.tables) for r in results)} tables** on pages {', '.join(str(r.page) for r in results)}",
+        f"**{len(long)} observations**, {flagged} flagged for review, {fails} failed checks",
+        f"**Read by:** {stage_text}",
+    ]
+    conformance = conformance_markdown(files or {})
+    if conformance:
+        lines.append(conformance)
+    return "\n\n".join(lines)
+
+
+def conformance_markdown(files: dict[str, str | bytes]) -> str:
+    """Whether the SDMX-ML output passes the official schemas. Empty until the run ends."""
+    messages = [content for name, content in files.items() if name.endswith(".xml")]
+    if not messages:
+        return ""
+    as_bytes = [m if isinstance(m, bytes) else m.encode() for m in messages]
+    result = sdmx_out.validate(*as_bytes)
+    if result is None:
+        return "**SDMX-ML 2.1:** not checked, the official schemas are not installed"
+    if result:
+        return "**SDMX-ML 2.1:** valid against the official schemas"
+    return "**SDMX-ML 2.1:** does not pass the official schemas"
 
 
 def checks_frame(results: list[PageResult]) -> pd.DataFrame:

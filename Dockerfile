@@ -24,6 +24,11 @@ COPY app.py ./
 COPY mapping ./mapping
 
 USER app
+
+# The official SDMX 2.1 schemas, so the app can state whether its output conforms.
+# They land in the app user's data directory, which is why this runs after USER.
+RUN python -c "import sdmx; sdmx.install_schemas(version='2.1')"
+
 EXPOSE 7860
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \

@@ -32,7 +32,7 @@ def test_regions_get_iso_codes_and_units_come_from_headers():
     assert len(long) == 6
     assert set(long["REF_AREA"]) == {"NE-4", "NE-6", "NE"}
     assert set(long["INDICATOR"]) == {"AREA_HA", "PROD_T"}
-    assert set(long["UNIT_MEASURE"]) == {"ha", "t"}
+    assert set(long["UNIT_MEASURE"]) == {"HA", "T"}  # units are SDMX codes, so upper case
     assert (long["TIME_PERIOD"] == "2024-A1").all()  # SDMX reporting year, start year
     assert (long["TIME_PERIOD_LABEL"] == "2024/2025").all()
     assert (long["FREQ"] == "A").all() and (long["UNIT_MULT"] == "0").all()
@@ -117,7 +117,7 @@ def test_regions_in_upper_case_columns_become_ref_area():
     )
     assert set(long["REF_AREA"]) == {"NE-1", "NE-6", "NE-8", "_T"}
     assert set(long["INDICATOR"]) == {"MILLET_AREA_HA", "MILLET_PROD_T"}
-    assert set(long["UNIT_MEASURE"]) == {"ha", "t"}
+    assert set(long["UNIT_MEASURE"]) == {"HA", "T"}  # units are SDMX codes, so upper case
 
 
 def test_run_page_accepts_none_options(tmp_path):
@@ -134,3 +134,20 @@ def test_sdmx_time_period_follows_the_reporting_year_convention():
     assert reshape.sdmx_time_period("2024/2025") == "2024-A1"
     assert reshape.sdmx_time_period("2023-2024") == "2023-A1"
     assert reshape.sdmx_time_period("UNKNOWN") == "UNKNOWN"
+
+
+def test_sdmx_code_keeps_characters_the_standard_allows():
+    """ISO region codes and the SDMX total code must survive untouched."""
+    assert reshape.sdmx_code("NE-1") == "NE-1"
+    assert reshape.sdmx_code("_T") == "_T"
+
+
+def test_sdmx_code_replaces_characters_the_standard_forbids():
+    assert reshape.sdmx_code("kg/ha") == "KG_HA"
+    assert reshape.sdmx_code("(kg/ha)") == "KG_HA"
+    assert reshape.sdmx_code("Mil / Superficie") == "MIL_SUPERFICIE"
+
+
+def test_sdmx_code_never_returns_an_empty_id():
+    assert reshape.sdmx_code("") == "UNKNOWN"
+    assert reshape.sdmx_code("   ") == "UNKNOWN"

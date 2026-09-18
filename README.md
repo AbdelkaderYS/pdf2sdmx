@@ -55,9 +55,17 @@ whole document.
 |---|---|
 | `*_long.csv` | one observation per row: `FREQ, REF_AREA, INDICATOR, TIME_PERIOD, OBS_VALUE, UNIT_MEASURE, UNIT_MULT, OBS_STATUS, TIME_PERIOD_LABEL, EXTRACTION_METHOD, SOURCE` plus the printed labels |
 | `*_sdmx.csv` | SDMX-CSV 2.0 |
-| `*_structure.xml` | SDMX-ML 2.1 structure message: DSD and dataflow `INS_NE:DF_PDF2SDMX(1.0)` |
-| `*_data.xml` | SDMX-ML 2.1 data message |
+| `*_structure.xml` | SDMX-ML 2.1 structure message: concept scheme, code lists, DSD and dataflow `INS_NE:DF_PDF2SDMX(1.0)` |
+| `*_data.xml` | SDMX-ML 2.1 generic data message |
 | `*_to_review.csv` | every cell that failed a check, with the reason |
+
+Both XML messages are checked against the official SDMX-ML 2.1 schemas, not against our own
+reader. Install the schemas once with `make schemas`, then `pytest tests/test_sdmx_out.py`
+fails if the output stops conforming, and the interface says so on screen after a run. The
+data message uses the generic format because it validates against the published schemas on
+its own; structure specific data would need a schema generated from the DSD first. Every
+coded value is passed through `reshape.sdmx_code`, so a unit printed `kg/ha` is written
+`KG_HA` while the ISO region code `NE-1` and the SDMX total code `_T` are left alone.
 
 Component ids follow the SDMX cross-domain concepts, the same ones the World Bank WDI DSD
 uses (`FREQ, REF_AREA, TIME_PERIOD, OBS_VALUE, UNIT_MULT`). Region codes follow ISO 3166-2:NE.
