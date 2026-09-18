@@ -100,3 +100,23 @@ def test_two_tables_on_one_page_are_both_kept_and_matched_to_their_donor():
     assert result.tables[0].row_methods["Diffa"] == "b"
     assert result.tables[1].frame.iloc[0, 1] == "100"
     assert result.tables[1].resolved_by == "a"
+
+
+def test_paddleocr_stage_reads_html_and_markdown_tables_from_the_model_output():
+    from pdf2sdmx.core.ingest import paddleocr_stage
+
+    result = {
+        "res": {
+            "parsing_res_list": [
+                {"block_label": "text", "block_content": "Tableau 03.01"},
+                {
+                    "block_label": "table",
+                    "block_content": "<table><tr><td>Région</td><td>Bovins</td></tr>"
+                    "<tr><td>Agadez</td><td>55 507</td></tr></table>",
+                },
+                {"block_label": "table", "block_content": "| Région | Ovins |\n|---|---|\n| Diffa | 1 142 557 |"},
+            ]
+        }
+    }
+    grids = paddleocr_stage.tables_in(result)
+    assert grids == [[["Région", "Bovins"], ["Agadez", "55 507"]], [["Région", "Ovins"], ["Diffa", "1 142 557"]]]

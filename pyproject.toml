@@ -22,7 +22,8 @@ dependencies = [
 
 [project.optional-dependencies]
 ml = ["camelot-py[ml]>=2.0", "torch>=2.2", "transformers>=4.40"]
-vision = ["docling>=2.0"]
+# paddlepaddle comes from Baidu's own index, see README
+vision = ["paddleocr[doc-parser]>=3.4"]
 dev = ["pytest>=8.0", "ruff>=0.3", "httpx>=0.27", "reportlab>=4.0"]
 
 [build-system]

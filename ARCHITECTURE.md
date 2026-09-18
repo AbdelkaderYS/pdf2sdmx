@@ -9,7 +9,7 @@ how well. This file says how.
 PDF page
   -> stage 1  pdfplumber        text layer, ruling lines then whitespace alignment
   -> stage 2  Camelot 2.0 ml    Table Transformer finds rows and columns, text from the PDF
-  -> stage 3  Docling           TableFormer, vision, OCR if needed, flagged for review
+  -> stage 3  PaddleOCR-VL 1.6  vision language model, page read as an image, flagged for review
   -> gate     quality.gate_table
   -> checks   validate.run_checks
   -> long     reshape.to_long   one observation per row, codes from mapping/labels_to_codes.csv
@@ -51,14 +51,17 @@ repaired ones. Result on that page: 94 of 94 truth cells, against 84 for stage 1
 |---|---|---|---|
 | 1 | pdfplumber 0.11 | Reads the text layer. Deterministic, no model, no cost. | pdfplumber docs |
 | 2 | Camelot 2.0.0 (June 2026), `flavor="ml"` | Table Transformer (`microsoft/table-transformer-detection` and `table-transformer-structure-recognition-v1.1-all`) supplies the structure, cell text comes from the PDF text layer, so the model cannot alter a value. `parsing_report` gives a per-table score. | camelot release notes v2.0.0 |
-| 3 | Docling 2.x, TableFormer | Best table detection score on the heterogeneous scientific document benchmark, about 3 s per page on x86 CPU, MIT licence. Only stage that can misread a digit, so its output is always flagged. | Docling technical report, arXiv 2408.09869 |
+| 3 | PaddleOCR-VL 1.6 (Baidu, 0.9B parameters, Apache 2.0) | Highest score on OmniDocBench v1.6 (96.33) among open document parsers; reads the page as an image, so it also handles scans. Only stage that can misread a digit, so its output is always flagged. Slow on CPU, so the cascade reaches it only when the text stages fail. | PaddleOCR-VL-1.6 model card and usage guide, paddleocr.ai |
 
 Not used, and why:
 
-- MinerU 3.x and PaddleOCR-VL lead OmniDocBench (95 to 96 overall) but need a GPU for the
-  VLM backends. The Hugging Face free tier is CPU only.
-- MinerU `pipeline` backend runs on CPU but downloads several models and is slow. Docling
-  covers the same need with one dependency.
+- MinerU 3.x scores close to PaddleOCR-VL on OmniDocBench but its VLM backends need a GPU
+  and its `pipeline` backend downloads several models.
+- Docling (IBM, TableFormer) was the first choice for stage 3; replaced by PaddleOCR-VL 1.6
+  for its benchmark lead and its licence. Docling would still be a reasonable stage 3 on
+  a machine without the Paddle runtime.
+- Stage 3 is not installed in the Hugging Face Space: the Paddle runtime plus the model is
+  heavy for the free tier, and the two sample bulletins have a text layer.
 
 ## Gate thresholds (`core/quality.py`)
 

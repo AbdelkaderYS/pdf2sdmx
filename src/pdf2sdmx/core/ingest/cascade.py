@@ -14,7 +14,7 @@ from pathlib import Path
 import pandas as pd
 
 from pdf2sdmx.core import validate
-from pdf2sdmx.core.ingest import camelot_stage, docling_stage, pdfplumber_stage
+from pdf2sdmx.core.ingest import camelot_stage, paddleocr_stage, pdfplumber_stage
 from pdf2sdmx.core.numbers import parse_number
 from pdf2sdmx.core.quality import GateResult, gate_table
 from pdf2sdmx.core.table import ExtractedTable
@@ -26,7 +26,7 @@ Stage = Callable[[Path, int], list[ExtractedTable]]
 STAGES: list[tuple[str, Stage]] = [
     (pdfplumber_stage.METHOD, pdfplumber_stage.extract),
     (camelot_stage.METHOD, camelot_stage.extract),
-    (docling_stage.METHOD, docling_stage.extract),
+    (paddleocr_stage.METHOD, paddleocr_stage.extract),
 ]
 
 # Measured on two INS bulletins: text and contents pages carry at most 83 digits, the
@@ -100,7 +100,7 @@ def run(pdf_path: Path, page_number: int, stages: list[tuple[str, Stage]] | None
         return CascadeResult([], attempts)
 
     for name, stage in stages or STAGES:
-        if name == docling_stage.METHOD and not docling_stage.available():
+        if name == paddleocr_stage.METHOD and not paddleocr_stage.available():
             attempts.append(Attempt(name, 0, None, 0.0, error="not installed"))
             continue
         started = time.perf_counter()

@@ -73,6 +73,9 @@ git clone <repo> && cd 09-ins-niger-sdmx
 uv venv && source .venv/bin/activate
 make install          # stage 1 only, fast
 make install-ml       # adds Camelot ml with CPU torch, about 400 MB
+# stage 3, vision, optional: Baidu's CPU wheel first, then the OCR package
+pip install paddlepaddle==3.2.1 -i https://www.paddlepaddle.org.cn/packages/stable/cpu/
+pip install "paddleocr[doc-parser]"     # PaddleOCR-VL 1.6 downloads its model on first use
 python app.py         # UI and API on http://localhost:7860, docs at /docs
 ```
 
@@ -102,7 +105,7 @@ Add a page: transcribe 10 to 30 cells into `truth/<pdf stem>_p<page>_truth.csv`
   new checks.
 - The DSD is built by the tool. No official INS Niger DSD was found; when one exists the
   codes in `mapping/labels_to_codes.csv` should be replaced by it.
-- Stage 3 (Docling, vision) is wired but not installed in the Space. The two sample
+- Stage 3 (PaddleOCR-VL 1.6, vision) is wired but not installed in the Space. The two sample
   bulletins have a text layer, so it was never needed. Scanned reports would need it.
 - Camelot ml downloads two Table Transformer models (about 230 MB) at Space start-up.
   Stage 2 takes about 15 s per page on CPU; stage 1 takes 2 s.
@@ -116,7 +119,7 @@ Add a page: transcribe 10 to 30 cells into `truth/<pdf stem>_p<page>_truth.csv`
 
 ## What is and is not new here
 
-SDMX, ODP, pdfplumber, Camelot, Table Transformer, Docling and sdmx1 all exist and are
+SDMX, ODP, pdfplumber, Camelot, Table Transformer, PaddleOCR-VL and sdmx1 all exist and are
 credited in `ARCHITECTURE.md`. A multi-agent architecture for SDMX compliance starting
 from Excel sources was proposed at IAOS 2026. This repository works one step upstream,
 on the PDF publications that are the actual form of diffusion for many national
