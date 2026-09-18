@@ -1,5 +1,6 @@
 """The one data shape every stage produces: a grid of strings plus where it came from."""
 
+import re
 from dataclasses import dataclass, field
 
 import pandas as pd
@@ -9,6 +10,13 @@ from pdf2sdmx.core.numbers import is_missing_marker, looks_numeric
 MAX_HEADER_ROWS = 3
 MAX_LABEL_COLUMNS = 3
 LABEL_JOIN = " / "
+
+# A period as a table prints it in a column name: 2020, 2024/2025, 1 T24, T1 2024.
+PERIOD_HEADER = re.compile(
+    r"^(?:(?:19|20)\d{2}(?:\s*[/-]\s*(?:19|20)?\d{2})?|[1-4]\s*[TS]\s*\d{2,4}|[TS]\s*[1-4]\s*(?:19|20)?\d{2})$",
+    re.I,
+)
+PERIOD_SHARE = 0.5
 
 
 @dataclass
@@ -43,8 +51,9 @@ def clean_cell(value: object) -> str:
 
 
 def merge_label_columns(frame: pd.DataFrame) -> pd.DataFrame:
-    """INS prints nested row labels in two or three columns, the outer one only on its first
-    row. Fill the outer labels down and join them so the rest of the pipeline sees one label.
+    """A printed table often carries nested row labels in two or three columns, the outer one
+    written only on its first row. Fill the outer labels down and join them so the rest of
+    the pipeline sees one label per row.
     """
     n_labels = _count_label_columns(frame)
     if n_labels <= 1 or frame.empty:
@@ -76,16 +85,32 @@ def _pad(cells: list[list[str]], width: int) -> list[list[str]]:
 
 
 def _count_header_rows(grid: list[list[str]]) -> int:
-    """Leading rows with almost no numbers are header rows. INS tables often stack two or three."""
+    """Leading rows with almost no numbers are header rows. INS tables often stack two or three.
+
+    A row of nothing but periods is a header too. In a statistical table the column names
+    are often years, and a year reads as a number, so counting numbers alone leaves the
+    header in the data and the columns unnamed.
+    """
     count = 0
     for row in grid[:MAX_HEADER_ROWS]:
         body = row[1:]
-        numeric = sum(looks_numeric(c) for c in body)
-        if body and numeric / len(body) < 0.3:
-            count += 1
-        else:
+        if not body:
             break
+        if _mostly_numbers(body) and not _mostly_periods(body):
+            break
+        count += 1
     return count
+
+
+def _mostly_numbers(cells: list[str]) -> bool:
+    return sum(looks_numeric(c) for c in cells) / len(cells) >= 0.3
+
+
+def _mostly_periods(cells: list[str]) -> bool:
+    filled = [c for c in cells if c]
+    if not filled:
+        return False
+    return sum(bool(PERIOD_HEADER.match(c)) for c in filled) / len(filled) >= PERIOD_SHARE
 
 
 def _merge_header_rows(rows: list[list[str]]) -> list[str]:

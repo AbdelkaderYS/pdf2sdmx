@@ -7,12 +7,17 @@ import pandas as pd
 
 from pdf2sdmx.core.numbers import parse_number
 
+# The words a check looks for in a row or column name. They decide which check applies to
+# which table, and nothing here assumes a particular report: a table naming none of them
+# simply has those checks skipped, which the run counts and reports.
 TOTAL_LABEL = re.compile(r"\b(total|ensemble|niger|national)\b", re.I)
 RATE_HEADER = re.compile(r"kg/ha|%|taux|rendement|moyen|ratio|prix|indice|part\b", re.I)
 AREA_HEADER = re.compile(r"superficie|surface", re.I)
 YIELD_HEADER = re.compile(r"rendement", re.I)
 PRODUCTION_HEADER = re.compile(r"production", re.I)
 YEAR_HEADER = re.compile(r"^(19|20)\d{2}(\s*[/-]\s*(19|20)?\d{2})?$")
+# The name table._default_header gives a column when no header row was found.
+PLACEHOLDER_COLUMN = re.compile(r"^col(_\d+)?$")
 
 SUM_TOLERANCE = 0.005  # half a percent, INS totals are rounded independently
 PRODUCT_TOLERANCE = 0.02
@@ -50,6 +55,7 @@ def numeric_frame(frame: pd.DataFrame) -> pd.DataFrame:
 def run_checks(frame: pd.DataFrame) -> list[Check]:
     values = numeric_frame(frame)
     checks: list[Check] = []
+    checks += check_header(frame)
     checks += check_unreadable(frame)
     checks += check_bounds(values)
     checks += check_column_totals(values)
@@ -62,6 +68,19 @@ def run_checks(frame: pd.DataFrame) -> list[Check]:
 def failed_cells(checks: list[Check]) -> pd.DataFrame:
     rows = [c for c in checks if c.status == "fail"]
     return pd.DataFrame([c.__dict__ for c in rows], columns=list(Check.__dataclass_fields__))
+
+
+def check_header(frame: pd.DataFrame) -> list[Check]:
+    """Column names still set to placeholders mean no header row was found.
+
+    The numbers may all be right and every total may add up while the columns say nothing,
+    so nothing else in this module would notice. Counting it as a failure is what sends the
+    cascade to the next stage, and eventually to the vision model.
+    """
+    unnamed = sum(bool(PLACEHOLDER_COLUMN.match(str(c))) for c in frame.columns[1:])
+    if unnamed and unnamed == frame.shape[1] - 1:
+        return [Check("header", "fail", "no header row found, the columns are unnamed")]
+    return [Check("header", "pass", "the table has a header row")]
 
 
 def check_unreadable(frame: pd.DataFrame) -> list[Check]:
@@ -124,8 +143,8 @@ def check_row_totals(values: pd.DataFrame) -> list[Check]:
 def check_area_yield_production(values: pd.DataFrame) -> list[Check]:
     """Production (t) must equal area (ha) times yield (kg/ha) / 1000. Catches unit slips.
 
-    Works whether the three variables sit in columns (one crop per row) or in rows nested
-    under each crop, as in the INS quarterly bulletin.
+    Works whether the three sit in columns, one item per row, or in rows nested under each
+    item. The check is skipped unless all three are named in the same table.
     """
     triple = _find_triple(values.columns)
     if triple:

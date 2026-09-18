@@ -1,6 +1,7 @@
 """Turn a wide printed table into one observation per row, with SDMX style columns."""
 
 import re
+import unicodedata
 from pathlib import Path
 
 import pandas as pd
@@ -32,6 +33,9 @@ MATCH_THRESHOLD = 88
 UNIT_IN_HEADER = re.compile(r"\(([^)]+)\)\s*$")
 DUPLICATE_SUFFIX = re.compile(r"\s\(\d+\)$")
 SPLIT_YEAR = re.compile(r"^((?:19|20)\d{2})\s*[/-]\s*(?:19|20)?\d{2}$")
+# A quarter written "1 T24" or, less often, "T1 2024".
+QUARTER_THEN_YEAR = re.compile(r"^([1-4])\s*T\s*((?:19|20)?\d{2})$", re.I)
+QUARTER_BEFORE_YEAR = re.compile(r"^T\s*([1-4])\s*((?:19|20)?\d{2})$", re.I)
 # Characters an SDMX code id may not contain. The standard allows A-Z a-z 0-9 and _ @ $ -
 NOT_IN_A_CODE = re.compile(r"[^A-Za-z0-9_@$-]+")
 PLAIN_YEAR = re.compile(r"^(?:19|20)\d{2}$")
@@ -77,12 +81,13 @@ def to_long(
                 continue
             area_label, indicator_label, period = _assign_axes(label, column, row_kind, col_kind, subject, time_period)
             indicator_code, mapped_unit = _indicator(indicator_label, mapping)
+            time_code = sdmx_time_period(period)
             records.append(
                 {
-                    "FREQ": "A",
+                    "FREQ": sdmx_frequency(time_code),
                     "REF_AREA": _code_for(area_label, mapping, "REF_AREA")[0] if area_label else "NE",
                     "INDICATOR": indicator_code,
-                    "TIME_PERIOD": sdmx_time_period(period),
+                    "TIME_PERIOD": time_code,
                     "OBS_VALUE": parsed.value,
                     "UNIT_MEASURE": _unit_for(indicator_label, mapped_unit, unit),
                     "UNIT_MULT": "0",
@@ -98,11 +103,12 @@ def to_long(
 
 
 def sdmx_time_period(printed: str) -> str:
-    """SDMX time format for an annual value.
+    """SDMX time format for the periods a printed table uses as a column name.
 
-    "2024" stays "2024". A campaign printed "2024/2025" becomes the SDMX reporting year
-    "2024-A1": the year the period starts, as the SDMX guidelines require. Anything else is
-    returned unchanged and will not validate as a time period.
+    "2024" stays "2024". A range printed "2024/2025" becomes the SDMX reporting year
+    "2024-A1": the year the period starts, as the SDMX guidelines require. A quarter
+    printed "1 T24" becomes "2024-Q1". Anything else is returned unchanged and will not
+    validate as a time period.
     """
     text = printed.strip()
     if PLAIN_YEAR.match(text):
@@ -110,7 +116,24 @@ def sdmx_time_period(printed: str) -> str:
     split = SPLIT_YEAR.match(text)
     if split:
         return f"{split.group(1)}-A1"
+    quarter = QUARTER_THEN_YEAR.match(text) or QUARTER_BEFORE_YEAR.match(text)
+    if quarter:
+        return f"{_four_digit_year(quarter.group(2))}-Q{quarter.group(1)}"
     return text
+
+
+def sdmx_frequency(time_period: str) -> str:
+    """The FREQ code that goes with a period written by sdmx_time_period."""
+    if "-Q" in time_period:
+        return "Q"
+    return "A"
+
+
+def _four_digit_year(year: str) -> str:
+    """A quarter is often printed with a two digit year, as in "1 T24". Read it as 20xx."""
+    if len(year) == 2:
+        return f"20{year}"
+    return year
 
 
 def _axis_kind(labels: list[str], mapping: pd.DataFrame) -> str:
@@ -134,7 +157,7 @@ def _assign_axes(row: str, column: str, row_kind: str, col_kind: str, subject: s
 
 
 def _indicator(label: str, mapping: pd.DataFrame) -> tuple[str, str]:
-    """Composite labels such as "Mil / Superficie" map part by part: MILLET_AREA_HA, unit ha."""
+    """A label nested under another maps part by part, and the unit comes from the match."""
     codes, units = [], []
     for part in label.split(LABEL_JOIN):
         code, unit = _code_for(part, mapping, "INDICATOR")
@@ -202,8 +225,13 @@ def sdmx_code(text: str) -> str:
     component, including codes read from the mapping file, because that file is hand
     edited. A leading underscore is kept only when the text already had one, so the SDMX
     total code `_T` survives.
+
+    Accents are transliterated rather than replaced, so "Régions" gives REGIONS and not
+    R_GIONS.
     """
-    code = NOT_IN_A_CODE.sub("_", text.strip()).upper().rstrip("_")
+    plain = unicodedata.normalize("NFKD", text.strip())
+    plain = "".join(c for c in plain if not unicodedata.combining(c))
+    code = NOT_IN_A_CODE.sub("_", plain).upper().rstrip("_")
     if not text.startswith("_"):
         code = code.lstrip("_")
     return code or "UNKNOWN"

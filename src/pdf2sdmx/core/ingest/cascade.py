@@ -29,8 +29,9 @@ STAGES: list[tuple[str, Stage]] = [
     (paddleocr_stage.METHOD, paddleocr_stage.extract),
 ]
 
-# Measured on two INS bulletins: text and contents pages carry at most 83 digits, the
-# smallest table page 118. Below this the model stages are not worth their 15 seconds.
+# Measured on the reports in data/raw: pages of prose and lists of contents carry at most
+# 83 digits, the sparsest table page 118. Below this the model stages are not worth their
+# 15 seconds. Raise it and small tables are dropped; the run says so page by page.
 MIN_DIGITS_FOR_A_TABLE = 100
 
 
@@ -162,8 +163,8 @@ def _gate_all(method: str, tables: list[ExtractedTable]) -> tuple[list[Candidate
 def _matching_table(target: Candidate, donors: list[Candidate]) -> Candidate | None:
     """Donor with the same data columns and the most cells that read the same number.
 
-    Two tables on one page often share headers and row labels (livestock 2024 and 2025),
-    so labels alone cannot tell them apart. Equal values can.
+    Two tables on one page often share headers and row labels, the same breakdown printed
+    for two periods, so labels alone cannot tell them apart. Equal values can.
     """
     scored = [(_agreeing_cells(target.frame, d.frame), d) for d in donors]
     scored = [(n, d) for n, d in scored if n > 0]

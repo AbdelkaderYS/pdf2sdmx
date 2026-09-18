@@ -56,30 +56,48 @@ def test_the_sample_contents_page_explains_itself():
     assert "digits" in ui.no_table_reason(result)
 
 
-def test_the_summary_publishes_the_share_of_numbers_a_check_covered():
+def test_the_figures_publish_the_share_of_numbers_a_check_covered():
     result = pipeline.run_page(SAMPLE, 3)
-    summary = ui.summary_markdown([result])
-    assert "observations" in summary
-    assert "covered by a check" in summary
+    block = ui.stats_html([result])
+    assert "covered by a check" in block
+    assert "observations" in block
     checked = ui._cells_checked([result])
     assert 0 < checked < len(result.long), "a page where every number is checked would hide the point"
 
 
-def test_the_summary_is_empty_before_anything_is_read():
-    assert ui.summary_markdown([]) == ""
+def test_large_figures_are_grouped_so_they_can_be_read():
+    assert ui._number(6106) == "6\u202f106"
+    assert ui._number(53) == "53"
+
+
+def test_the_figures_are_empty_before_anything_is_read():
+    assert ui.stats_html([]) == ""
 
 
 def test_conformance_is_silent_until_the_files_exist():
-    assert ui.conformance_markdown({}) == ""
+    assert ui.conformance_pill({}) == ""
 
 
 def test_conformance_reports_the_output_of_a_real_run():
     result = pipeline.run_page(SAMPLE, 3)
     files = ui._output_files(SAMPLE, [result])
-    line = ui.conformance_markdown(files)
-    assert line.startswith("**SDMX-ML 2.1:**")
-    if "not checked" not in line:
-        assert "valid against the official schemas" in line
+    pill = ui.conformance_pill(files)
+    assert "SDMX-ML 2.1" in pill
+    if "not checked" not in pill:
+        assert "valid" in pill and "invalid" not in pill
+
+
+def test_a_table_is_shown_under_the_title_the_report_gives_it():
+    result = pipeline.run_page(SAMPLE, 3)
+    labels = [slot["label"] for slot in ui.table_slots(result) if slot.get("visible")]
+    assert labels[0].startswith("Tableau 03.02")
+    assert "read by" in labels[0]
+
+
+def test_the_stage_line_says_whether_the_vision_model_is_there():
+    line = ui.stages_markdown()
+    assert "PaddleOCR-VL" in line
+    assert "installed" in line
 
 
 def test_checks_frame_lists_only_what_needs_a_human():
