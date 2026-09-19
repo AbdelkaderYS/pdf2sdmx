@@ -24,6 +24,7 @@ from pdf2sdmx.config import settings
 from pdf2sdmx.core import pipeline, sdmx_out
 from pdf2sdmx.core.ingest import paddleocr_stage
 from pdf2sdmx.core.pipeline import PageResult
+from pdf2sdmx.core.reshape import NOT_IDENTIFIED
 
 ACCENT = "teal"
 TABLE_SLOTS = 3
@@ -62,6 +63,8 @@ DISPLAY_COLUMNS = [
     "REF_AREA_LABEL",
     "INDICATOR",
     "INDICATOR_LABEL",
+    "COMPOSITE_BREAKDOWN",
+    "COMPOSITE_BREAKDOWN_LABEL",
     "TIME_PERIOD",
     "TIME_PERIOD_LABEL",
     "OBS_VALUE",
@@ -182,6 +185,7 @@ def stats_html(results: list[PageResult], files: dict[str, str | bytes] | None =
         (_number(len(results)), "pages"),
         (_number(len(long)), "observations"),
         (f"{checked / len(long):.0%}", "covered by a check"),
+        (f"{_measure_named(long):.0%}", "measure identified"),
         (_number(int((long["OBS_STATUS"] != "A").sum())), "to review"),
     ]
     blocks = [f"<div class='figure'><b>{value}</b><span>{label}</span></div>" for value, label in figures]
@@ -205,6 +209,17 @@ def observations_note(long: pd.DataFrame) -> str:
         f"**{_number(len(long))} observations.** One row per number read: the SDMX code and "
         "the label printed in the report side by side, then the page and the stage it came from."
     )
+
+
+def _measure_named(long: pd.DataFrame) -> float:
+    """Share of observations whose indicator came from the mapping rather than nothing.
+
+    The rest carry _Z. Published because a code list that looks full is worth less than one
+    that says where it stops: an accuracy that ignores what was never linked is inflated.
+    """
+    if long.empty:
+        return 0.0
+    return float((long["INDICATOR"] != NOT_IDENTIFIED).mean())
 
 
 def _number(value: int) -> str:

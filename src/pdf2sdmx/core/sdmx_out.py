@@ -35,7 +35,10 @@ DATAFLOW_NAME = "INS Niger tables extracted from PDF"
 
 # Same component ids as the World Bank WDI DSD (FREQ, REF_AREA, TIME_PERIOD, UNIT_MULT,
 # OBS_VALUE) with INDICATOR where WDI uses SERIES.
-DIMENSIONS = ["FREQ", "REF_AREA", "INDICATOR", "TIME_PERIOD"]
+# INDICATOR carries the measure and COMPOSITE_BREAKDOWN what it is measured on, the way
+# the UN SDG structure separates a series from the breakdowns applied to it. Writing both
+# in one dimension gives a code list with one entry per combination.
+DIMENSIONS = ["FREQ", "REF_AREA", "INDICATOR", "COMPOSITE_BREAKDOWN", "TIME_PERIOD"]
 ATTRIBUTES = ["UNIT_MEASURE", "UNIT_MULT", "OBS_STATUS", "TIME_PERIOD_LABEL", "EXTRACTION_METHOD", "SOURCE"]
 MEASURE = "OBS_VALUE"
 
@@ -44,14 +47,18 @@ CODED = {
     "FREQ": "CL_FREQ",
     "REF_AREA": "CL_REF_AREA",
     "INDICATOR": "CL_INDICATOR",
+    "COMPOSITE_BREAKDOWN": "CL_COMPOSITE_BREAKDOWN",
     "UNIT_MEASURE": "CL_UNIT_MEASURE",
     "OBS_STATUS": "CL_OBS_STATUS",
 }
 
 # Codes and names from the SDMX cross-domain code lists. The other lists are built from
 # the data, because their codes come from the mapping file.
+# Every coded dimension needs these two, and neither is a value found in the data.
+SHARED_CODES = {"_T": "Total", "_Z": "Not identified"}
+
 FIXED_CODES = {
-    "CL_FREQ": {"A": "Annual", "Q": "Quarterly", "M": "Monthly"},
+    "CL_FREQ": {"A": "Annual", "Q": "Quarterly", "M": "Monthly", "D": "Daily"},
     "CL_OBS_STATUS": {
         "A": "Normal value",
         "E": "Estimated value",
@@ -64,17 +71,23 @@ CODELIST_NAMES = {
     "CL_FREQ": "Frequency",
     "CL_REF_AREA": "Reference area",
     "CL_INDICATOR": "Indicator",
+    "CL_COMPOSITE_BREAKDOWN": "Composite breakdown",
     "CL_UNIT_MEASURE": "Unit of measure",
     "CL_OBS_STATUS": "Observation status",
 }
 
 # Column of the long table holding a readable name for a coded value.
-LABEL_COLUMN = {"REF_AREA": "REF_AREA_LABEL", "INDICATOR": "INDICATOR_LABEL"}
+LABEL_COLUMN = {
+    "REF_AREA": "REF_AREA_LABEL",
+    "INDICATOR": "INDICATOR_LABEL",
+    "COMPOSITE_BREAKDOWN": "COMPOSITE_BREAKDOWN_LABEL",
+}
 
 CONCEPT_NAMES = {
     "FREQ": "Frequency",
     "REF_AREA": "Reference area",
     "INDICATOR": "Indicator",
+    "COMPOSITE_BREAKDOWN": "Composite breakdown",
     "TIME_PERIOD": "Time period",
     "OBS_VALUE": "Observation value",
     "UNIT_MEASURE": "Unit of measure",
@@ -135,6 +148,8 @@ def codelists(long: pd.DataFrame) -> dict[str, dict[str, str]]:
             continue
         codes: dict[str, str] = {}
         label_column = LABEL_COLUMN.get(component, "")
+        for code, name in SHARED_CODES.items():
+            codes[code] = name
         for _, row in long.iterrows():
             code = str(row[component])
             label = str(row[label_column]) if label_column and label_column in long.columns else ""

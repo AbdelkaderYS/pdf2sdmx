@@ -119,7 +119,7 @@ def test_the_written_files_keep_the_sdmx_column_order():
     """The reordering is for the screen. A file must stay in the order SDMX expects."""
     result = pipeline.run_page(SAMPLE, 2)
     header = ui._output_files(SAMPLE, [result])[f"{SAMPLE.stem}_long.csv"].splitlines()[0]
-    assert header.startswith("FREQ,REF_AREA,INDICATOR,TIME_PERIOD,OBS_VALUE")
+    assert header.startswith("FREQ,REF_AREA,INDICATOR,COMPOSITE_BREAKDOWN,TIME_PERIOD,OBS_VALUE")
 
 
 def test_the_observations_say_what_a_row_is_and_how_many():

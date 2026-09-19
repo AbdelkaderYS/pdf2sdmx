@@ -20,7 +20,8 @@ def long_table() -> pd.DataFrame:
             {
                 "FREQ": "A",
                 "REF_AREA": "NE_AGADEZ",
-                "INDICATOR": "AGR_MIL_AREA",
+                "INDICATOR": "AREA_HA",
+                "COMPOSITE_BREAKDOWN": "MILLET",
                 "TIME_PERIOD": "2024-A1",
                 "OBS_VALUE": 1234.0,
                 "UNIT_MEASURE": "HA",
@@ -30,12 +31,14 @@ def long_table() -> pd.DataFrame:
                 "EXTRACTION_METHOD": "pdfplumber",
                 "SOURCE": "bulletin.pdf",
                 "REF_AREA_LABEL": "Agadez",
-                "INDICATOR_LABEL": "Mil superficie",
+                "INDICATOR_LABEL": "Superficie",
+                "COMPOSITE_BREAKDOWN_LABEL": "Mil",
             },
             {
                 "FREQ": "A",
                 "REF_AREA": "NE_DIFFA",
-                "INDICATOR": "AGR_MIL_PROD",
+                "INDICATOR": "PROD_T",
+                "COMPOSITE_BREAKDOWN": "_T",
                 "TIME_PERIOD": "2024-A1",
                 "OBS_VALUE": 987.0,
                 "UNIT_MEASURE": "T",
@@ -45,7 +48,8 @@ def long_table() -> pd.DataFrame:
                 "EXTRACTION_METHOD": "camelot_ml",
                 "SOURCE": "bulletin.pdf",
                 "REF_AREA_LABEL": "Diffa",
-                "INDICATOR_LABEL": "Mil production",
+                "INDICATOR_LABEL": "Production",
+                "COMPOSITE_BREAKDOWN_LABEL": "",
             },
         ]
     )
@@ -112,8 +116,8 @@ def test_codelists_name_codes_from_the_label_column():
 def test_sdmx_csv_starts_with_the_three_structure_columns():
     header = sdmx_out.to_sdmx_csv(long_table()).splitlines()[0].split(",")
     assert header[:3] == ["STRUCTURE", "STRUCTURE_ID", "ACTION"]
-    assert header[3:7] == sdmx_out.DIMENSIONS
-    assert header[7] == sdmx_out.MEASURE
+    assert header[3 : 3 + len(sdmx_out.DIMENSIONS)] == sdmx_out.DIMENSIONS
+    assert header[3 + len(sdmx_out.DIMENSIONS)] == sdmx_out.MEASURE
 
 
 @requires_schemas

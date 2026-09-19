@@ -2,6 +2,7 @@
 
 import re
 import unicodedata
+from dataclasses import dataclass
 from pathlib import Path
 
 import pandas as pd
@@ -18,6 +19,7 @@ LONG_COLUMNS = [
     "FREQ",
     "REF_AREA",
     "INDICATOR",
+    "COMPOSITE_BREAKDOWN",
     "TIME_PERIOD",
     "OBS_VALUE",
     "UNIT_MEASURE",
@@ -28,11 +30,16 @@ LONG_COLUMNS = [
     "SOURCE",
     "REF_AREA_LABEL",
     "INDICATOR_LABEL",
+    "COMPOSITE_BREAKDOWN_LABEL",
 ]
 MATCH_THRESHOLD = 88
 # Where a table gives no breakdown, the observation is about the country as a whole.
 COUNTRY = "NE"
 COUNTRY_LABEL = "Niger"
+# SDMX conventions for a dimension that carries no value here: _T when the observation is
+# the total over that dimension, _Z when the label could not be identified at all.
+TOTAL = "_T"
+NOT_IDENTIFIED = "_Z"
 UNIT_IN_HEADER = re.compile(r"\(([^)]+)\)\s*$")
 # Trailing parentheses hold a unit only when they hold nothing else. "(1 à 10 m3/mois)" is a
 # tariff band and "(17 à 22 places)" a vehicle class; reading either as a unit is worse than
@@ -122,13 +129,14 @@ def to_long(
             area_label, indicator_label, period = _assign_axes(label, column, row_kind, col_kind, subject, time_period)
             area_code, leftover = _resolve_area(area_label, mapping) if area_label else ("", "")
             indicator_label = _join_indicator(leftover, indicator_label, subject)
-            indicator_code, mapped_unit = _indicator(indicator_label, mapping)
+            measure, breakdown, mapped_unit = _split_indicator(indicator_label, mapping)
             time_code = sdmx_time_period(period)
             records.append(
                 {
                     "FREQ": sdmx_frequency(time_code),
                     "REF_AREA": area_code or COUNTRY,
-                    "INDICATOR": indicator_code,
+                    "INDICATOR": measure.code,
+                    "COMPOSITE_BREAKDOWN": breakdown.code,
                     "TIME_PERIOD": time_code,
                     "OBS_VALUE": parsed.value,
                     "UNIT_MEASURE": _unit_for(indicator_label, mapped_unit, unit),
@@ -138,7 +146,8 @@ def to_long(
                     "EXTRACTION_METHOD": method if isinstance(method, str) else method.get(label, "unknown"),
                     "SOURCE": source,
                     "REF_AREA_LABEL": area_label if area_code else COUNTRY_LABEL,
-                    "INDICATOR_LABEL": indicator_label,
+                    "INDICATOR_LABEL": measure.label,
+                    "COMPOSITE_BREAKDOWN_LABEL": breakdown.label,
                 }
             )
     return pd.DataFrame(records, columns=LONG_COLUMNS)
@@ -246,15 +255,58 @@ def _kind_of_label(label: str, axis_kind: str) -> str:
     return axis_kind
 
 
-def _indicator(label: str, mapping: pd.DataFrame) -> tuple[str, str]:
-    """A label nested under another maps part by part, and the unit comes from the match."""
-    codes, units = [], []
+@dataclass(frozen=True)
+class Coded:
+    """A dimension value: the code written to SDMX and the label as the report printed it."""
+
+    code: str
+    label: str
+
+
+def _split_indicator(label: str, mapping: pd.DataFrame) -> tuple[Coded, Coded, str]:
+    """Separate what is measured from the thing it is measured on.
+
+    A printed label such as "Mil / Superficie" names both at once. Written as one code it
+    gives a list with one entry per combination, where nothing repeats and nothing can be
+    queried. INDICATOR keeps the measure, which is a short closed list, and the rest goes
+    to COMPOSITE_BREAKDOWN beside it. This is how the UN SDG structure models the same
+    problem, and the SDMX guideline on modelling a domain calls it decomposing an
+    indicator set.
+
+    A part that matches no measure leaves INDICATOR not identified rather than minting a
+    code that looks official. Nothing is lost: the label still reaches the breakdown.
+    """
+    measure = Coded("", "")
+    breakdown = Coded("", "")
+    leftovers: list[str] = []
+    unit = ""
     for part in label.split(LABEL_JOIN):
-        code, unit = _code_for(part, mapping, "INDICATOR")
-        codes.append(code or sdmx_code(part))
-        if unit:
-            units.append(unit)
-    return "_".join(codes), units[0] if units else ""
+        part = part.strip()
+        if not part:
+            continue
+        code, part_unit = _code_for(part, mapping, "INDICATOR")
+        if code and not measure.code:
+            measure = Coded(code, part)
+            unit = unit or part_unit
+            continue
+        code, part_unit = _code_for(part, mapping, "COMPOSITE_BREAKDOWN")
+        if code and not breakdown.code:
+            breakdown = Coded(code, part)
+            unit = unit or part_unit
+            continue
+        leftovers.append(part)
+
+    if leftovers and not breakdown.code:
+        text = LABEL_JOIN.join(leftovers)
+        breakdown = Coded(sdmx_code(text), text)
+    elif leftovers:
+        breakdown = Coded(breakdown.code, LABEL_JOIN.join([breakdown.label, *leftovers]))
+
+    return (
+        measure if measure.code else Coded(NOT_IDENTIFIED, label),
+        breakdown if breakdown.code else Coded(TOTAL, ""),
+        unit,
+    )
 
 
 def _code_for(label: str, mapping: pd.DataFrame, dimension: str) -> tuple[str, str]:

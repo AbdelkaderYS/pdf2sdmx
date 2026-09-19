@@ -51,7 +51,10 @@ def test_years_in_header_become_time_period():
     )
     assert len(long) == 3  # the dash is a missing marker and is dropped
     assert set(long["TIME_PERIOD"]) == {"2020", "2021"}
-    assert set(long["INDICATOR"]) == {"MILLET", "SORGHUM"}
+    # The crops name what is measured, not the measure, so they sit in the breakdown and
+    # INDICATOR says it could not name a measure rather than inventing one.
+    assert set(long["INDICATOR"]) == {"_Z"}
+    assert set(long["COMPOSITE_BREAKDOWN"]) == {"MILLET", "SORGHUM"}
     assert (long["REF_AREA"] == "NE").all()
 
 
@@ -86,7 +89,9 @@ def test_sdmx_csv_and_ml_round_trip():
         checks=run_checks(frame),
     )
     csv = sdmx_out.to_sdmx_csv(long)
-    assert csv.startswith("STRUCTURE,STRUCTURE_ID,ACTION,FREQ,REF_AREA,INDICATOR,TIME_PERIOD,OBS_VALUE")
+    assert csv.startswith(
+        "STRUCTURE,STRUCTURE_ID,ACTION,FREQ,REF_AREA,INDICATOR,COMPOSITE_BREAKDOWN,TIME_PERIOD,OBS_VALUE"
+    )
     assert csv.count("\n") == len(long) + 1
 
     structure_xml, data_xml = sdmx_out.to_sdmx_ml(long)
@@ -116,7 +121,9 @@ def test_regions_in_upper_case_columns_become_ref_area():
         checks=[],
     )
     assert set(long["REF_AREA"]) == {"NE-1", "NE-6", "NE-8", "_T"}
-    assert set(long["INDICATOR"]) == {"MILLET_AREA_HA", "MILLET_PROD_T"}
+    # One code per measure, one per crop, instead of one per combination of the two.
+    assert set(long["INDICATOR"]) == {"AREA_HA", "PROD_T"}
+    assert set(long["COMPOSITE_BREAKDOWN"]) == {"MILLET"}
     assert set(long["UNIT_MEASURE"]) == {"HA", "T"}  # units are SDMX codes, so upper case
 
 
@@ -194,7 +201,7 @@ def test_a_column_that_is_not_a_period_stays_an_indicator():
     long = reshape.to_long(frame, mapping=MAPPING, time_period="2023", unit="", method="m", source="s", checks=[])
     periods = set(long["TIME_PERIOD"])
     assert periods == {"2022", "2023"}
-    assert any("VARIATION" in code for code in long["INDICATOR"])
+    assert any("VARIATION" in code for code in long["COMPOSITE_BREAKDOWN"])
 
 
 def test_a_label_that_names_no_known_area_does_not_become_one():
@@ -230,3 +237,27 @@ def test_a_stock_date_becomes_a_calendar_day():
     assert reshape.sdmx_time_period("31 déc-22") == "2022-12-31"
     assert reshape.sdmx_time_period("30 sept-24") == "2024-09-30"
     assert reshape.sdmx_frequency("2024-09-30") == "D"
+
+
+def test_the_measure_and_the_thing_measured_go_to_separate_dimensions():
+    """One code per measure and one per crop, not one per combination of the two.
+
+    Written as a single code, a table of 500 items by 20 measures needs 10 000 codes and
+    none of them repeats. This is the decomposition the SDMX domain modelling guideline
+    describes, and the shape the UN SDG structure uses.
+    """
+    measure, breakdown, unit = reshape._split_indicator("Mil / Superficie", MAPPING)
+    assert (measure.code, breakdown.code) == ("AREA_HA", "MILLET")
+    assert unit == "ha"
+
+
+def test_a_measure_on_its_own_leaves_the_breakdown_total():
+    measure, breakdown, _ = reshape._split_indicator("Production", MAPPING)
+    assert (measure.code, breakdown.code) == ("PROD_T", "_T")
+
+
+def test_a_label_naming_no_measure_says_so_instead_of_inventing_one():
+    """_Z is not a failure to record the label: the breakdown still carries it."""
+    measure, breakdown, _ = reshape._split_indicator("Passagers / Trafic national", MAPPING)
+    assert measure.code == "_Z"
+    assert breakdown.label == "Passagers / Trafic national"
