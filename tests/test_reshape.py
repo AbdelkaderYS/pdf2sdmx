@@ -261,3 +261,32 @@ def test_a_label_naming_no_measure_says_so_instead_of_inventing_one():
     measure, breakdown, _ = reshape._split_indicator("Passagers / Trafic national", MAPPING)
     assert measure.code == "_Z"
     assert breakdown.label == "Passagers / Trafic national"
+
+
+def test_the_engine_runs_on_a_document_it_knows_nothing_about(tmp_path):
+    """With an empty vocabulary the numbers must still come out, and the labels with them.
+
+    Extraction is general. Coding is not, and cannot be: no engine knows what a word means
+    until it is told. What it must never do is pretend, so every code says _Z or falls back
+    to the country, and the printed label is kept beside it.
+    """
+    empty = tmp_path / "empty.csv"
+    empty.write_text("label,code,dimension,unit,note\n")
+    frame = pd.DataFrame(
+        {"Désignation": ["Quelque chose", "Autre chose"], "2024": ["10", "20"]}
+    )
+    known = reshape.to_long(
+        frame, mapping=MAPPING, time_period="2024", unit="", method="m", source="s", checks=[]
+    )
+    unknown = reshape.to_long(
+        frame,
+        mapping=reshape.load_mapping(empty),
+        time_period="2024",
+        unit="",
+        method="m",
+        source="s",
+        checks=[],
+    )
+    assert list(unknown["OBS_VALUE"]) == list(known["OBS_VALUE"])
+    assert set(unknown["INDICATOR"]) == {"_Z"}
+    assert set(unknown["COMPOSITE_BREAKDOWN_LABEL"]) == {"Quelque chose", "Autre chose"}

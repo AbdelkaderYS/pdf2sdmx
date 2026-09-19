@@ -18,20 +18,22 @@ from xml.etree import ElementTree as ET
 
 import pandas as pd
 
+from pdf2sdmx.config import settings
+
 MESSAGE = "http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message"
 STRUCTURE = "http://www.sdmx.org/resources/sdmxml/schemas/v2_1/structure"
 COMMON = "http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common"
 GENERIC = "http://www.sdmx.org/resources/sdmxml/schemas/v2_1/data/generic"
 XML_LANG = "{http://www.w3.org/XML/1998/namespace}lang"
 
-AGENCY = "INS_NE"
-AGENCY_NAME = "Institut National de la Statistique du Niger"
+AGENCY = settings.agency
+AGENCY_NAME = settings.agency_name
 DSD_ID = "DSD_PDF2SDMX"
 DATAFLOW_ID = "DF_PDF2SDMX"
 CONCEPTS_ID = "CS_PDF2SDMX"
 VERSION = "1.0"
-DSD_NAME = "Tables read from INS Niger PDF reports"
-DATAFLOW_NAME = "INS Niger tables extracted from PDF"
+DSD_NAME = "Tables read from a statistical report"
+DATAFLOW_NAME = "Tables extracted from a statistical report"
 
 # Same component ids as the World Bank WDI DSD (FREQ, REF_AREA, TIME_PERIOD, UNIT_MULT,
 # OBS_VALUE) with INDICATOR where WDI uses SERIES.

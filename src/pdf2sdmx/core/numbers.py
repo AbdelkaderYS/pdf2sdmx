@@ -1,4 +1,4 @@
-"""Parse numbers the way INS Niger prints them: space thousands, comma decimals."""
+"""Parse numbers the way a French language report prints them: space thousands, comma decimals."""
 
 import re
 from dataclasses import dataclass

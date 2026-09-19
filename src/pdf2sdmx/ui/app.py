@@ -78,7 +78,7 @@ DISPLAY_COLUMNS = [
     "SOURCE",
 ]
 
-INTRO = "Tables printed in INS Niger PDF reports, read, checked and written as SDMX."
+INTRO = "Tables printed in a statistical PDF report, read, checked and written as SDMX."
 PLACEHOLDER = "Drop a PDF on the left, browse it with the page slider, then press Start."
 FORMATS = (
     "**SDMX-CSV** is one observation per line, readable in Excel, and assumes the receiver "

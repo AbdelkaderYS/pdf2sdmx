@@ -5,12 +5,15 @@ from dataclasses import dataclass
 
 import pandas as pd
 
+from pdf2sdmx.config import settings
 from pdf2sdmx.core.numbers import parse_number
 
 # The words a check looks for in a row or column name. They decide which check applies to
 # which table, and nothing here assumes a particular report: a table naming none of them
 # simply has those checks skipped, which the run counts and reports.
-TOTAL_LABEL = re.compile(r"\b(total|ensemble|niger|national)\b", re.I)
+# The publishing country's own name counts as a total, because a national table prints the
+# country where another would print "Total".
+TOTAL_LABEL = re.compile(rf"\b(total|ensemble|national|{re.escape(settings.country_name)})\b", re.I)
 RATE_HEADER = re.compile(r"kg/ha|%|taux|rendement|moyen|ratio|prix|indice|part\b", re.I)
 AREA_HEADER = re.compile(r"superficie|surface", re.I)
 YIELD_HEADER = re.compile(r"rendement", re.I)
@@ -20,7 +23,7 @@ YEAR_HEADER = re.compile(r"^(19|20)\d{2}(\s*[/-]\s*(19|20)?\d{2})?\s*(\*+|\(\s*[
 # The name table._default_header gives a column when no header row was found.
 PLACEHOLDER_COLUMN = re.compile(r"^col(_\d+)?$")
 
-SUM_TOLERANCE = 0.005  # half a percent, INS totals are rounded independently
+SUM_TOLERANCE = 0.005  # half a percent, a printed total is rounded independently
 PRODUCT_TOLERANCE = 0.02
 ABSOLUTE_TOLERANCE = 1.0  # printed values are rounded to the unit, so 1 vs 1.4 is not an error
 JUMP_FACTOR = 5.0
@@ -37,7 +40,7 @@ class Check:
 
 
 def row_labels(frame: pd.DataFrame) -> list[str]:
-    """First column as unique labels. INS tables repeat labels, so duplicates get a suffix."""
+    """First column as unique labels. A printed table repeats labels, so duplicates get a suffix."""
     seen: dict[str, int] = {}
     out = []
     for raw in frame.iloc[:, 0].astype(str).str.strip():
@@ -107,7 +110,7 @@ def check_bounds(values: pd.DataFrame) -> list[Check]:
 
 
 def check_column_totals(values: pd.DataFrame) -> list[Check]:
-    """A row named Total or Niger must equal the sum of the other rows, column by column."""
+    """A row holding the total must equal the sum of the other rows, column by column."""
     total_rows = [i for i in values.index if TOTAL_LABEL.search(i)]
     if not total_rows or len(values) < 3:
         return [Check("column_total", "skip", "no total row found")]

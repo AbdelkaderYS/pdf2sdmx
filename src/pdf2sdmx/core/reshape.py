@@ -9,6 +9,7 @@ import pandas as pd
 from rapidfuzz import fuzz, process
 from rapidfuzz.utils import default_process
 
+from pdf2sdmx.config import settings
 from pdf2sdmx.core.numbers import parse_number
 from pdf2sdmx.core.table import LABEL_JOIN, PERIOD_HEADER
 from pdf2sdmx.core.validate import Check, row_labels
@@ -33,9 +34,10 @@ LONG_COLUMNS = [
     "COMPOSITE_BREAKDOWN_LABEL",
 ]
 MATCH_THRESHOLD = 88
-# Where a table gives no breakdown, the observation is about the country as a whole.
-COUNTRY = "NE"
-COUNTRY_LABEL = "Niger"
+# Where a table gives no breakdown, the observation is about the publishing country as a
+# whole. Which country that is comes from the settings, not from here.
+COUNTRY = settings.country
+COUNTRY_LABEL = settings.country_name
 # SDMX conventions for a dimension that carries no value here: _T when the observation is
 # the total over that dimension, _Z when the label could not be identified at all.
 TOTAL = "_T"

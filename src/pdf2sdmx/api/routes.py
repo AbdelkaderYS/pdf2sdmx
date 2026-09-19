@@ -43,7 +43,7 @@ def health() -> HealthResponse:
 @router.get("/metadata", response_model=MetadataResponse)
 def metadata() -> MetadataResponse:
     return MetadataResponse(
-        geography=["NE"],
+        geography=[settings.country],
         period_start=2011,
         period_end=2025,
         indicators=["AREA_HA", "YIELD_KG_HA", "PROD_T"],
