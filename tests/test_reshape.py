@@ -195,3 +195,38 @@ def test_a_column_that_is_not_a_period_stays_an_indicator():
     periods = set(long["TIME_PERIOD"])
     assert periods == {"2022", "2023"}
     assert any("VARIATION" in code for code in long["INDICATOR"])
+
+
+def test_a_label_that_names_no_known_area_does_not_become_one():
+    """Reading an unmatched label as an area is how livestock became a country."""
+    frame = pd.DataFrame({"Désignation": ["Bovins", "Ovins"], "2024": ["18133707", "21597536"]})
+    long = reshape.to_long(frame, mapping=MAPPING, time_period="2024", unit="", method="m", source="s", checks=[])
+    assert set(long["REF_AREA"]) == {"NE"}
+    assert set(long["INDICATOR_LABEL"]) == {"Bovins", "Ovins"}
+
+
+def test_a_nested_area_label_keeps_only_the_area():
+    """A label merged from two printed columns reads "Dosso / Bovins"."""
+    code, leftover = reshape._resolve_area("Dosso / Bovins", MAPPING)
+    assert code == "NE-3"
+    assert leftover == "Bovins"
+
+
+def test_text_in_parentheses_is_a_unit_only_when_it_is_one():
+    assert reshape._unit_for("Rendement (kg/ha)", "", "") == "KG_HA"
+    assert reshape._unit_for("Tranche (1 à 10 m3/mois)", "", "") == "UNKNOWN"
+    assert reshape._unit_for("Minibus (17 à 22 places)", "", "") == "UNKNOWN"
+
+
+def test_a_quarter_written_with_a_hyphen_is_still_a_quarter():
+    """A separator of a hyphen instead of a space left 35% of dates inside the indicator."""
+    assert reshape.sdmx_time_period("1T-22") == "2022-Q1"
+    assert reshape.sdmx_time_period("3T-24") == "2024-Q3"
+    assert reshape.sdmx_time_period("2024 1T-24r") == "2024-Q1"
+
+
+def test_a_stock_date_becomes_a_calendar_day():
+    """A stock is printed at a date: "31 déc-22" is the day, not the year."""
+    assert reshape.sdmx_time_period("31 déc-22") == "2022-12-31"
+    assert reshape.sdmx_time_period("30 sept-24") == "2024-09-30"
+    assert reshape.sdmx_frequency("2024-09-30") == "D"

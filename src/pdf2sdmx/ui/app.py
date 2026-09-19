@@ -55,6 +55,26 @@ CSS = """
 footer { display: none !important; }
 """
 
+# On screen each code sits next to the label it stands for, so the coding can be checked
+# without scrolling sideways. The written files keep the SDMX column order instead.
+DISPLAY_COLUMNS = [
+    "REF_AREA",
+    "REF_AREA_LABEL",
+    "INDICATOR",
+    "INDICATOR_LABEL",
+    "TIME_PERIOD",
+    "TIME_PERIOD_LABEL",
+    "OBS_VALUE",
+    "UNIT_MEASURE",
+    "UNIT_MULT",
+    "FREQ",
+    "OBS_STATUS",
+    "PAGE",
+    "TABLE",
+    "EXTRACTION_METHOD",
+    "SOURCE",
+]
+
 INTRO = "Tables printed in INS Niger PDF reports, read, checked and written as SDMX."
 PLACEHOLDER = "Drop a PDF on the left, browse it with the page slider, then press Start."
 FORMATS = (
@@ -132,6 +152,7 @@ def _state(preview, progress, found, current, archive=None, files=None):
     """Values for every output component, in the order declared in build()."""
     files = files or {}
     results = [f["result"] for f in found]
+    long = pipeline.combine(results) if results else pd.DataFrame()
     return (
         gr.update(value=preview, visible=True) if preview is not None else gr.update(),
         progress,
@@ -142,7 +163,8 @@ def _state(preview, progress, found, current, archive=None, files=None):
         gr.update(value=[_gallery_item(f) for f in found], visible=bool(found)),
         found,
         *table_slots(current),
-        pipeline.combine(results) if results else pd.DataFrame(),
+        observations_note(long),
+        observations_frame(long),
         _preview_text(files, "_sdmx.csv"),
         _preview_text(files, "_data.xml"),
         checks_frame(results),
@@ -164,6 +186,25 @@ def stats_html(results: list[PageResult], files: dict[str, str | bytes] | None =
     ]
     blocks = [f"<div class='figure'><b>{value}</b><span>{label}</span></div>" for value, label in figures]
     return f"<div id='stats'>{''.join(blocks)}{conformance_pill(files or {})}</div>"
+
+
+def observations_frame(long: pd.DataFrame) -> pd.DataFrame:
+    """The observations as a reader wants them: every code beside its printed label."""
+    if long.empty:
+        return long
+    ordered = [c for c in DISPLAY_COLUMNS if c in long.columns]
+    rest = [c for c in long.columns if c not in ordered]
+    return long[ordered + rest]
+
+
+def observations_note(long: pd.DataFrame) -> str:
+    """One line saying what a row is. Without it the table reads as a debug dump."""
+    if long.empty:
+        return ""
+    return (
+        f"**{_number(len(long))} observations.** One row per number read: the SDMX code and "
+        "the label printed in the report side by side, then the page and the stage it came from."
+    )
 
 
 def _number(value: int) -> str:
@@ -370,8 +411,9 @@ def build() -> gr.Blocks:
                             gr.Dataframe(wrap=True, interactive=False, max_height=600, visible=False)
                             for _ in range(TABLE_SLOTS)
                         ]
-                    with gr.Tab("Data"):
-                        long = gr.Dataframe(interactive=False, wrap=True, max_height=700)
+                    with gr.Tab("Observations"):
+                        observations_note_box = gr.Markdown(elem_id="formats")
+                        long = gr.Dataframe(interactive=False, wrap=True, max_height=680)
                     with gr.Tab("SDMX"):
                         gr.Markdown(FORMATS, elem_id="formats")
                         sdmx_csv = gr.Code(label="SDMX-CSV 2.0", language=None, interactive=False, max_lines=18)
@@ -392,6 +434,7 @@ def build() -> gr.Blocks:
             gallery,
             found,
             *tables,
+            observations_note_box,
             long,
             sdmx_csv,
             sdmx_xml,

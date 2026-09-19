@@ -105,3 +105,29 @@ def test_checks_frame_lists_only_what_needs_a_human():
     frame = ui.checks_frame([result])
     assert isinstance(frame, pd.DataFrame)
     assert list(frame.columns) == ["page", "check", "row", "column", "detail"]
+
+
+def test_each_code_is_shown_next_to_the_label_it_stands_for():
+    """Scrolling eight columns to check a code against its label defeats the point."""
+    result = pipeline.run_page(SAMPLE, 2)
+    columns = list(ui.observations_frame(result.long).columns)
+    for code in ("REF_AREA", "INDICATOR", "TIME_PERIOD"):
+        assert columns.index(f"{code}_LABEL") == columns.index(code) + 1
+
+
+def test_the_written_files_keep_the_sdmx_column_order():
+    """The reordering is for the screen. A file must stay in the order SDMX expects."""
+    result = pipeline.run_page(SAMPLE, 2)
+    header = ui._output_files(SAMPLE, [result])[f"{SAMPLE.stem}_long.csv"].splitlines()[0]
+    assert header.startswith("FREQ,REF_AREA,INDICATOR,TIME_PERIOD,OBS_VALUE")
+
+
+def test_the_observations_say_what_a_row_is_and_how_many():
+    result = pipeline.run_page(SAMPLE, 2)
+    note = ui.observations_note(result.long)
+    assert "observations" in note
+    assert "One row per number read" in note
+
+
+def test_nothing_is_said_about_observations_before_a_run():
+    assert ui.observations_note(pd.DataFrame()) == ""

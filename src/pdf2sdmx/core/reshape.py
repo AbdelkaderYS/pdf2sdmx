@@ -30,19 +30,55 @@ LONG_COLUMNS = [
     "INDICATOR_LABEL",
 ]
 MATCH_THRESHOLD = 88
+# Where a table gives no breakdown, the observation is about the country as a whole.
+COUNTRY = "NE"
+COUNTRY_LABEL = "Niger"
 UNIT_IN_HEADER = re.compile(r"\(([^)]+)\)\s*$")
+# Trailing parentheses hold a unit only when they hold nothing else. "(1 à 10 m3/mois)" is a
+# tariff band and "(17 à 22 places)" a vehicle class; reading either as a unit is worse than
+# reading none, because an attribute that means something else still looks filled in.
+UNIT_TEXT = re.compile(
+    r"^(?:en\s+)?(?:milliers?|millions?|milliards?)?\s*(?:de\s+|d[\u2019\']\s*)?"
+    r"(?:ha|hectares?|t|tonnes?|kg(?:\s*/\s*ha)?|g|l|litres?|m3|m\u00b3|km2?|%|"
+    r"fcfa|f\s?cfa|unit[e\u00e9]s?|nombre|indice|habitants?|kwh|gwh|mw|points?)$",
+    re.I,
+)
 DUPLICATE_SUFFIX = re.compile(r"\s\(\d+\)$")
 SPLIT_YEAR = re.compile(r"^((?:19|20)\d{2})\s*[/-]\s*(?:19|20)?\d{2}$")
 # A quarter written "1 T24" or, less often, "T1 2024". Bounded by word breaks rather than
 # anchored, so a quarter is still found inside a name that carries its year as well.
-QUARTER_THEN_YEAR = re.compile(r"\b([1-4])\s*T\s*((?:19|20)?\d{2})\b", re.I)
-QUARTER_BEFORE_YEAR = re.compile(r"\bT\s*([1-4])\s*((?:19|20)?\d{2})\b", re.I)
+QUARTER_THEN_YEAR = re.compile(r"\b([1-4])\s*T\s*[-.]?\s*((?:19|20)?\d{2})\b", re.I)
+QUARTER_BEFORE_YEAR = re.compile(r"\bT\s*([1-4])\s*[-.]?\s*((?:19|20)?\d{2})\b", re.I)
+# A stock date printed "31 déc-22" or "30 sept-24", which SDMX writes as a calendar day.
+DAY_MONTH_YEAR = re.compile(
+    r"\b(\d{1,2})\s*(janv|f[e\u00e9]vr|mars|avr|mai|juin|juil|ao[u\u00fb]t|sept|oct|nov|d[e\u00e9]c)"
+    r"\w*\.?\s*-?\s*((?:19|20)?\d{2})\b",
+    re.I,
+)
+MONTH_NUMBER = {
+    "janv": "01",
+    "fevr": "02",
+    "févr": "02",
+    "mars": "03",
+    "avr": "04",
+    "mai": "05",
+    "juin": "06",
+    "juil": "07",
+    "aout": "08",
+    "août": "08",
+    "sept": "09",
+    "oct": "10",
+    "nov": "11",
+    "dec": "12",
+    "déc": "12",
+}
 # A marker printed next to a period, meaning provisional, estimated or revised:
 # "2010*", "2023 (p)", "2 T23r".
 FOOTNOTE_MARKER = re.compile(r"(?:\s*\*+|\s*\(\s*(?:p|e|r|prov|est|rev)\s*\)|(?<=\d)[pre])\s*$", re.I)
 # Characters an SDMX code id may not contain. The standard allows A-Z a-z 0-9 and _ @ $ -
 NOT_IN_A_CODE = re.compile(r"[^A-Za-z0-9_@$-]+")
 PLAIN_YEAR = re.compile(r"^(?:19|20)\d{2}$")
+DAILY_PERIOD = re.compile(r"^(?:19|20)\d{2}-\d{2}-\d{2}$")
 
 # CL_OBS_STATUS 2.3: A normal value, U low reliability. E means estimated and is not used here.
 STATUS_OK = "A"
@@ -84,12 +120,14 @@ def to_long(
             if parsed.status == "missing":
                 continue
             area_label, indicator_label, period = _assign_axes(label, column, row_kind, col_kind, subject, time_period)
+            area_code, leftover = _resolve_area(area_label, mapping) if area_label else ("", "")
+            indicator_label = _join_indicator(leftover, indicator_label, subject)
             indicator_code, mapped_unit = _indicator(indicator_label, mapping)
             time_code = sdmx_time_period(period)
             records.append(
                 {
                     "FREQ": sdmx_frequency(time_code),
-                    "REF_AREA": _code_for(area_label, mapping, "REF_AREA")[0] if area_label else "NE",
+                    "REF_AREA": area_code or COUNTRY,
                     "INDICATOR": indicator_code,
                     "TIME_PERIOD": time_code,
                     "OBS_VALUE": parsed.value,
@@ -99,7 +137,7 @@ def to_long(
                     "TIME_PERIOD_LABEL": period,
                     "EXTRACTION_METHOD": method if isinstance(method, str) else method.get(label, "unknown"),
                     "SOURCE": source,
-                    "REF_AREA_LABEL": area_label or "Niger",
+                    "REF_AREA_LABEL": area_label if area_code else COUNTRY_LABEL,
                     "INDICATOR_LABEL": indicator_label,
                 }
             )
@@ -122,6 +160,10 @@ def sdmx_time_period(printed: str) -> str:
         return f"{split.group(1)}-A1"
     # A search rather than a match: two header rows merged into "2021 1 T21" name the same
     # quarter twice, and the quarter is the one that carries the information.
+    day = DAY_MONTH_YEAR.search(text)
+    if day:
+        month = MONTH_NUMBER[day.group(2).casefold()]
+        return f"{_four_digit_year(day.group(3))}-{month}-{int(day.group(1)):02d}"
     quarter = QUARTER_THEN_YEAR.search(text) or QUARTER_BEFORE_YEAR.search(text)
     if quarter:
         return f"{_four_digit_year(quarter.group(2))}-Q{quarter.group(1)}"
@@ -132,6 +174,8 @@ def sdmx_frequency(time_period: str) -> str:
     """The FREQ code that goes with a period written by sdmx_time_period."""
     if "-Q" in time_period:
         return "Q"
+    if DAILY_PERIOD.match(time_period):
+        return "D"
     return "A"
 
 
@@ -177,6 +221,19 @@ def _assign_axes(row: str, column: str, row_kind: str, col_kind: str, subject: s
     return area, indicator, time
 
 
+def _join_indicator(leftover: str, indicator: str, subject: str) -> str:
+    """What is left of an area label joins the indicator.
+
+    When the indicator is only the table subject, the leftover says more on its own and
+    replaces it rather than being glued in front of it.
+    """
+    if not leftover:
+        return indicator
+    if indicator == subject:
+        return leftover
+    return LABEL_JOIN.join([leftover, indicator])
+
+
 def _kind_of_label(label: str, axis_kind: str) -> str:
     """The axis is classified by majority, one label at a time can still disagree.
 
@@ -194,17 +251,22 @@ def _indicator(label: str, mapping: pd.DataFrame) -> tuple[str, str]:
     codes, units = [], []
     for part in label.split(LABEL_JOIN):
         code, unit = _code_for(part, mapping, "INDICATOR")
-        codes.append(code)
+        codes.append(code or sdmx_code(part))
         if unit:
             units.append(unit)
     return "_".join(codes), units[0] if units else ""
 
 
 def _code_for(label: str, mapping: pd.DataFrame, dimension: str) -> tuple[str, str]:
-    """Exact then fuzzy match against the mapping file. Unknown labels get a slug, not a guess."""
+    """Exact then fuzzy match against the mapping file. Empty code when nothing matched.
+
+    A caller that can name the thing anyway, such as an indicator, falls back to a slug. A
+    caller that cannot, such as a reference area, must not: turning an unmatched label into
+    an area code is how livestock and petroleum products ended up declared as countries.
+    """
     candidates = mapping[mapping["dimension"] == dimension]
     if candidates.empty:
-        return sdmx_code(label), ""
+        return "", ""
     exact = candidates[candidates["label"].str.casefold() == label.casefold()]
     if not exact.empty:
         return sdmx_code(exact["code"].iloc[0]), exact["unit"].iloc[0]
@@ -214,7 +276,22 @@ def _code_for(label: str, mapping: pd.DataFrame, dimension: str) -> tuple[str, s
     if match:
         hit = candidates[candidates["label"] == match[0]].iloc[0]
         return sdmx_code(hit["code"]), hit["unit"]
-    return sdmx_code(label), ""
+    return "", ""
+
+
+def _resolve_area(label: str, mapping: pd.DataFrame) -> tuple[str, str]:
+    """(area code, what is left of the label) for a label the axis called an area.
+
+    A row label merged from two printed columns reads "Dosso / Bovins". Only one part names
+    an area; the rest belongs to the indicator. When no part names a known area the label is
+    not an area at all and comes back whole.
+    """
+    parts = label.split(LABEL_JOIN)
+    for position, part in enumerate(parts):
+        code, _ = _code_for(part, mapping, "REF_AREA")
+        if code:
+            return code, LABEL_JOIN.join(parts[:position] + parts[position + 1 :])
+    return "", label
 
 
 def _share_matching(labels: list[str], mapping: pd.DataFrame, dimension: str) -> float:
@@ -229,9 +306,13 @@ def _share_matching(labels: list[str], mapping: pd.DataFrame, dimension: str) ->
 
 
 def _unit_for(indicator_label: str, mapped_unit: str, default: str) -> str:
-    """The unit as a code. A header printing "(kg/ha)" gives KG_HA, not kg/ha."""
+    """The unit as a code. A header printing "(kg/ha)" gives KG_HA, not kg/ha.
+
+    Text in trailing parentheses is taken only when it reads as a unit. The mapping file and
+    the caller are trusted, so their value is used as it stands.
+    """
     found = UNIT_IN_HEADER.search(indicator_label)
-    if found:
+    if found and UNIT_TEXT.match(found.group(1).strip()):
         return sdmx_code(found.group(1))
     return sdmx_code(mapped_unit or default)
 

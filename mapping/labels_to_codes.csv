@@ -52,3 +52,19 @@ Ail,GARLIC,INDICATOR,,
 Canne à sucre,SUGARCANE,INDICATOR,,
 Blé,WHEAT,INDICATOR,,
 Dolique,HYACINTH_BEAN,INDICATOR,,
+Benin,BJ,REF_AREA,,ISO 3166-1 alpha-2
+Bénin,BJ,REF_AREA,,ISO 3166-1 alpha-2
+Burkina,BF,REF_AREA,,ISO 3166-1 alpha-2
+Burkina Faso,BF,REF_AREA,,ISO 3166-1 alpha-2
+Côte d'ivoire,CI,REF_AREA,,ISO 3166-1 alpha-2
+Cote d'ivoire,CI,REF_AREA,,ISO 3166-1 alpha-2
+Ghana,GH,REF_AREA,,ISO 3166-1 alpha-2
+Mali,ML,REF_AREA,,ISO 3166-1 alpha-2
+Nigeria,NG,REF_AREA,,ISO 3166-1 alpha-2
+Nigéria,NG,REF_AREA,,ISO 3166-1 alpha-2
+Sénégal,SN,REF_AREA,,ISO 3166-1 alpha-2
+Senegal,SN,REF_AREA,,ISO 3166-1 alpha-2
+Togo,TG,REF_AREA,,ISO 3166-1 alpha-2
+Tchad,TD,REF_AREA,,ISO 3166-1 alpha-2
+Algérie,DZ,REF_AREA,,ISO 3166-1 alpha-2
+Libye,LY,REF_AREA,,ISO 3166-1 alpha-2
