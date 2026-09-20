@@ -305,7 +305,7 @@ def table_slots(current: PageResult | None) -> list:
         if i < len(current.tables):
             table = current.tables[i]
             title = table.title or f"Page {current.page}, table {i + 1} of {len(current.tables)}"
-            slots.append(gr.update(value=table.frame, label=f"{title} ,  read by {table.resolved_by}", visible=True))
+            slots.append(gr.update(value=table.frame, label=f"{title} · read by {table.resolved_by}", visible=True))
         else:
             slots.append(gr.update(visible=False))
     return slots
