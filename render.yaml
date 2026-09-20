@@ -1,5 +1,5 @@
 # Render, free plan: 512 MB of memory, sleeps after inactivity and wakes on the next
-# request. Only the text stage fits; see requirements-light.txt for what that costs.
+# request. Only the text stage fits; see requirements.txt for what that costs.
 #
 # Deploy: push this repository to GitHub, then New > Blueprint on render.com and point it
 # here. Nothing else to configure.
@@ -9,7 +9,7 @@ services:
     runtime: python
     plan: free
     region: frankfurt
-    buildCommand: pip install -r requirements-light.txt
+    buildCommand: pip install -r requirements.txt
     startCommand: python app.py
     healthCheckPath: /health
     envVars:

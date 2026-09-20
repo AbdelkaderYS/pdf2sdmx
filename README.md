@@ -86,7 +86,7 @@ Une Space Hugging Face en Gradio ou Docker demande un abonnement PRO depuis 2026
 solutions gratuites, et elles ne portent pas la même chose.
 
 **Render, gratuit, sans l'étage 2.** `render.yaml` est prêt : pousser le dépôt sur GitHub,
-puis New > Blueprint sur render.com. Il installe `requirements-light.txt`, sans torch, qui
+puis New > Blueprint sur render.com. Il installe `requirements.txt`, sans torch, qui
 pèse 738 Mo à lui seul et ne tient pas dans les 512 Mo du plan gratuit. Le service s'endort
 après inactivité et se réveille à la requête suivante. L'interface dit quels étages sont
 absents ; un rapport avec une couche texte est lu quand même.
