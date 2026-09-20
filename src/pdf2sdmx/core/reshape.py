@@ -367,7 +367,9 @@ def _resolve_area(label: str, mapping: pd.DataFrame) -> tuple[str, str]:
     parts = label.split(LABEL_JOIN)
     for position, part in enumerate(parts):
         if TOTAL_LABEL.fullmatch(part.strip()):
-            return TOTAL, LABEL_JOIN.join(parts[:position] + parts[position + 1 :])
+            # The total over every region of a national report is the country, which has a
+            # code. _T is for a dimension whose total has no name, such as all crops.
+            return COUNTRY, LABEL_JOIN.join(parts[:position] + parts[position + 1 :])
         code, _ = _code_for(part, mapping, "REF_AREA")
         if code:
             return code, LABEL_JOIN.join(parts[:position] + parts[position + 1 :])

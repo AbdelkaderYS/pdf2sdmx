@@ -120,7 +120,8 @@ def test_regions_in_upper_case_columns_become_ref_area():
         source="s",
         checks=[],
     )
-    assert set(long["REF_AREA"]) == {"NE-1", "NE-6", "NE-8", "_T"}
+    # The total over every region is the country, which has a code of its own.
+    assert set(long["REF_AREA"]) == {"NE-1", "NE-6", "NE-8", "NE"}
     # One code per measure, one per crop, instead of one per combination of the two.
     assert set(long["INDICATOR"]) == {"SUP", "PROD"}
     assert set(long["COMPOSITE_BREAKDOWN"]) == {"MIL"}
@@ -350,9 +351,10 @@ def test_a_total_is_not_a_place():
     assert reshape.sdmx_time_period("2020 Total") == "2020"
 
 
-def test_a_total_still_resolves_wherever_it_is_looked_for():
-    assert reshape._resolve_area("Ensemble", MAPPING) == ("_T", "")
-    assert reshape._resolve_area("Total / Bovins", MAPPING) == ("_T", "Bovins")
+def test_a_total_over_regions_is_the_country():
+    """_T is for a dimension whose total has no name. The total of all regions has one."""
+    assert reshape._resolve_area("Ensemble", MAPPING) == ("NE", "")
+    assert reshape._resolve_area("Total / Bovins", MAPPING) == ("NE", "Bovins")
 
 
 def test_a_placeholder_never_becomes_a_code():

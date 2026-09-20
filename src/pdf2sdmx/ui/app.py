@@ -18,7 +18,7 @@ from pdf2sdmx.config import settings
 from pdf2sdmx.core import pipeline, sdmx_out
 from pdf2sdmx.core.ingest import paddleocr_stage
 from pdf2sdmx.core.pipeline import PageResult
-from pdf2sdmx.core.reshape import NOT_IDENTIFIED
+from pdf2sdmx.core.reshape import NOT_IDENTIFIED, TOTAL
 
 ACCENT = "teal"
 TABLE_SLOTS = 3
@@ -202,6 +202,12 @@ def observations_note(long: pd.DataFrame) -> str:
         f"**{_number(len(long))} observations.** One row per number read: the SDMX code and "
         "the label printed in the report side by side, then the page and the stage it came from."
     )
+    totals = int((long["COMPOSITE_BREAKDOWN"] == TOTAL).sum())
+    if totals:
+        note += (
+            f" **`_T` on {_number(totals)}** is the SDMX code for a total over that column: "
+            "the row is not broken down there."
+        )
     if unnamed:
         note += (
             f" **`_Z` on {_number(unnamed)} of them** means the measure was not named by the "
