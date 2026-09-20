@@ -1,0 +1,19 @@
+# What must never reach a deployed image.
+.git
+.venv
+.env
+__pycache__
+.pytest_cache
+.ruff_cache
+*.egg-info
+
+# Source reports: heavy, and they are the publisher's, not ours. The sample stays.
+data/raw/*.pdf
+data/processed
+data/reference/afdb/dsd
+
+# Working files and private notes.
+mapping/to_name.csv
+CLAUDE.md
+tests
+truth

@@ -1,4 +1,4 @@
-.PHONY: install install-ml schemas reference harvest audit lint fix test run api ui refresh evaluate figures docker clean
+.PHONY: install install-ml schemas reference harvest audit lint fix test run api ui refresh evaluate docker clean
 
 install:
 	uv pip install --system -e ".[dev]"
@@ -44,8 +44,6 @@ refresh:
 evaluate:
 	python scripts/evaluate.py
 
-figures:
-	python scripts/make_figures.py
 
 docker:
 	docker compose up --build

@@ -80,6 +80,25 @@ make audit            # comparaison avec le portail open data
 make harvest          # ce qu'il reste à nommer dans le vocabulaire
 ```
 
+## Mettre en ligne
+
+Une Space Hugging Face en Gradio ou Docker demande un abonnement PRO depuis 2026. Deux
+solutions gratuites, et elles ne portent pas la même chose.
+
+**Render, gratuit, sans l'étage 2.** `render.yaml` est prêt : pousser le dépôt sur GitHub,
+puis New > Blueprint sur render.com. Il installe `requirements-light.txt`, sans torch, qui
+pèse 738 Mo à lui seul et ne tient pas dans les 512 Mo du plan gratuit. Le service s'endort
+après inactivité et se réveille à la requête suivante. L'interface dit quels étages sont
+absents ; un rapport avec une couche texte est lu quand même.
+
+**Google Cloud Run, gratuit, cascade complète.** Le `Dockerfile` installe tout. Il faut un
+compte Google Cloud avec une carte, même pour rester dans le palier gratuit.
+
+```bash
+gcloud run deploy pdf2sdmx --source . --region europe-west1 \
+  --memory 2Gi --allow-unauthenticated
+```
+
 ## Réglages
 
 Tout ce qu'on peut dire à l'outil est dans [.env.example](.env.example) : qui publie, quel
@@ -96,7 +115,7 @@ src/pdf2sdmx/ui/      interface Gradio
 src/pdf2sdmx/api/     routes FastAPI
 mapping/              le vocabulaire, une ligne par libellé imprimé
 truth/                la vérité terrain tapée à la main
-scripts/              évaluation, audit, moisson du vocabulaire, figures
+scripts/              évaluation, audit, moisson du vocabulaire
 ```
 
 [MESURES.md](MESURES.md) pour les chiffres et les limites,

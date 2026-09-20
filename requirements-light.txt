@@ -1,0 +1,20 @@
+# What a 512 MB host can carry: the text stage only, no torch.
+#
+# Camelot needs torch, which is 738 MB on disk before a model is even downloaded, so it
+# does not fit a free tier. The cascade reports the stage as absent rather than hiding it,
+# and a report with a text layer is still read: 84 of 94 cells on the page measured with
+# ground truth, against 94 with the full cascade.
+#
+# For the full cascade, use requirements.txt on a host that allows 2 GB.
+pandas>=2.2
+pdfplumber>=0.11
+sdmx1>=2.20
+lxml>=5.0
+rapidfuzz>=3.9
+pydantic>=2.6
+pydantic-settings>=2.2
+fastapi>=0.110
+uvicorn[standard]>=0.29
+python-multipart>=0.0.9
+requests>=2.31
+gradio>=6.0

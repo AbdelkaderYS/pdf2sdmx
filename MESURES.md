@@ -84,8 +84,6 @@ listés dans `data/processed/to_review.csv`. Le plus net : une valeur imprimée
 
 Le contrôle ne dit pas laquelle des deux éditions a tort. Il liste les deux.
 
-![Une série extraite, par région](figures/production_by_region.png)
-
 ## Limites
 
 - **Deux documents, un pays, une langue.** Les règles de mise en page sont générales, mais

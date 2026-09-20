@@ -59,6 +59,9 @@ threading.Thread(target=_warm_up, daemon=True).start()
 app = gr.mount_gradio_app(app, build(), path="/", theme=theme(), css=CSS)
 
 if __name__ == "__main__":
+    import os
+
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=7860)
+    # A Space serves on 7860; a host that assigns a port passes it in the environment.
+    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 7860)))
