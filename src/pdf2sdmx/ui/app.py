@@ -189,7 +189,8 @@ def stats_html(results: list[PageResult], files: dict[str, str | bytes] | None =
         (_number(int((long["OBS_STATUS"] != "A").sum())), "to review"),
     ]
     blocks = [f"<div class='figure'><b>{value}</b><span>{label}</span></div>" for value, label in figures]
-    return f"<div id='stats'>{''.join(blocks)}{conformance_pill(files or {})}</div>"
+    pills = conformance_pill(files or {}) + official_codes_pill(long)
+    return f"<div id='stats'>{''.join(blocks)}{pills}</div>"
 
 
 def observations_frame(long: pd.DataFrame) -> pd.DataFrame:
@@ -253,6 +254,24 @@ def conformance_pill(files: dict[str, str | bytes]) -> str:
     if result:
         return "<span class='pill ok'>SDMX-ML 2.1 valid</span>"
     return "<span class='pill bad'>SDMX-ML 2.1 invalid</span>"
+
+
+def official_codes_pill(long: pd.DataFrame) -> str:
+    """Whether the codes we wrote exist in a code list this repository does not maintain.
+
+    Separate from the schema badge on purpose. The schema says the file is well formed
+    SDMX; this says the values inside it were checked against someone else's list. A run
+    that builds its own code lists can only ever pass the first.
+    """
+    if long.empty:
+        return ""
+    outside = sdmx_out.codes_outside_official_lists(long)
+    if outside is None:
+        return "<span class='pill unknown'>codes not checked</span>"
+    if outside:
+        first = sorted(next(iter(outside.values())))[:3]
+        return f"<span class='pill bad'>codes outside the official lists: {', '.join(first)}</span>"
+    return "<span class='pill ok'>codes in the official lists</span>"
 
 
 def stages_markdown() -> str:

@@ -304,8 +304,10 @@ def _split_indicator(label: str, mapping: pd.DataFrame) -> tuple[Coded, Coded, s
     elif leftovers:
         breakdown = Coded(breakdown.code, LABEL_JOIN.join([breakdown.label, *leftovers]))
 
+    # With no measure identified the label is not repeated here: the breakdown already
+    # carries it, and counting the same text twice would double the work it represents.
     return (
-        measure if measure.code else Coded(NOT_IDENTIFIED, label),
+        measure if measure.code else Coded(NOT_IDENTIFIED, ""),
         breakdown if breakdown.code else Coded(TOTAL, ""),
         unit,
     )

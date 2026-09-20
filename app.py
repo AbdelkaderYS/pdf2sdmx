@@ -32,6 +32,12 @@ def _warm_up() -> None:
     except Exception as exc:
         log.warning("sdmx schema install failed, conformance will read 'not checked': %s", exc)
     try:
+        from pdf2sdmx.core import registry
+
+        log.info("official code lists: %s", registry.download_all())
+    except Exception as exc:
+        log.warning("code list download failed, codes will read 'not checked': %s", exc)
+    try:
         first = sources.iloc[0]
         log.info(camelot_stage.warm_up(settings.data_raw / first["file"], int(first["page"])))
     except Exception as exc:

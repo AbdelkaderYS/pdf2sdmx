@@ -209,7 +209,10 @@ def test_a_label_that_names_no_known_area_does_not_become_one():
     frame = pd.DataFrame({"Désignation": ["Bovins", "Ovins"], "2024": ["18133707", "21597536"]})
     long = reshape.to_long(frame, mapping=MAPPING, time_period="2024", unit="", method="m", source="s", checks=[])
     assert set(long["REF_AREA"]) == {"NE"}
-    assert set(long["INDICATOR_LABEL"]) == {"Bovins", "Ovins"}
+    # The species name the thing measured, so they land in the breakdown, and INDICATOR
+    # says it named no measure rather than repeating the label.
+    assert set(long["COMPOSITE_BREAKDOWN_LABEL"]) == {"Bovins", "Ovins"}
+    assert set(long["INDICATOR"]) == {"_Z"}
 
 
 def test_a_nested_area_label_keeps_only_the_area():
@@ -272,12 +275,8 @@ def test_the_engine_runs_on_a_document_it_knows_nothing_about(tmp_path):
     """
     empty = tmp_path / "empty.csv"
     empty.write_text("label,code,dimension,unit,note\n")
-    frame = pd.DataFrame(
-        {"Désignation": ["Quelque chose", "Autre chose"], "2024": ["10", "20"]}
-    )
-    known = reshape.to_long(
-        frame, mapping=MAPPING, time_period="2024", unit="", method="m", source="s", checks=[]
-    )
+    frame = pd.DataFrame({"Désignation": ["Quelque chose", "Autre chose"], "2024": ["10", "20"]})
+    known = reshape.to_long(frame, mapping=MAPPING, time_period="2024", unit="", method="m", source="s", checks=[])
     unknown = reshape.to_long(
         frame,
         mapping=reshape.load_mapping(empty),

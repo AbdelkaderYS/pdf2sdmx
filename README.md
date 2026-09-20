@@ -136,6 +136,29 @@ First start takes a few minutes: the Table Transformer models are about 230 MB a
 sample PDFs are downloaded. Until the schemas land, the badge reads "not checked" rather
 than claiming a conformance nobody verified.
 
+## Build the vocabulary
+
+The engine reads any report. It can only *code* what the vocabulary names, and the
+interface publishes how much of the run that covers. `mapping/labels_to_codes.csv` is the
+vocabulary: one row per printed label, with the SDMX code it stands for and which
+dimension it belongs to. It is an input, like the PDF, not a part of the tool. On an empty
+vocabulary the same numbers still come out, with every code reading `_Z`.
+
+```bash
+make reference    # official cross-domain code lists from the SDMX Global Registry
+make harvest      # writes mapping/to_name.csv from the reports in data/raw
+```
+
+`to_name.csv` is a worklist, not a result. It holds every label the reports printed, with
+the spellings of one thing collapsed into one row, ranked by how many observations each
+would unlock, and an empty `code` column. Someone who knows the data fills it from the top
+and stops when the coverage is enough. Nothing in it is a code until a person writes one.
+
+Two things are checked against lists this repository does not maintain: `FREQ` and
+`OBS_STATUS` come from the SDMX Global Registry, and the interface says whether every code
+written belongs to them. A code list built from a run's own output cannot fail, so that
+badge is the only one that can say no.
+
 ## Measure it yourself
 
 ```bash

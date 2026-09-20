@@ -54,10 +54,12 @@ CODED = {
     "OBS_STATUS": "CL_OBS_STATUS",
 }
 
-# Codes and names from the SDMX cross-domain code lists. The other lists are built from
-# the data, because their codes come from the mapping file.
 # Every coded dimension needs these two, and neither is a value found in the data.
 SHARED_CODES = {"_T": "Total", "_Z": "Not identified"}
+
+# Components whose values belong to a list maintained by the SDMX Technical Working Group.
+# The registry copy is preferred; what follows is the fallback when it is not on disk.
+OFFICIAL = {"CL_FREQ": "CL_FREQ", "CL_OBS_STATUS": "CL_OBS_STATUS"}
 
 FIXED_CODES = {
     "CL_FREQ": {"A": "Annual", "Q": "Quarterly", "M": "Monthly", "D": "Daily"},
@@ -146,18 +148,52 @@ def codelists(long: pd.DataFrame) -> dict[str, dict[str, str]]:
     lists: dict[str, dict[str, str]] = {}
     for component, list_id in CODED.items():
         if list_id in FIXED_CODES:
-            lists[list_id] = dict(FIXED_CODES[list_id])
+            lists[list_id] = _official_or_fallback(list_id)
             continue
         codes: dict[str, str] = {}
         label_column = LABEL_COLUMN.get(component, "")
         for code, name in SHARED_CODES.items():
             codes[code] = name
+        if component not in long.columns:  # a partial frame still gets a usable list
+            lists[list_id] = codes
+            continue
         for _, row in long.iterrows():
             code = str(row[component])
             label = str(row[label_column]) if label_column and label_column in long.columns else ""
             codes.setdefault(code, label or code)
         lists[list_id] = codes
     return lists
+
+
+def _official_or_fallback(list_id: str) -> dict[str, str]:
+    """The registry's own list when it is on disk, otherwise the few codes written here."""
+    from pdf2sdmx.core import registry
+
+    official = registry.codelist(OFFICIAL[list_id]) if list_id in OFFICIAL else None
+    return dict(official or FIXED_CODES[list_id])
+
+
+def codes_outside_official_lists(long: pd.DataFrame) -> dict[str, set[str]] | None:
+    """Values we wrote that no official list contains, per component.
+
+    An empty dict is the answer worth having: every value in those components exists in a
+    list this repository does not maintain. None means no official list was available, so
+    nothing was checked, which is not the same as passing.
+    """
+    from pdf2sdmx.core import registry
+
+    checked = False
+    outside: dict[str, set[str]] = {}
+    for component, list_id in CODED.items():
+        if list_id not in OFFICIAL or component not in long.columns:
+            continue
+        unknown = registry.unknown_codes(set(long[component].astype(str)), OFFICIAL[list_id])
+        if unknown is None:
+            continue
+        checked = True
+        if unknown:
+            outside[component] = unknown
+    return outside if checked else None
 
 
 def _structure_message(lists: dict[str, dict[str, str]]) -> bytes:

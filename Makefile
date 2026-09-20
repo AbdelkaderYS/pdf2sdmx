@@ -1,4 +1,4 @@
-.PHONY: install install-ml schemas lint fix test run api ui refresh evaluate figures docker clean
+.PHONY: install install-ml schemas reference harvest lint fix test run api ui refresh evaluate figures docker clean
 
 install:
 	uv pip install --system -e ".[dev]"
@@ -8,6 +8,12 @@ install-ml:
 
 schemas:
 	python -c "import sdmx; print(sdmx.install_schemas(version='2.1'))"
+
+reference:
+	python -c "from pdf2sdmx.core import registry; print(registry.download_all(refresh=True))"
+
+harvest:
+	python scripts/harvest_vocabulary.py data/raw/*.pdf
 
 lint:
 	ruff check src tests scripts
