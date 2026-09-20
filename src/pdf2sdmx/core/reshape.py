@@ -52,7 +52,27 @@ MULTIPLIER = re.compile(r"\b(milliers?|millions?|milliards?)\b", re.I)
 MULTIPLIER_POWER = {"millier": "3", "milliers": "3", "million": "6", "millions": "6", "milliard": "9", "milliards": "9"}
 # An SDMX code carries no symbols, so a unit printed "%" or "US$" would come out empty.
 # The published unit lists spell these with letters. Longest first, the order is applied.
-SYMBOL_CODE = {"m\u00b3": "m3", "us\\s*\\$": "usd", "%": "pct", "\\$": "usd", "\u20ac": "eur"}
+SYMBOL_CODE = {"m\u00b3": "m3", "us\\s*\\$": "usd", "%": "per", "\\$": "usd", "\u20ac": "eur"}
+# Where the portal this work feeds already names a unit, use its name rather than ours.
+# From NE1:CL_UNIT_MEASURE, read on ne.sdmx.afdb.org.
+PORTAL_UNIT = {
+    "NOMBRE": "NUMBER",
+    "PCT": "PER",
+    "POURCENT": "PER",
+    "POURCENTS": "PER",
+    "TONNE": "T",
+    "TONNES": "T",
+    "HECTARE": "HA",
+    "HECTARES": "HA",
+    "LITRE": "L",
+    "LITRES": "L",
+    "METRE_CUBE": "M3",
+    "METRES_CUBES": "M3",
+    "KILOGRAMME": "KG",
+    "KILOGRAMMES": "KG",
+    "UNITE": "NUMBER",
+    "UNITES": "NUMBER",
+}
 # A unit, once any multiplier is taken out. Text that is not one of these is not a unit:
 # "(1 à 10 m3/mois)" is a tariff band and "(17 à 22 places)" a vehicle class, and an
 # attribute filled with something else still looks filled in.
@@ -415,7 +435,8 @@ def _unit_code(text: str) -> str:
     """A unit as an SDMX code, with the symbols spelled out first."""
     for pattern, letters in SYMBOL_CODE.items():
         text = re.sub(pattern, f" {letters} ", text, flags=re.I)
-    return sdmx_code(text)
+    code = sdmx_code(text)
+    return PORTAL_UNIT.get(code, code)
 
 
 def _status(parse_status: str, failed_check: bool) -> str:

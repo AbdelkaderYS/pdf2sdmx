@@ -232,7 +232,7 @@ def test_a_unit_is_found_wherever_the_report_prints_it():
     """In parentheses, after "en" in a title, or after "en" in a column name."""
     assert reshape.unit_and_multiplier("Prix moyens en FCFA du bétail") == ("FCFA", "0")
     assert reshape.unit_and_multiplier("Or en US$/g") == ("USD_G", "0")
-    assert reshape.unit_and_multiplier("Taux (glissement annuel en %)") == ("PCT", "0")
+    assert reshape.unit_and_multiplier("Taux (glissement annuel en %)") == ("PER", "0")
 
 
 def test_a_multiplier_is_kept_apart_from_the_unit():

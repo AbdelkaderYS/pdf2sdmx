@@ -1,4 +1,4 @@
-.PHONY: install install-ml schemas reference harvest lint fix test run api ui refresh evaluate figures docker clean
+.PHONY: install install-ml schemas reference harvest audit lint fix test run api ui refresh evaluate figures docker clean
 
 install:
 	uv pip install --system -e ".[dev]"
@@ -14,6 +14,9 @@ reference:
 
 harvest:
 	python scripts/harvest_vocabulary.py data/raw/*.pdf
+
+audit:
+	python scripts/audit_against_portal.py
 
 lint:
 	ruff check src tests scripts

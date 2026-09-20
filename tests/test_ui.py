@@ -138,4 +138,4 @@ def test_the_unit_printed_under_a_caption_reaches_the_observations():
     headings = pipeline.captions_on_page(SAMPLE, 4)
     assert [unit for _, unit in headings] == ["Nombre", "Nombre"]
     result = pipeline.run_page(SAMPLE, 4)
-    assert set(result.long["UNIT_MEASURE"]) == {"NOMBRE"}
+    assert set(result.long["UNIT_MEASURE"]) == {"NUMBER"}
