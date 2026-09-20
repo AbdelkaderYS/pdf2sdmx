@@ -15,3 +15,6 @@ mapping/to_name.csv
 # 48 downloaded portal structures, 3.8 MB. `make portal` fetches them again.
 data/reference/afdb/dsd/
 data/reference/afdb/DF_AGRI_PROD_data.xml
+
+# Private notes, not tracked.
+CLAUDE.md

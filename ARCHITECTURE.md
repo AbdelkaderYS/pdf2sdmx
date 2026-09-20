@@ -166,3 +166,22 @@ downloads any PDF in `data/sources.csv` that is not already cached, extracts the
 pages, runs `check_long_dataset`, and only then writes `data/processed/observations.csv`
 with a `DATA_DATE` column. A cached PDF is never re-downloaded. A failed gate keeps the
 previous file.
+
+## SDMX and DSD resources
+
+Where the conventions used here come from. Each was read on 2026-09-16 unless noted.
+
+| Resource | What it gives | Link |
+|---|---|---|
+| SDMX standard, versions 2.1 and 3.0 | the information model, SDMX-ML, SDMX-JSON and SDMX-CSV formats | https://sdmx.org/standards-2/ |
+| SDMX cross-domain codelists | `CL_OBS_STATUS` (A normal, U low reliability, E estimated), `CL_FREQ`, `CL_UNIT_MULT`, `CL_AREA` | https://sdmx.org/sdmx_cdcl/ and https://github.com/SDMX-SWG/CDCL |
+| SDMX Global Registry REST | the codelists above as SDMX-ML, for example `codelist/SDMX/CL_OBS_STATUS/latest` | https://registry.sdmx.org/ |
+| SDMX time formats | `YYYY` for a calendar year, `YYYY-A1` for a reporting year that starts inside the calendar year | https://wiki.sdmxcloud.org/SDMX_Time_Formats |
+| World Bank SDMX API | the WDI DSD `WB:WDI(1.0)`: dimensions `FREQ, SERIES, REF_AREA, TIME_PERIOD`, attribute `UNIT_MULT` | https://api.worldbank.org/v2/sdmx/rest/datastructure/WB/WDI/1.0 and https://datahelpdesk.worldbank.org/knowledgebase/articles/1886701-sdmx-api-queries |
+| IMF SDMX Central | public DSDs to reuse as models | https://sdmxcentral.imf.org/ |
+| SDMX tools catalogue | official inventory of SDMX software, where this tool can be submitted once published | https://www.sdmx.io/software/ and https://github.com/SDMX-Outreach/sdmx-tools-catalogue |
+| sdmx1 | the Python library used here to write SDMX-ML | https://sdmx1.readthedocs.io/ |
+| Learning SDMX structural modelling | how a DSD is built: concepts, codelists, dimensions, attributes | https://www.sdmx.io/learning/essential-sdmx-structural-modelling/ |
+| AfDB Open Data Platform, Africa Information Highway | the portals INS Niger publishes on. Their SDMX endpoint returns SDMX-ML 2.0 with one KeyFamily per dataset (checked in a browser on 2026-09-16; scripted access is refused). ODP 2.0 is announced as SDMX native | https://dataportal.opendataforafrica.org/ and https://dataportal.opendataforafrica.org/api/1.0/sdmx |
+| INS Niger open data portal | the existing Niger datasets, about 100, CC-BY 4.0. Agriculture datasets: `nxlreub` Production Agricole, `kfvhzqc` Données sur l'Agriculture, `wvovabg` Statistiques de l'Elevage | https://niger.opendataforafrica.org/ and https://niger.opendataforafrica.org/api/1.0/sdmx |
+| INS Niger publications | the PDF bulletins this tool reads | https://www.stat-niger.org/ |
