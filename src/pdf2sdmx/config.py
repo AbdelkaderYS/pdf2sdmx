@@ -59,6 +59,8 @@ class Settings(BaseSettings):
     jump_factor: float = 5.0
     upper_bound: float = 1e9
 
+    # A deployed demo runs on the bundled sample and has no use for the full reports.
+    fetch_sources: bool = True
     request_timeout: int = 120
     max_pdf_mb: int = 50
 

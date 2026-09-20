@@ -25,12 +25,11 @@ def _warm_up() -> None:
     Every step is optional: the service must answer with stage one even if all of them
     fail. An image that baked them in at build time finds the work already done.
     """
-    sources = pd.DataFrame()
-    try:
-        sources = pd.read_csv(settings.sources_file, dtype=str).fillna("")
-        refresh.fetch_missing(sources)
-    except Exception as exc:
-        log.warning("source list unreadable or sample download failed: %s", exc)
+    if settings.fetch_sources:
+        try:
+            refresh.fetch_missing(pd.read_csv(settings.sources_file, dtype=str).fillna(""))
+        except Exception as exc:
+            log.warning("source list unreadable or download failed: %s", exc)
     try:
         _install_sdmx_schemas()
     except Exception as exc:
