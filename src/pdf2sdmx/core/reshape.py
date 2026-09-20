@@ -121,6 +121,9 @@ def to_long(
     row_kind = _axis_kind(labels, mapping)
     col_kind = _axis_kind(columns, mapping)
     failed = _failed_cells(checks)
+    # A check that names no cell condemns the whole table, such as a header that swallowed
+    # a data row: every number under it is suspect, however well it parsed.
+    table_failed = any(c.status == "fail" and not c.row for c in checks)
 
     records = []
     for label, row in zip(labels, frame.iloc[:, 1:].itertuples(index=False), strict=True):
@@ -143,7 +146,7 @@ def to_long(
                     "OBS_VALUE": parsed.value,
                     "UNIT_MEASURE": _unit_for(indicator_label, mapped_unit, unit),
                     "UNIT_MULT": "0",
-                    "OBS_STATUS": _status(parsed.status, (label, column) in failed),
+                    "OBS_STATUS": _status(parsed.status, table_failed or (label, column) in failed),
                     "TIME_PERIOD_LABEL": period,
                     "EXTRACTION_METHOD": method if isinstance(method, str) else method.get(label, "unknown"),
                     "SOURCE": source,

@@ -289,3 +289,18 @@ def test_the_engine_runs_on_a_document_it_knows_nothing_about(tmp_path):
     assert list(unknown["OBS_VALUE"]) == list(known["OBS_VALUE"])
     assert set(unknown["INDICATOR"]) == {"_Z"}
     assert set(unknown["COMPOSITE_BREAKDOWN_LABEL"]) == {"Quelque chose", "Autre chose"}
+
+
+def test_a_table_level_failure_marks_every_number_it_produced():
+    """A header that swallowed a data row makes every value under it suspect."""
+    frame = pd.DataFrame({"Désignation": ["Serie A"], "31 déc.22 63 799": ["10"]})
+    long = reshape.to_long(
+        frame,
+        mapping=MAPPING,
+        time_period="2022",
+        unit="",
+        method="m",
+        source="s",
+        checks=run_checks(frame),
+    )
+    assert set(long["OBS_STATUS"]) == {"U"}

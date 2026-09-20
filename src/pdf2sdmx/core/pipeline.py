@@ -1,7 +1,6 @@
 """One call from PDF page to validated long table and SDMX files. Used by the API and the UI."""
 
 import re
-from collections.abc import Iterator
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -150,12 +149,6 @@ def detect_period(pdf_path: Path, page: int) -> str:
 
 def page_count(pdf_path: Path) -> int:
     return pdfplumber_stage.page_count(pdf_path)
-
-
-def run_document(pdf_path: Path, pages: list[int] | None = None, **options) -> Iterator[PageResult]:
-    """Yield one PageResult per page, in order. Pages without a table yield an empty result."""
-    for page in pages or range(1, page_count(pdf_path) + 1):
-        yield run_page(pdf_path, page, **options)
 
 
 def combine(results: list[PageResult]) -> pd.DataFrame:

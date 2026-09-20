@@ -6,7 +6,6 @@ import matplotlib as mpl
 OKABE_ITO = ["#0072B2", "#D55E00", "#009E73", "#CC79A7", "#E69F00", "#56B4E9", "#F0E442", "#000000"]
 
 MM = 1 / 25.4
-SINGLE_COLUMN = 89 * MM
 DOUBLE_COLUMN = 183 * MM
 
 

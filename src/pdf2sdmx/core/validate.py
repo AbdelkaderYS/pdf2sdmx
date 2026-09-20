@@ -22,6 +22,8 @@ PRODUCTION_HEADER = re.compile(r"production", re.I)
 YEAR_HEADER = re.compile(r"^(19|20)\d{2}(\s*[/-]\s*(19|20)?\d{2})?\s*(\*+|\(\s*[a-z]{1,4}\s*\))?$", re.I)
 # The name table._default_header gives a column when no header row was found.
 PLACEHOLDER_COLUMN = re.compile(r"^col(_\d+)?$")
+# A grouped number inside a column name: the header row was glued to the first data row.
+VALUE_IN_NAME = re.compile(r"\d{1,3}(?:[\s\u00a0\u202f]\d{3})+")
 
 SUM_TOLERANCE = 0.005  # half a percent, a printed total is rounded independently
 PRODUCT_TOLERANCE = 0.02
@@ -75,15 +77,18 @@ def failed_cells(checks: list[Check]) -> pd.DataFrame:
 
 
 def check_header(frame: pd.DataFrame) -> list[Check]:
-    """Column names still set to placeholders mean no header row was found.
+    """A header that is missing, or that swallowed the first row of data.
 
-    The numbers may all be right and every total may add up while the columns say nothing,
-    so nothing else in this module would notice. Counting it as a failure is what sends the
-    cascade to the next stage, and eventually to the vision model.
+    Both leave the numbers right and the totals adding up while the columns say the wrong
+    thing, so nothing else in this module would notice. Counting it as a failure is what
+    sends the cascade to the next stage, and eventually to the vision model.
     """
     unnamed = sum(bool(PLACEHOLDER_COLUMN.match(str(c))) for c in frame.columns[1:])
     if unnamed and unnamed == frame.shape[1] - 1:
         return [Check("header", "fail", "no header row found, the columns are unnamed")]
+    glued = [str(c) for c in frame.columns[1:] if VALUE_IN_NAME.search(str(c))]
+    if glued:
+        return [Check("header", "fail", f"a data row is glued into the header: {glued[0]!r}")]
     return [Check("header", "pass", "the table has a header row")]
 
 

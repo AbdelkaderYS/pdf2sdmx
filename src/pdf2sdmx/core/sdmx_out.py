@@ -27,7 +27,6 @@ GENERIC = "http://www.sdmx.org/resources/sdmxml/schemas/v2_1/data/generic"
 XML_LANG = "{http://www.w3.org/XML/1998/namespace}lang"
 
 AGENCY = settings.agency
-AGENCY_NAME = settings.agency_name
 DSD_ID = "DSD_PDF2SDMX"
 DATAFLOW_ID = "DF_PDF2SDMX"
 CONCEPTS_ID = "CS_PDF2SDMX"

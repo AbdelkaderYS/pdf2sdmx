@@ -12,10 +12,9 @@ class Settings(BaseSettings):
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
-    # Who publishes, where, and in which vocabulary. Nothing about one country belongs in
-    # the code: point these at another office and the same engine reads its reports.
+    # Who publishes and where. Nothing about one country belongs in the code: point these
+    # at another office and the same engine reads its reports.
     agency: str = "INS_NE"
-    agency_name: str = "Institut National de la Statistique du Niger"
     country: str = "NE"
     country_name: str = "Niger"
 

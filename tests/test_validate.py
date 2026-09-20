@@ -1,7 +1,7 @@
 import pandas as pd
 
 from pdf2sdmx.core.table import ExtractedTable
-from pdf2sdmx.core.validate import run_checks
+from pdf2sdmx.core.validate import check_header, run_checks
 
 
 def agri_table(production_maradi="240 000"):
@@ -59,3 +59,20 @@ def test_year_jump_warns_on_factor_five():
     frame = pd.DataFrame({"Produit": ["Mil", "Sorgho"], "2020": ["100", "200"], "2021": ["600", "210"]})
     warns = [c for c in run_checks(frame) if c.name == "year_jump" and c.status == "warn"]
     assert len(warns) == 1 and warns[0].row == "Mil"
+
+
+def test_a_data_row_glued_into_the_header_is_a_failure():
+    """A header merged with the first row leaves the numbers right and the columns wrong.
+
+    Nothing else notices: the totals still add up. Counting it as a failure is what makes
+    the cascade try another stage.
+    """
+    glued = pd.DataFrame(columns=["Désignation", "31 déc.22 63 799", "31 déc.23 61 630"])
+    check = check_header(glued)[0]
+    assert check.status == "fail"
+    assert "glued" in check.detail
+
+
+def test_a_period_or_a_unit_in_a_column_name_is_not_a_glued_row():
+    clean = pd.DataFrame(columns=["Désignation", "31 déc.22", "2024", "Superficie (ha)", "1 T24"])
+    assert check_header(clean)[0].status == "pass"
