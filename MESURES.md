@@ -97,7 +97,7 @@ Le contrôle ne dit pas laquelle des deux éditions a tort. Il liste les deux.
   peut très bien tomber juste. C'est pourquoi un en-tête absent, ou qui a avalé une ligne
   de données, compte désormais comme un échec. Un en-tête simplement faux, lui, passe.
 - **34 % des unités restent inconnues.** Les tableaux qui ne l'impriment nulle part.
-- **12 % des observations ont une mesure identifiée.** Le reste porte `_Z`, faute de
+- **82 % des observations ont une mesure identifiée.** Le reste porte `_Z`, faute de
   vocabulaire. Ça monte en remplissant `mapping/labels_to_codes.csv`, sans toucher au code.
 - Les tableaux en paysage, et ceux qui courent sur deux pages, ne sont pas traités.
 - La conformité est vérifiée contre les schémas XSD, qui valident la forme du message. Ils

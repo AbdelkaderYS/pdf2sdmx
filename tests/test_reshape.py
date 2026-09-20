@@ -317,3 +317,27 @@ def test_a_table_level_failure_marks_every_number_it_produced():
         checks=run_checks(frame),
     )
     assert set(long["OBS_STATUS"]) == {"U"}
+
+
+def test_a_measure_named_only_in_the_title_is_still_found():
+    """A table whose rows are what is counted names the measure in its caption."""
+    frame = pd.DataFrame({"Désignation": ["Bovins", "Ovins"], "2024": ["10", "20"]})
+    long = reshape.to_long(
+        frame,
+        mapping=MAPPING,
+        time_period="2024",
+        unit="",
+        method="m",
+        source="s",
+        checks=[],
+        title="Tableau 03.02. : Effectif du cheptel",
+    )
+    assert set(long["INDICATOR"]) == {"HEADCOUNT"}
+    assert set(long["COMPOSITE_BREAKDOWN"]) == {"CATTLE", "SHEEP"}
+
+
+def test_an_unidentified_measure_says_so_instead_of_leaving_a_blank():
+    frame = pd.DataFrame({"Désignation": ["Quelque chose"], "2024": ["10"]})
+    long = reshape.to_long(frame, mapping=MAPPING, time_period="2024", unit="", method="m", source="s", checks=[])
+    assert long["INDICATOR"].iloc[0] == "_Z"
+    assert long["INDICATOR_LABEL"].iloc[0] == "not identified"

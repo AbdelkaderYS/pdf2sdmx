@@ -42,6 +42,7 @@ COUNTRY_LABEL = settings.country_name
 # the total over that dimension, _Z when the label could not be identified at all.
 TOTAL = "_T"
 NOT_IDENTIFIED = "_Z"
+NOT_IDENTIFIED_LABEL = "not identified"
 # A unit sits in trailing parentheses, or after "en" in a title or a column name.
 UNIT_IN_HEADER = re.compile(r"\(([^)]+)\)\s*$")
 UNIT_AFTER_EN = re.compile(r"\ben\s+([^,;()]{1,28}?)(?=\s+(?:de|du|des|par|dans|pour)\b|[,;)]|$)", re.I)
@@ -133,6 +134,7 @@ def to_long(
     source: str,
     checks: list[Check],
     subject: str = "UNKNOWN",
+    title: str = "",
 ) -> pd.DataFrame:
     """One observation per numeric cell.
 
@@ -156,7 +158,7 @@ def to_long(
             area_label, indicator_label, period = _assign_axes(label, column, row_kind, col_kind, subject, time_period)
             area_code, leftover = _resolve_area(area_label, mapping) if area_label else ("", "")
             indicator_label = _join_indicator(leftover, indicator_label, subject)
-            measure, breakdown, mapped_unit = _split_indicator(indicator_label, mapping)
+            measure, breakdown, mapped_unit = _split_indicator(indicator_label, mapping, title)
             unit_code, multiplier = _unit_for(indicator_label, mapped_unit, unit)
             time_code = sdmx_time_period(period)
             records.append(
@@ -276,13 +278,16 @@ class Coded:
     label: str
 
 
-def _split_indicator(label: str, mapping: pd.DataFrame) -> tuple[Coded, Coded, str]:
+def _split_indicator(label: str, mapping: pd.DataFrame, title: str = "") -> tuple[Coded, Coded, str]:
     """Separate the measure from the thing it is measured on.
 
     A label naming both at once needs one code per combination, so nothing repeats and
     nothing can be queried. INDICATOR keeps the measure, a short closed list, and
     COMPOSITE_BREAKDOWN takes the rest, as the SDMX domain modelling guideline advises.
-    A part matching no measure leaves INDICATOR at _Z; the breakdown still holds the label.
+
+    A table whose rows are what is counted often names the measure only in its title, so
+    the title is the last place looked. Failing that, INDICATOR is _Z and the breakdown
+    still holds the label.
     """
     measure = Coded("", "")
     breakdown = Coded("", "")
@@ -304,6 +309,9 @@ def _split_indicator(label: str, mapping: pd.DataFrame) -> tuple[Coded, Coded, s
             continue
         leftovers.append(part)
 
+    if not measure.code and title:
+        measure = _measure_in(title, mapping)
+
     if leftovers and not breakdown.code:
         text = LABEL_JOIN.join(leftovers)
         breakdown = Coded(sdmx_code(text), text)
@@ -311,7 +319,7 @@ def _split_indicator(label: str, mapping: pd.DataFrame) -> tuple[Coded, Coded, s
         breakdown = Coded(breakdown.code, LABEL_JOIN.join([breakdown.label, *leftovers]))
 
     return (
-        measure if measure.code else Coded(NOT_IDENTIFIED, ""),
+        measure if measure.code else Coded(NOT_IDENTIFIED, NOT_IDENTIFIED_LABEL),
         breakdown if breakdown.code else Coded(TOTAL, ""),
         unit,
     )
@@ -360,6 +368,15 @@ def _share_matching(labels: list[str], mapping: pd.DataFrame, dimension: str) ->
         for lb in labels
     )
     return hits / len(labels)
+
+
+def _measure_in(text: str, mapping: pd.DataFrame) -> Coded:
+    """The first word of a title that names a known measure, if any."""
+    for word in re.split(r"[\s,;:.]+", text):
+        code, _ = _code_for(word, mapping, "INDICATOR")
+        if code:
+            return Coded(code, word)
+    return Coded("", "")
 
 
 def _unit_for(indicator_label: str, mapped_unit: str, default: str) -> tuple[str, str]:

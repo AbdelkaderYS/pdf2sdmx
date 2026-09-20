@@ -197,10 +197,18 @@ def observations_note(long: pd.DataFrame) -> str:
     """One line saying what a row is."""
     if long.empty:
         return ""
-    return (
+    unnamed = int((long["INDICATOR"] == NOT_IDENTIFIED).sum())
+    note = (
         f"**{_number(len(long))} observations.** One row per number read: the SDMX code and "
         "the label printed in the report side by side, then the page and the stage it came from."
     )
+    if unnamed:
+        note += (
+            f" **`_Z` on {_number(unnamed)} of them** means the measure was not named by the "
+            "vocabulary, not that the number is wrong. Add the label to "
+            "`mapping/labels_to_codes.csv` and it gets a code."
+        )
+    return note
 
 
 def _measure_named(long: pd.DataFrame) -> float:

@@ -104,6 +104,7 @@ def run_page(
             source=source,
             checks=checks,
             subject=subject,
+            title=title,
         )
         tables.append(TableResult(resolved.frame, checks, long, resolved.resolved_by, title))
 
