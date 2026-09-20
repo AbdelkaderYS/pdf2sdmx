@@ -60,7 +60,7 @@ Not used, and why:
 - Docling (IBM, TableFormer) was the first choice for stage 3; replaced by PaddleOCR-VL 1.6
   for its benchmark lead and its licence. Docling would still be a reasonable stage 3 on
   a machine without the Paddle runtime.
-- Stage 3 is not installed in the Hugging Face Space: the Paddle runtime plus the model is
+- Stage 3 is not installed on the deployed service: the Paddle runtime plus the model is
   heavy for the free tier, and the two sample bulletins have a text layer.
 
 ## Gate thresholds (`core/quality.py`)
@@ -153,7 +153,7 @@ was available when this was written; see BRIEF.md question Q4.
 
 `core` has no import from `api` or `ui`. Both call `core.pipeline.run_page`.
 
-Deviation from the shared standard: the Hugging Face Space runs the Gradio UI and the
+Deviation from the shared standard: the deployed service runs the Gradio UI and the
 FastAPI routes in one process (`app.py` mounts Gradio on the FastAPI app). The UI calls
 `core` directly instead of going through HTTP, because the free tier gives one container
 and no second process. The API contract (`/health`, `/metadata`, `/extract`, `/metrics`)

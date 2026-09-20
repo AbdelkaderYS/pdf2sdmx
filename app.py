@@ -1,4 +1,4 @@
-"""Hugging Face Space entry point. Serves the Gradio UI and the FastAPI routes on one port."""
+"""Entry point. Serves the Gradio UI and the FastAPI routes on one port."""
 
 import sys
 from pathlib import Path
@@ -50,8 +50,8 @@ def _warm_up() -> None:
 def _install_sdmx_schemas() -> None:
     """Download the official SDMX 2.1 schemas once, so the run can state its conformance.
 
-    A Space built on the Gradio SDK never runs the Dockerfile, so this is the only place
-    the schemas get installed there. Already present, it returns at once.
+    A host that installs from requirements.txt never runs the Dockerfile, so this is the
+    only place the schemas get installed there. Already present, it returns at once.
     """
     import sdmx
 
@@ -66,5 +66,5 @@ if __name__ == "__main__":
 
     import uvicorn
 
-    # A Space serves on 7860; a host that assigns a port passes it in the environment.
+    # A host that assigns a port passes it in the environment.
     uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 7860)))

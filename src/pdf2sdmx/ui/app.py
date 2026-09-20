@@ -1,4 +1,4 @@
-"""Gradio front end for the Hugging Face Space.
+"""Gradio front end.
 
 Two panels: the document on the left, what came out of it on the right. Results are read
 as figures rather than sentences, and a page that yields nothing says why in the progress

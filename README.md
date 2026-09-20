@@ -70,22 +70,17 @@ make harvest          # ce qu'il reste à nommer dans le vocabulaire
 
 ## Mettre en ligne
 
-Une Space Hugging Face en Gradio ou Docker demande un abonnement PRO depuis 2026. Deux
-solutions gratuites, et elles ne portent pas la même chose.
+Le service tourne sur [Koyeb](https://www.koyeb.com), formule gratuite : 512 Mo, endormi
+après une heure sans visite, réveillé en quelques secondes.
 
-**Render, gratuit, sans l'étage 2.** `render.yaml` est prêt : pousser le dépôt sur GitHub,
-puis New > Blueprint sur render.com. Il installe `requirements.txt`, sans torch, qui
-pèse 738 Mo à lui seul et ne tient pas dans les 512 Mo du plan gratuit. Le service s'endort
-après inactivité et se réveille à la requête suivante. L'interface dit quels étages sont
-absents ; un rapport avec une couche texte est lu quand même.
+**Create Web Service** → **GitHub** → ce dépôt → builder **Buildpack**. Basculer
+l'interrupteur **Override** du champ **Run command** et saisir `python app.py`. Instance
+**Free**, région **Frankfurt**. Le port est passé dans `$PORT` et l'application le lit.
 
-**Google Cloud Run, gratuit, cascade complète.** Le `Dockerfile` installe tout. Il faut un
-compte Google Cloud avec une carte, même pour rester dans le palier gratuit.
-
-```bash
-gcloud run deploy pdf2sdmx --source . --region europe-west1 \
-  --memory 2Gi --allow-unauthenticated
-```
+`requirements.txt` ne contient que l'étage texte : torch pèse 738 Mo et ne tient pas dans
+les 512 Mo. L'interface dit quels étages manquent, et un rapport avec une couche texte est
+lu quand même. Pour la cascade complète, `requirements-full.txt` ou le `Dockerfile`, sur un
+hôte disposant de 2 Go.
 
 ## Réglages
 
