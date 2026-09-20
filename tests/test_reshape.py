@@ -223,9 +223,22 @@ def test_a_nested_area_label_keeps_only_the_area():
 
 
 def test_text_in_parentheses_is_a_unit_only_when_it_is_one():
-    assert reshape._unit_for("Rendement (kg/ha)", "", "") == "KG_HA"
-    assert reshape._unit_for("Tranche (1 à 10 m3/mois)", "", "") == "UNKNOWN"
-    assert reshape._unit_for("Minibus (17 à 22 places)", "", "") == "UNKNOWN"
+    assert reshape._unit_for("Rendement (kg/ha)", "", "") == ("KG_HA", "0")
+    assert reshape._unit_for("Tranche (1 à 10 m3/mois)", "", "") == ("UNKNOWN", "0")
+    assert reshape._unit_for("Minibus (17 à 22 places)", "", "") == ("UNKNOWN", "0")
+
+
+def test_a_unit_is_found_wherever_the_report_prints_it():
+    """In parentheses, after "en" in a title, or after "en" in a column name."""
+    assert reshape.unit_and_multiplier("Prix moyens en FCFA du bétail") == ("FCFA", "0")
+    assert reshape.unit_and_multiplier("Or en US$/g") == ("USD_G", "0")
+    assert reshape.unit_and_multiplier("Taux (glissement annuel en %)") == ("PCT", "0")
+
+
+def test_a_multiplier_is_kept_apart_from_the_unit():
+    """SDMX writes "en milliers de m3" as M3 with UNIT_MULT 3, not as one glued code."""
+    assert reshape.unit_and_multiplier("en milliers de m³") == ("M3", "3")
+    assert reshape.unit_and_multiplier("en millions de FCFA") == ("FCFA", "6")
 
 
 def test_a_quarter_written_with_a_hyphen_is_still_a_quarter():

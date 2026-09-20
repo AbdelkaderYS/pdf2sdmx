@@ -42,14 +42,24 @@ COUNTRY_LABEL = settings.country_name
 # the total over that dimension, _Z when the label could not be identified at all.
 TOTAL = "_T"
 NOT_IDENTIFIED = "_Z"
+# Where a unit hides: in trailing parentheses, or after "en" anywhere in a title or a
+# column name. "Prix moyens en FCFA du bétail" and "Or en US$/g" both name their unit.
 UNIT_IN_HEADER = re.compile(r"\(([^)]+)\)\s*$")
-# Trailing parentheses hold a unit only when they hold nothing else. "(1 à 10 m3/mois)" is a
-# tariff band and "(17 à 22 places)" a vehicle class; reading either as a unit is worse than
-# reading none, because an attribute that means something else still looks filled in.
+UNIT_AFTER_EN = re.compile(r"\ben\s+([^,;()]{1,28}?)(?=\s+(?:de|du|des|par|dans|pour)\b|[,;)]|$)", re.I)
+# A multiplier written as a word. SDMX keeps it apart from the unit: "en milliers de m3"
+# is UNIT_MEASURE M3 with UNIT_MULT 3, not one code with the word glued in.
+MULTIPLIER = re.compile(r"\b(milliers?|millions?|milliards?)\b", re.I)
+MULTIPLIER_POWER = {"millier": "3", "milliers": "3", "million": "6", "millions": "6", "milliard": "9", "milliards": "9"}
+# An SDMX code carries no symbols, so a unit printed "%" or "US$" would come out empty.
+# The published unit lists spell these with letters. Longest first, the order is applied.
+SYMBOL_CODE = {"m\u00b3": "m3", "us\\s*\\$": "usd", "%": "pct", "\\$": "usd", "\u20ac": "eur"}
+# A unit, once any multiplier is taken out. Text that is not one of these is not a unit:
+# "(1 à 10 m3/mois)" is a tariff band and "(17 à 22 places)" a vehicle class, and an
+# attribute filled with something else still looks filled in.
 UNIT_TEXT = re.compile(
-    r"^(?:en\s+)?(?:milliers?|millions?|milliards?)?\s*(?:de\s+|d[\u2019\']\s*)?"
-    r"(?:ha|hectares?|t|tonnes?|kg(?:\s*/\s*ha)?|g|l|litres?|m3|m\u00b3|km2?|%|"
-    r"fcfa|f\s?cfa|unit[e\u00e9]s?|nombre|indice|habitants?|kwh|gwh|mw|points?)$",
+    r"^(?:ha|hectares?|t|tonnes?|kg(?:\s*/\s*\w+)?|g|l|litres?|m3|m\u00b3|km2?|%|pourcents?|"
+    r"fcfa|f\s?cfa|us\s*\$(?:\s*/\s*\w+)?|\$|euros?|unit[e\u00e9]s?|nombre|indice|"
+    r"habitants?|kwh|gwh|mw|points?|m[e\u00e8]tres?(?:\s+cubes?)?|barils?|t[e\u00ea]tes?)$",
     re.I,
 )
 DUPLICATE_SUFFIX = re.compile(r"\s\(\d+\)$")
@@ -135,6 +145,7 @@ def to_long(
             area_code, leftover = _resolve_area(area_label, mapping) if area_label else ("", "")
             indicator_label = _join_indicator(leftover, indicator_label, subject)
             measure, breakdown, mapped_unit = _split_indicator(indicator_label, mapping)
+            unit_code, multiplier = _unit_for(indicator_label, mapped_unit, unit)
             time_code = sdmx_time_period(period)
             records.append(
                 {
@@ -144,8 +155,8 @@ def to_long(
                     "COMPOSITE_BREAKDOWN": breakdown.code,
                     "TIME_PERIOD": time_code,
                     "OBS_VALUE": parsed.value,
-                    "UNIT_MEASURE": _unit_for(indicator_label, mapped_unit, unit),
-                    "UNIT_MULT": "0",
+                    "UNIT_MEASURE": unit_code,
+                    "UNIT_MULT": multiplier,
                     "OBS_STATUS": _status(parsed.status, table_failed or (label, column) in failed),
                     "TIME_PERIOD_LABEL": period,
                     "EXTRACTION_METHOD": method if isinstance(method, str) else method.get(label, "unknown"),
@@ -364,16 +375,47 @@ def _share_matching(labels: list[str], mapping: pd.DataFrame, dimension: str) ->
     return hits / len(labels)
 
 
-def _unit_for(indicator_label: str, mapped_unit: str, default: str) -> str:
-    """The unit as a code. A header printing "(kg/ha)" gives KG_HA, not kg/ha.
+def _unit_for(indicator_label: str, mapped_unit: str, default: str) -> tuple[str, str]:
+    """(unit code, multiplier) for one cell, from the most specific source that names one.
 
-    Text in trailing parentheses is taken only when it reads as a unit. The mapping file and
-    the caller are trusted, so their value is used as it stands.
+    The label's own text wins over the mapping, which wins over whatever the table said.
     """
-    found = UNIT_IN_HEADER.search(indicator_label)
-    if found and UNIT_TEXT.match(found.group(1).strip()):
-        return sdmx_code(found.group(1))
-    return sdmx_code(mapped_unit or default)
+    for text in (indicator_label, mapped_unit, default):
+        unit, multiplier = unit_and_multiplier(text)
+        if unit:
+            return unit, multiplier
+    return "UNKNOWN", "0"
+
+
+def unit_and_multiplier(text: str) -> tuple[str, str]:
+    """Pull a unit and its power of ten out of a printed phrase.
+
+    "en milliers de m3" gives (M3, 3), "(kg/ha)" gives (KG_HA, 0), and a phrase naming no
+    unit gives ("", "0") so the caller can try somewhere else. Reading a tariff band as a
+    unit would be worse than reading none.
+    """
+    if not text:
+        return "", "0"
+    candidates = [text]
+    found = UNIT_IN_HEADER.search(text)
+    if found:
+        candidates.insert(0, found.group(1))
+    candidates += UNIT_AFTER_EN.findall(text)
+    multiplier = MULTIPLIER.search(text)
+    power = MULTIPLIER_POWER[multiplier.group(1).casefold()] if multiplier else "0"
+    for candidate in candidates:
+        stripped = MULTIPLIER.sub("", candidate)
+        stripped = re.sub(r"^\s*(?:en\s+)?(?:de\s+|du\s+|des\s+|d[\u2019\']\s*)?", "", stripped).strip()
+        if UNIT_TEXT.match(stripped):
+            return _unit_code(stripped), power
+    return "", "0"
+
+
+def _unit_code(text: str) -> str:
+    """A unit as an SDMX code, with the symbols spelled out first."""
+    for pattern, letters in SYMBOL_CODE.items():
+        text = re.sub(pattern, f" {letters} ", text, flags=re.I)
+    return sdmx_code(text)
 
 
 def _status(parse_status: str, failed_check: bool) -> str:

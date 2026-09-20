@@ -85,7 +85,7 @@ def run_page(
     result = cascade.run(pdf_path, page)
     source = pdf_path.name
     period = (time_period or "").strip() or detect_period(pdf_path, page)
-    unit = (unit or "").strip() or "UNKNOWN"
+    unit = (unit or "").strip()  # empty, not "UNKNOWN": reshape falls back last, after the caption
     subject = (subject or "").strip() or "UNKNOWN"
     mapping = reshape.load_mapping(mapping_path or settings.mapping_file)
 
@@ -98,7 +98,9 @@ def run_page(
             resolved.frame,
             mapping=mapping,
             time_period=period,
-            unit=printed_unit or unit,
+            # A caption naming no unit line often names the unit in its own words:
+            # "Prix moyens en FCFA du bétail". reshape reads it the same way.
+            unit=printed_unit or unit or title,
             method=resolved.row_methods,
             source=source,
             checks=checks,
