@@ -24,11 +24,11 @@ PLACEHOLDER_COLUMN = re.compile(r"^col(_\d+)?$")
 # A grouped number inside a column name: the header row was glued to the first data row.
 VALUE_IN_NAME = re.compile(r"\d{1,3}(?:[\s\u00a0\u202f]\d{3})+")
 
-SUM_TOLERANCE = 0.005  # half a percent, a printed total is rounded independently
-PRODUCT_TOLERANCE = 0.02
-ABSOLUTE_TOLERANCE = 1.0  # printed values are rounded to the unit, so 1 vs 1.4 is not an error
-JUMP_FACTOR = 5.0
-UPPER_BOUND = 1e9
+SUM_TOLERANCE = settings.sum_tolerance
+PRODUCT_TOLERANCE = settings.product_tolerance
+ABSOLUTE_TOLERANCE = settings.absolute_tolerance
+JUMP_FACTOR = settings.jump_factor
+UPPER_BOUND = settings.upper_bound
 
 
 @dataclass(frozen=True)

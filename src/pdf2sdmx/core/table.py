@@ -5,6 +5,7 @@ from dataclasses import dataclass, field
 
 import pandas as pd
 
+from pdf2sdmx.config import settings
 from pdf2sdmx.core.numbers import is_missing_marker, looks_numeric
 
 MAX_HEADER_ROWS = 3
@@ -24,7 +25,7 @@ _DAY = (
 _MARKER = r"(?:\s*\*+|\s*\(\s*[a-z]{1,4}\s*\)|(?<=\d)[pre])?"  # 2010*, 2023 (p), 2 T23r
 # Merged header rows keep both, as in "2021 1 T21", so a year may precede a period.
 PERIOD_HEADER = re.compile(rf"^(?:{_YEAR}\s+)?(?:{_RANGE}|{_DAY}|{_QUARTER}|{_YEAR}){_MARKER}$", re.I)
-PERIOD_SHARE = 0.5
+PERIOD_SHARE = settings.header_period_share
 
 
 @dataclass

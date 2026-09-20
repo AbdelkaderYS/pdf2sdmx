@@ -33,7 +33,7 @@ LONG_COLUMNS = [
     "INDICATOR_LABEL",
     "COMPOSITE_BREAKDOWN_LABEL",
 ]
-MATCH_THRESHOLD = 88
+MATCH_THRESHOLD = settings.vocabulary_match_threshold
 # Where a table gives no breakdown, the observation is about the publishing country as a
 # whole. Which country that is comes from the settings, not from here.
 COUNTRY = settings.country

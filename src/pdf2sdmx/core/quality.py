@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 import pandas as pd
 
+from pdf2sdmx.config import settings
 from pdf2sdmx.core.table import body_stats
 
 
@@ -18,12 +19,21 @@ class GateResult:
 def gate_table(
     frame: pd.DataFrame,
     *,
-    min_rows: int = 2,
-    min_cols: int = 2,
-    min_numeric_share: float = 0.5,
-    max_unreadable_share: float = 0.15,
+    min_rows: int | None = None,
+    min_cols: int | None = None,
+    min_numeric_share: float | None = None,
+    max_unreadable_share: float | None = None,
 ) -> GateResult:
-    """A table passes when it is big enough and its body is mostly readable numbers."""
+    """A table passes when it is big enough and its body is mostly readable numbers.
+
+    The thresholds come from the settings unless a caller overrides them.
+    """
+    min_rows = settings.gate_min_rows if min_rows is None else min_rows
+    min_cols = settings.gate_min_columns if min_cols is None else min_cols
+    if min_numeric_share is None:
+        min_numeric_share = settings.gate_min_numeric_share
+    if max_unreadable_share is None:
+        max_unreadable_share = settings.gate_max_unreadable_share
     stats = body_stats(frame)
     score = round(stats["numeric_share"] * (1 - stats["unreadable_share"]), 3)
 

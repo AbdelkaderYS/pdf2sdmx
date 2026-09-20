@@ -13,6 +13,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from pdf2sdmx.config import settings
 from pdf2sdmx.core import validate
 from pdf2sdmx.core.ingest import camelot_stage, paddleocr_stage, pdfplumber_stage
 from pdf2sdmx.core.numbers import parse_number
@@ -29,10 +30,7 @@ STAGES: list[tuple[str, Stage]] = [
     (paddleocr_stage.METHOD, paddleocr_stage.extract),
 ]
 
-# Measured on the reports in data/raw: pages of prose and lists of contents carry at most
-# 83 digits, the sparsest table page 118. Below this the model stages are not worth their
-# 15 seconds. Raise it and small tables are dropped; the run says so page by page.
-MIN_DIGITS_FOR_A_TABLE = 100
+MIN_DIGITS_FOR_A_TABLE = settings.min_digits_for_a_table
 
 
 @dataclass

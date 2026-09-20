@@ -205,6 +205,33 @@ Two things are checked against lists this repository does not maintain: `FREQ` a
 written belongs to them. A code list built from a run's own output cannot fail, so that
 badge is the only one that can say no.
 
+## Settings
+
+Everything the tool can be told is in `src/pdf2sdmx/config.py`, and `.env.example` lists it
+with the reasoning. Copy it to `.env` and change what you need; an empty `.env` runs the
+same as none.
+
+Reading another office's reports is meant to be done from there rather than from the code:
+the publishing agency and country, the vocabulary file, what counts as a table, how close a
+label must be to take a code, and how far a total may be from the sum of its parts. Those
+thresholds were measured on one publisher, and a register whose columns are names rather
+than numbers, for instance, needs `GATE_MIN_NUMERIC_SHARE` below the default of 0.5.
+
+## Not done yet
+
+Two pieces of work are worth doing next and are not started.
+
+**Read a second office.** The layout rules are written to be general and nothing has proved
+it. Running a bulletin from another French speaking statistical office, with its own `.env`
+and its own vocabulary file, would say where the real limits are rather than where they are
+assumed to be.
+
+**Propose the vocabulary instead of typing it.** `data/reference/afdb/codes.csv` holds 579
+codes over 37 code lists, read from the portal's own structures. A script could match each
+row of `mapping/to_name.csv` against them and fill the `code` column with a proposal,
+leaving a person to accept or correct rather than to type. Nothing should write a code
+without that acceptance.
+
 ## Measure it yourself
 
 ```bash
