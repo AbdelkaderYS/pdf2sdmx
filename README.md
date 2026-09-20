@@ -12,15 +12,18 @@ license: mit
 
 # pdf2sdmx
 
-Turn a table printed in an INS Niger PDF report into validated observations in SDMX-CSV
+Turn a table printed in a statistical PDF report into validated observations in SDMX-CSV
 and SDMX-ML. Three open source extraction stages run in order, the one with the fewest
 failed arithmetic checks wins, its broken rows are repaired from the others when that
 lowers the failure count, and every observation records which stage it came from.
 
-**Question this answers:** can the detail that INS Niger publishes only as PDF (regional,
-by crop, by campaign) be turned into machine readable, standard formatted data with a
-measured error rate, so that someone maintaining a data portal can load it instead of
-retyping it?
+**Question this answers:** does what a statistical office prints agree with what its open
+data portal publishes, and what does the printed report carry that the portal does not?
+
+The project started from a different question, whether the regional detail existed only in
+PDF. It does not. The AfDB portal for Niger carries regional agricultural production from
+1990 to 2024, so that premise is settled and `scripts/audit_against_portal.py` exists
+because of it. The measured answer is below.
 
 ## Headline numbers
 
@@ -35,7 +38,7 @@ agricole 2024/2025), against 94 cells transcribed by hand from the page image.
 | How the cascade got the last 10 | pdfplumber glued the three Poivron rows into one. Camelot ml read that block correctly but broke 30 other cells. The cascade kept pdfplumber and took only the Poivron rows from Camelot, because each swap lowered the number of failed checks. Every observation carries the stage it came from (816 pdfplumber, 13 camelot_ml). |
 | Extraction errors intercepted by the checks | 8 unreadable cells on that page before repair, 0 after, 0 silent |
 | Source errors surfaced by comparing editions | 32 cross-campaign jumps above a factor of 5 listed in `data/processed/to_review.csv`, including Niamey cowpea area printed as 1 316 237 ha in the 1T 2024 bulletin (15 632 ha a year later) |
-| Pages processed so far | 2 bulletins (1T 2024, 3T 2025), same table, identical layout 18 months apart. A whole 71-page bulletin takes 2 to 4 minutes on CPU. |
+| Pages processed so far | 2 reports of 71 pages each, 18 months apart. A whole report takes 2 to 4 minutes on CPU. |
 
 The 100% is on one page of one table type and should be read as "the cascade and the
 checks work on this layout", not as a general accuracy figure. The number that matters
@@ -62,6 +65,28 @@ leaving a reader to assume otherwise. Raising that share means more checks, not 
 extraction.
 
 ![Cereal production by region](figures/production_by_region.png)
+
+## Against the portal
+
+The same office publishes an open data portal. `make audit` compares a page of the report
+with what the portal already holds, for the agriculture table of the 3rd quarter 2025
+bulletin against the portal's 2024 production:
+
+| | |
+|---|---|
+| Values read from the report | 123 |
+| Also published by the portal | 58 |
+| Agreeing within 0.5% | 56 (97%) |
+| Differing | 2 |
+| In the report only | 65 |
+
+The two differences are national totals for market garden crops, where the portal counts a
+scope the report's campaign table does not. The agreement is against figures this
+repository did not produce, which is worth more than any internal check.
+
+The 65 values with no counterpart, and the campaign the portal has not published yet, are
+what reading the report adds. That is the argument, measured, rather than an assumption
+about what is missing.
 
 ## What comes out
 
@@ -113,6 +138,27 @@ the measurements are downloaded by `python -m pdf2sdmx.core.ingest.refresh`, whi
 writes `data/processed/observations.csv` with a `DATA_DATE` column.
 
 API: `GET /health`, `GET /metadata`, `POST /extract` (multipart PDF + page), `GET /metrics`.
+
+## Audit against a portal
+
+```bash
+make audit
+```
+
+It needs an extract of the portal in `data/reference/afdb/`. The service is
+`https://ne.sdmx.afdb.org/ns-ws/rest/`, plain SDMX REST, unlike the browser host which
+refuses anything that is not a browser:
+
+```bash
+curl -o data/reference/afdb/dataflows.xml \
+  "https://ne.sdmx.afdb.org/ns-ws/rest/dataflow/NE1"
+curl -o data/reference/afdb/DF_AGRI_PROD.xml \
+  "https://ne.sdmx.afdb.org/ns-ws/rest/dataflow/NE1/DF_AGRI_PROD/1.0/?detail=Full&references=Descendants"
+```
+
+Their agriculture structure splits the measure (`INDIC_AGRI`) from the thing measured
+(`SPECULATION`), the same split this repository uses, and `mapping/labels_to_codes.csv`
+now carries their codes where ours were invented.
 
 ## Deploy it
 
@@ -172,10 +218,10 @@ Add a page: transcribe 10 to 30 cells into `truth/<pdf stem>_p<page>_truth.csv`
 
 ## Limits
 
-- Two documents, one country. The layout logic (nested row labels, regions in columns, a
-  total column, periods as column names) was written against these reports. Other
-  publications will need their own mapping rows and possibly new checks, and the run says
-  page by page when a table was refused and why.
+- Two documents, one country, one language. The layout rules are general, but the words
+  are French: the caption, the unit line, the month names, the multiplier words, the total
+  labels and the number format. Another language means another set of those constants, not
+  a rewrite. Another country means another vocabulary file, which is an input.
 - Only 10% of the observations are covered by an arithmetic check. A table with no total
   row, no total column and no area-yield-production triple has every check skipped, and its
   numbers leave unverified.

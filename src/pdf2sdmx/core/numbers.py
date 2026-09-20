@@ -3,8 +3,9 @@
 import re
 from dataclasses import dataclass
 
-# INS tables use a mix of regular, non-breaking and narrow spaces as thousands separators.
+# Thousands are separated by a regular, non-breaking or narrow space, sometimes mixed.
 _SPACES = re.compile(r"[\s   ]+")
+# The dashes are data, not punctuation: a table prints one where a value is missing.
 _MISSING = {"", "-", "–", "—", "nd", "n.d", "n.d.", "na", "n/a", "...", "…", "x", "/", "//"}
 _FOOTNOTE = re.compile(r"[\*¹²³]+$|\s*\([a-z]\)$")
 _NUMBER = re.compile(r"^[+-]?\d+(?:[.,]\d+)?$")

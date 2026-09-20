@@ -1,14 +1,10 @@
 """Write the long table as SDMX-CSV 2.0 and SDMX-ML 2.1.
 
-The XML is built element by element rather than through a library. The two messages we
-emit are fixed, one data structure definition with its code lists and one generic data
-set, so writing them out directly keeps every required attribute visible. It also makes
-the conformance test meaningful: the same bytes go through the official XSD schemas in
-tests/test_sdmx_out.py.
+The XML is built element by element rather than through a library, because the two
+messages are fixed and writing them out keeps every required attribute visible.
 
-The data message uses the generic format rather than the structure specific one. Generic
-data validates against the published schemas on its own; structure specific data needs a
-schema generated from the DSD, which a receiver would have to build first.
+The data message is generic rather than structure specific: generic data validates against
+the published schemas on its own, where the other needs a schema generated from the DSD.
 """
 
 import tempfile
@@ -34,11 +30,8 @@ VERSION = "1.0"
 DSD_NAME = "Tables read from a statistical report"
 DATAFLOW_NAME = "Tables extracted from a statistical report"
 
-# Same component ids as the World Bank WDI DSD (FREQ, REF_AREA, TIME_PERIOD, UNIT_MULT,
-# OBS_VALUE) with INDICATOR where WDI uses SERIES.
-# INDICATOR carries the measure and COMPOSITE_BREAKDOWN what it is measured on, the way
-# the UN SDG structure separates a series from the breakdowns applied to it. Writing both
-# in one dimension gives a code list with one entry per combination.
+# Component ids follow the SDMX cross-domain concepts. INDICATOR carries the measure and
+# COMPOSITE_BREAKDOWN what it is measured on, as the UN SDG structure separates them.
 DIMENSIONS = ["FREQ", "REF_AREA", "INDICATOR", "COMPOSITE_BREAKDOWN", "TIME_PERIOD"]
 ATTRIBUTES = ["UNIT_MEASURE", "UNIT_MULT", "OBS_STATUS", "TIME_PERIOD_LABEL", "EXTRACTION_METHOD", "SOURCE"]
 MEASURE = "OBS_VALUE"
@@ -175,9 +168,7 @@ def _official_or_fallback(list_id: str) -> dict[str, str]:
 def codes_outside_official_lists(long: pd.DataFrame) -> dict[str, set[str]] | None:
     """Values we wrote that no official list contains, per component.
 
-    An empty dict is the answer worth having: every value in those components exists in a
-    list this repository does not maintain. None means no official list was available, so
-    nothing was checked, which is not the same as passing.
+    None means nothing was checked, which is not the same as an empty result.
     """
     from pdf2sdmx.core import registry
 

@@ -1,13 +1,8 @@
 """Compare what a report prints with what the open data portal already publishes.
 
-The premise this project started from, that the regional detail exists only in PDF, does
-not hold: the portal carries the same series. So the question is no longer whether the
-data is missing but whether the two agree, and that is answerable.
-
-Three outcomes are all worth having. They agree, and the extraction is validated against
-figures nobody here produced. They disagree, and two official publications of the same
-institute contradict each other. The portal stops earlier, and what the reading adds is
-measured in years rather than claimed.
+Three outcomes are all worth having. They agree, and the reading is validated against
+figures produced elsewhere. They disagree, and two official publications contradict each
+other. The portal stops earlier, and the gap is measured rather than claimed.
 
     python scripts/audit_against_portal.py --page 2 --period 2024
 """
@@ -25,8 +20,8 @@ from pdf2sdmx.core import pipeline  # noqa: E402
 
 PORTAL = settings.reference_dir / "afdb" / "DF_AGRI_PROD_data.csv"
 SAMPLE = settings.data_raw.parent / "samples" / "ins_bulletin_3T25_p20-23.pdf"
-# Their reference areas use the AfDB's own scheme; ours follow ISO 3166-2. The mapping file
-# records the pairing, and this is the same pairing in the form a join needs.
+# The portal has its own area scheme; ours is ISO 3166-2. This is the pairing, as a join
+# needs it. The vocabulary file records the same thing for a reader.
 THEIR_AREA = {
     "AFNER": "_T",
     "AFNER1": "NE-1",
@@ -78,11 +73,10 @@ def read_portal(period: str) -> pd.DataFrame:
 
 
 def compare(ours: pd.DataFrame, theirs: pd.DataFrame) -> pd.DataFrame:
-    """One row per value that exists on both sides, with the gap between them.
+    """One row per value present on both sides, with the gap between them.
 
-    The portal splits a crop by type of culture where the report does not, so one printed
-    figure can face several. The closest is kept: picking any other would report a
-    difference that is really a difference of scope.
+    The portal may split a series where the report does not, so one printed figure can face
+    several. The closest is kept: any other would report a difference of scope as an error.
     """
     columns = ["REF_AREA", "COMPOSITE_BREAKDOWN", "TYPE_CULTURE", "OBS_VALUE"]
     merged = ours.merge(theirs[columns], on=["REF_AREA", "COMPOSITE_BREAKDOWN"], suffixes=("_report", "_portal"))

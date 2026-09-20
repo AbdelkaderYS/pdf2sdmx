@@ -42,19 +42,16 @@ COUNTRY_LABEL = settings.country_name
 # the total over that dimension, _Z when the label could not be identified at all.
 TOTAL = "_T"
 NOT_IDENTIFIED = "_Z"
-# Where a unit hides: in trailing parentheses, or after "en" anywhere in a title or a
-# column name. "Prix moyens en FCFA du bétail" and "Or en US$/g" both name their unit.
+# A unit sits in trailing parentheses, or after "en" in a title or a column name.
 UNIT_IN_HEADER = re.compile(r"\(([^)]+)\)\s*$")
 UNIT_AFTER_EN = re.compile(r"\ben\s+([^,;()]{1,28}?)(?=\s+(?:de|du|des|par|dans|pour)\b|[,;)]|$)", re.I)
-# A multiplier written as a word. SDMX keeps it apart from the unit: "en milliers de m3"
-# is UNIT_MEASURE M3 with UNIT_MULT 3, not one code with the word glued in.
+# SDMX keeps the multiplier apart: "en milliers de m3" is M3 with UNIT_MULT 3.
 MULTIPLIER = re.compile(r"\b(milliers?|millions?|milliards?)\b", re.I)
 MULTIPLIER_POWER = {"millier": "3", "milliers": "3", "million": "6", "millions": "6", "milliard": "9", "milliards": "9"}
-# An SDMX code carries no symbols, so a unit printed "%" or "US$" would come out empty.
-# The published unit lists spell these with letters. Longest first, the order is applied.
+# An SDMX code carries no symbols, and the published unit lists spell these with letters.
 SYMBOL_CODE = {"m\u00b3": "m3", "us\\s*\\$": "usd", "%": "per", "\\$": "usd", "\u20ac": "eur"}
 # Where the portal this work feeds already names a unit, use its name rather than ours.
-# From NE1:CL_UNIT_MEASURE, read on ne.sdmx.afdb.org.
+# Read from the reference structures in data/reference.
 PORTAL_UNIT = {
     "NOMBRE": "NUMBER",
     "PCT": "PER",
@@ -73,9 +70,7 @@ PORTAL_UNIT = {
     "UNITE": "NUMBER",
     "UNITES": "NUMBER",
 }
-# A unit, once any multiplier is taken out. Text that is not one of these is not a unit:
-# "(1 à 10 m3/mois)" is a tariff band and "(17 à 22 places)" a vehicle class, and an
-# attribute filled with something else still looks filled in.
+# A unit, once any multiplier is taken out. Anything else is not a unit.
 UNIT_TEXT = re.compile(
     r"^(?:ha|hectares?|t|tonnes?|kg(?:\s*/\s*\w+)?|g|l|litres?|m3|m\u00b3|km2?|%|pourcents?|"
     r"fcfa|f\s?cfa|us\s*\$(?:\s*/\s*\w+)?|\$|euros?|unit[e\u00e9]s?|nombre|indice|"
@@ -139,20 +134,17 @@ def to_long(
     checks: list[Check],
     subject: str = "UNKNOWN",
 ) -> pd.DataFrame:
-    """Wide table -> long observations.
+    """One observation per numeric cell.
 
-    `method` is one stage name, or a row label to stage name mapping when rows were
-    repaired from different stages. Each axis is classified as regions, years or other. Regions become REF_AREA, years
-    become TIME_PERIOD, and whatever is left becomes INDICATOR. When neither axis holds
-    an indicator, the table subject is used.
+    Each axis is classified as areas, periods or other. `method` is one stage name, or a
+    row label to stage name mapping when rows came from different stages.
     """
     labels = row_labels(frame)
     columns = list(frame.columns[1:])
     row_kind = _axis_kind(labels, mapping)
     col_kind = _axis_kind(columns, mapping)
     failed = _failed_cells(checks)
-    # A check that names no cell condemns the whole table, such as a header that swallowed
-    # a data row: every number under it is suspect, however well it parsed.
+    # A check naming no cell condemns the whole table, so every number under it is suspect.
     table_failed = any(c.status == "fail" and not c.row for c in checks)
 
     records = []
@@ -190,12 +182,11 @@ def to_long(
 
 
 def sdmx_time_period(printed: str) -> str:
-    """SDMX time format for the periods a printed table uses as a column name.
+    """A printed period as SDMX writes it.
 
-    "2024" stays "2024". A range printed "2024/2025" becomes the SDMX reporting year
-    "2024-A1": the year the period starts, as the SDMX guidelines require. A quarter
-    printed "1 T24" becomes "2024-Q1". Anything else is returned unchanged and will not
-    validate as a time period.
+    "2024/2025" becomes the reporting year "2024-A1", "1 T24" becomes "2024-Q1", and a
+    stock date becomes a calendar day. Anything else comes back unchanged and will not
+    validate.
     """
     text = _without_footnote(printed.strip())
     if PLAIN_YEAR.match(text):
@@ -203,8 +194,7 @@ def sdmx_time_period(printed: str) -> str:
     split = SPLIT_YEAR.match(text)
     if split:
         return f"{split.group(1)}-A1"
-    # A search rather than a match: two header rows merged into "2021 1 T21" name the same
-    # quarter twice, and the quarter is the one that carries the information.
+    # A search, not a match: merged header rows read "2021 1 T21", and the quarter wins.
     day = DAY_MONTH_YEAR.search(text)
     if day:
         month = MONTH_NUMBER[day.group(2).casefold()]
@@ -225,11 +215,7 @@ def sdmx_frequency(time_period: str) -> str:
 
 
 def _without_footnote(text: str) -> str:
-    """Drop a footnote marker glued to a period, so "2010*" and "2023 (p)" become periods.
-
-    The marker usually means provisional or revised. It is not dropped from the printed
-    label, which TIME_PERIOD_LABEL keeps as it stands.
-    """
+    """Drop a provisional or revised marker glued to a period: "2010*", "2023 (p)"."""
     stripped = FOOTNOTE_MARKER.sub("", text).strip()
     return stripped or text
 
@@ -242,10 +228,7 @@ def _four_digit_year(year: str) -> str:
 
 
 def _axis_kind(labels: list[str], mapping: pd.DataFrame) -> str:
-    """ "area", "year" or "other", by majority of the labels on that axis.
-
-    "year" covers any period, a quarter as much as a year, since both become TIME_PERIOD.
-    """
+    """ "area", "year" or "other", by majority. "year" covers any period, quarters included."""
     clean = [_strip_suffix(lb) for lb in labels]
     if clean and sum(bool(PERIOD_HEADER.match(lb.strip())) for lb in clean) / len(clean) >= 0.5:
         return "year"
@@ -267,11 +250,7 @@ def _assign_axes(row: str, column: str, row_kind: str, col_kind: str, subject: s
 
 
 def _join_indicator(leftover: str, indicator: str, subject: str) -> str:
-    """What is left of an area label joins the indicator.
-
-    When the indicator is only the table subject, the leftover says more on its own and
-    replaces it rather than being glued in front of it.
-    """
+    """What is left of an area label joins the indicator, or replaces a bare subject."""
     if not leftover:
         return indicator
     if indicator == subject:
@@ -280,11 +259,9 @@ def _join_indicator(leftover: str, indicator: str, subject: str) -> str:
 
 
 def _kind_of_label(label: str, axis_kind: str) -> str:
-    """The axis is classified by majority, one label at a time can still disagree.
+    """The axis is decided by majority; a label that disagrees becomes an indicator.
 
-    A table of periods often ends with a column such as a variation or a share. Forcing it
-    into TIME_PERIOD would write a sentence where a period belongs, so it becomes one more
-    indicator instead.
+    A table of periods often ends with a variation column, which is not a period.
     """
     if axis_kind == "year" and not PERIOD_HEADER.match(label):
         return "other"
@@ -300,17 +277,12 @@ class Coded:
 
 
 def _split_indicator(label: str, mapping: pd.DataFrame) -> tuple[Coded, Coded, str]:
-    """Separate what is measured from the thing it is measured on.
+    """Separate the measure from the thing it is measured on.
 
-    A printed label such as "Mil / Superficie" names both at once. Written as one code it
-    gives a list with one entry per combination, where nothing repeats and nothing can be
-    queried. INDICATOR keeps the measure, which is a short closed list, and the rest goes
-    to COMPOSITE_BREAKDOWN beside it. This is how the UN SDG structure models the same
-    problem, and the SDMX guideline on modelling a domain calls it decomposing an
-    indicator set.
-
-    A part that matches no measure leaves INDICATOR not identified rather than minting a
-    code that looks official. Nothing is lost: the label still reaches the breakdown.
+    A label naming both at once needs one code per combination, so nothing repeats and
+    nothing can be queried. INDICATOR keeps the measure, a short closed list, and
+    COMPOSITE_BREAKDOWN takes the rest, as the SDMX domain modelling guideline advises.
+    A part matching no measure leaves INDICATOR at _Z; the breakdown still holds the label.
     """
     measure = Coded("", "")
     breakdown = Coded("", "")
@@ -338,8 +310,6 @@ def _split_indicator(label: str, mapping: pd.DataFrame) -> tuple[Coded, Coded, s
     elif leftovers:
         breakdown = Coded(breakdown.code, LABEL_JOIN.join([breakdown.label, *leftovers]))
 
-    # With no measure identified the label is not repeated here: the breakdown already
-    # carries it, and counting the same text twice would double the work it represents.
     return (
         measure if measure.code else Coded(NOT_IDENTIFIED, ""),
         breakdown if breakdown.code else Coded(TOTAL, ""),
@@ -348,11 +318,10 @@ def _split_indicator(label: str, mapping: pd.DataFrame) -> tuple[Coded, Coded, s
 
 
 def _code_for(label: str, mapping: pd.DataFrame, dimension: str) -> tuple[str, str]:
-    """Exact then fuzzy match against the mapping file. Empty code when nothing matched.
+    """Exact then fuzzy match against the vocabulary. Empty code when nothing matched.
 
-    A caller that can name the thing anyway, such as an indicator, falls back to a slug. A
-    caller that cannot, such as a reference area, must not: turning an unmatched label into
-    an area code is how livestock and petroleum products ended up declared as countries.
+    An area that matched nothing must stay empty: minting a code from the label would
+    declare any unrecognised word a place.
     """
     candidates = mapping[mapping["dimension"] == dimension]
     if candidates.empty:
@@ -370,11 +339,9 @@ def _code_for(label: str, mapping: pd.DataFrame, dimension: str) -> tuple[str, s
 
 
 def _resolve_area(label: str, mapping: pd.DataFrame) -> tuple[str, str]:
-    """(area code, what is left of the label) for a label the axis called an area.
+    """(area code, what is left) for a label the axis called an area.
 
-    A row label merged from two printed columns reads "Dosso / Bovins". Only one part names
-    an area; the rest belongs to the indicator. When no part names a known area the label is
-    not an area at all and comes back whole.
+    A merged label names an area in one part only; the rest belongs to the indicator.
     """
     parts = label.split(LABEL_JOIN)
     for position, part in enumerate(parts):
@@ -396,10 +363,7 @@ def _share_matching(labels: list[str], mapping: pd.DataFrame, dimension: str) ->
 
 
 def _unit_for(indicator_label: str, mapped_unit: str, default: str) -> tuple[str, str]:
-    """(unit code, multiplier) for one cell, from the most specific source that names one.
-
-    The label's own text wins over the mapping, which wins over whatever the table said.
-    """
+    """(unit code, multiplier), from the most specific source that names one."""
     for text in (indicator_label, mapped_unit, default):
         unit, multiplier = unit_and_multiplier(text)
         if unit:
@@ -410,9 +374,8 @@ def _unit_for(indicator_label: str, mapped_unit: str, default: str) -> tuple[str
 def unit_and_multiplier(text: str) -> tuple[str, str]:
     """Pull a unit and its power of ten out of a printed phrase.
 
-    "en milliers de m3" gives (M3, 3), "(kg/ha)" gives (KG_HA, 0), and a phrase naming no
-    unit gives ("", "0") so the caller can try somewhere else. Reading a tariff band as a
-    unit would be worse than reading none.
+    "en milliers de m3" gives (M3, 3) and "(kg/ha)" gives (KG_HA, 0). A phrase naming no
+    unit gives ("", "0), so the caller can look elsewhere.
     """
     if not text:
         return "", "0"
@@ -454,16 +417,11 @@ def _strip_suffix(label: str) -> str:
 
 
 def sdmx_code(text: str) -> str:
-    """A value usable as an SDMX code id.
+    """Text as an SDMX code id.
 
-    The standard allows letters, digits and `_ @ $ -`, so "NE-1" and "_T" pass through
-    unchanged while a unit printed "kg/ha" becomes KG_HA. Applied to every coded
-    component, including codes read from the mapping file, because that file is hand
-    edited. A leading underscore is kept only when the text already had one, so the SDMX
-    total code `_T` survives.
-
-    Accents are transliterated rather than replaced, so "Régions" gives REGIONS and not
-    R_GIONS.
+    The standard allows letters, digits and `_ @ $ -`, so "NE-1" and "_T" pass through and
+    "kg/ha" becomes KG_HA. Accents are transliterated, not replaced. A leading underscore
+    survives only if the text had one, which keeps the total code `_T`.
     """
     plain = unicodedata.normalize("NFKD", text.strip())
     plain = "".join(c for c in plain if not unicodedata.combining(c))

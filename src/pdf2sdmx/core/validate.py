@@ -8,11 +8,10 @@ import pandas as pd
 from pdf2sdmx.config import settings
 from pdf2sdmx.core.numbers import parse_number
 
-# The words a check looks for in a row or column name. They decide which check applies to
-# which table, and nothing here assumes a particular report: a table naming none of them
-# simply has those checks skipped, which the run counts and reports.
-# The publishing country's own name counts as a total, because a national table prints the
-# country where another would print "Total".
+# The words a check looks for in a row or column name, which decide the checks that apply.
+# A table naming none of them has those checks skipped, and the run counts that.
+# The country's own name counts as a total: a national table prints it where another
+# would print "Total".
 TOTAL_LABEL = re.compile(rf"\b(total|ensemble|national|{re.escape(settings.country_name)})\b", re.I)
 RATE_HEADER = re.compile(r"kg/ha|%|taux|rendement|moyen|ratio|prix|indice|part\b", re.I)
 AREA_HEADER = re.compile(r"superficie|surface", re.I)
@@ -80,8 +79,7 @@ def check_header(frame: pd.DataFrame) -> list[Check]:
     """A header that is missing, or that swallowed the first row of data.
 
     Both leave the numbers right and the totals adding up while the columns say the wrong
-    thing, so nothing else in this module would notice. Counting it as a failure is what
-    sends the cascade to the next stage, and eventually to the vision model.
+    thing, so nothing else here would notice. Failing sends the cascade to the next stage.
     """
     unnamed = sum(bool(PLACEHOLDER_COLUMN.match(str(c))) for c in frame.columns[1:])
     if unnamed and unnamed == frame.shape[1] - 1:

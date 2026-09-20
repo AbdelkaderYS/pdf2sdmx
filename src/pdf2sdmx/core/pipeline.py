@@ -98,8 +98,7 @@ def run_page(
             resolved.frame,
             mapping=mapping,
             time_period=period,
-            # A caption naming no unit line often names the unit in its own words:
-            # "Prix moyens en FCFA du bétail". reshape reads it the same way.
+            # A caption with no unit line often names the unit in its own words.
             unit=printed_unit or unit or title,
             method=resolved.row_methods,
             source=source,
@@ -126,15 +125,11 @@ def run_page(
 
 
 def captions_on_page(pdf_path: Path, page: int) -> list[tuple[str, str]]:
-    """(title, unit) for each table on this page, in reading order, as the report writes them.
+    """(title, unit) for each table on this page, in reading order.
 
-    A caption reads "Tableau 03.01. : <title>" and sits above its table, sometimes followed
-    by "Unité : Nombre" which holds for that whole table. Roughly a third of units are
-    printed there rather than in a column header, so a header that names none is not a
-    table without a unit. The same caption lines appear again in the list of tables opening
-    a chapter, but such a page carries no table, so nothing is paired with them. Tables are
-    matched by position, and a table whose caption sits on the previous page gets none
-    rather than a wrong one.
+    A caption sits above its table, sometimes followed by a unit line that holds for the
+    whole table. Tables are matched by position, and one whose caption sits on the previous
+    page gets none rather than a wrong one.
     """
     found: list[tuple[str, str]] = []
     for line in pdfplumber_stage.page_text(pdf_path, page).splitlines():

@@ -1,14 +1,8 @@
 """Gradio front end for the Hugging Face Space.
 
-Two panels. On the left the document: drop a PDF, browse its pages, start the run. On the
-right what came out: the figures, the tables under the titles the report gives them, and
-the SDMX files.
-
-The result is read as figures rather than sentences. A list of forty page numbers tells a
-reader nothing; five numbers and a conformance badge tell them where they stand.
-
-A page that yields nothing says why on the spot, in the progress line, rather than in a
-diagnostic table nobody opens.
+Two panels: the document on the left, what came out of it on the right. Results are read
+as figures rather than sentences, and a page that yields nothing says why in the progress
+line rather than in a panel nobody opens.
 """
 
 import html
@@ -56,8 +50,7 @@ CSS = """
 footer { display: none !important; }
 """
 
-# On screen each code sits next to the label it stands for, so the coding can be checked
-# without scrolling sideways. The written files keep the SDMX column order instead.
+# On screen a code sits next to its label; the written files keep the SDMX order.
 DISPLAY_COLUMNS = [
     "REF_AREA",
     "REF_AREA_LABEL",
@@ -123,9 +116,7 @@ def process(file):
 def no_table_reason(result: PageResult) -> str:
     """Why this page produced nothing, in the words of the stage that gave up.
 
-    A rejected table says more than a stage that never ran, so a gate reason wins over an
-    error. Without any gate the page was skipped before extraction, and the first error
-    holds the reason.
+    A rejected table says more than a stage that never ran, so a gate reason wins.
     """
     rejected = ""
     for attempt in result.attempts:
@@ -194,7 +185,7 @@ def stats_html(results: list[PageResult], files: dict[str, str | bytes] | None =
 
 
 def observations_frame(long: pd.DataFrame) -> pd.DataFrame:
-    """The observations as a reader wants them: every code beside its printed label."""
+    """Every code beside the printed label it stands for."""
     if long.empty:
         return long
     ordered = [c for c in DISPLAY_COLUMNS if c in long.columns]
@@ -203,7 +194,7 @@ def observations_frame(long: pd.DataFrame) -> pd.DataFrame:
 
 
 def observations_note(long: pd.DataFrame) -> str:
-    """One line saying what a row is. Without it the table reads as a debug dump."""
+    """One line saying what a row is."""
     if long.empty:
         return ""
     return (
@@ -213,10 +204,10 @@ def observations_note(long: pd.DataFrame) -> str:
 
 
 def _measure_named(long: pd.DataFrame) -> float:
-    """Share of observations whose indicator came from the mapping rather than nothing.
+    """Share of observations whose indicator came from the vocabulary rather than nothing.
 
-    The rest carry _Z. Published because a code list that looks full is worth less than one
-    that says where it stops: an accuracy that ignores what was never linked is inflated.
+    The rest carry _Z. A code list that looks full is worth less than one saying where it
+    stops.
     """
     if long.empty:
         return 0.0
@@ -231,8 +222,7 @@ def _number(value: int) -> str:
 def _cells_checked(results: list[PageResult]) -> int:
     """Cells named by at least one arithmetic check.
 
-    Published next to the observation count because a value nobody checked carries
-    OBS_STATUS A for want of a contradiction, not because anything confirmed it.
+    Published because an unchecked value carries OBS_STATUS A for want of a contradiction.
     """
     cells = set()
     for result in results:
@@ -257,11 +247,10 @@ def conformance_pill(files: dict[str, str | bytes]) -> str:
 
 
 def official_codes_pill(long: pd.DataFrame) -> str:
-    """Whether the codes we wrote exist in a code list this repository does not maintain.
+    """Whether the codes we wrote exist in a list this repository does not maintain.
 
-    Separate from the schema badge on purpose. The schema says the file is well formed
-    SDMX; this says the values inside it were checked against someone else's list. A run
-    that builds its own code lists can only ever pass the first.
+    Separate from the schema badge: that one says the file is well formed, this one says
+    the values inside it were checked against someone else's list.
     """
     if long.empty:
         return ""
@@ -307,8 +296,7 @@ def _preview_text(files: dict[str, str | bytes], suffix: str, max_lines: int = 6
 def table_slots(current: PageResult | None) -> list:
     """One dataframe per table on the current page, under the title the report gives it.
 
-    Slots are hidden while a page is being read so that Gradio remounts them with the new
-    table height; an updated dataframe otherwise keeps the previous table's scroll area.
+    Hidden while a page is read so Gradio remounts them at the new height.
     """
     if current is None or not current.tables:
         return [gr.update(visible=False) for _ in range(TABLE_SLOTS)]
@@ -317,7 +305,7 @@ def table_slots(current: PageResult | None) -> list:
         if i < len(current.tables):
             table = current.tables[i]
             title = table.title or f"Page {current.page}, table {i + 1} of {len(current.tables)}"
-            slots.append(gr.update(value=table.frame, label=f"{title} — read by {table.resolved_by}", visible=True))
+            slots.append(gr.update(value=table.frame, label=f"{title} ,  read by {table.resolved_by}", visible=True))
         else:
             slots.append(gr.update(visible=False))
     return slots

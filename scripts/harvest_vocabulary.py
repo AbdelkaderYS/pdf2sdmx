@@ -1,12 +1,9 @@
 """Turn a corpus of reports into a worklist for the vocabulary file.
 
-The engine reads any report, but it can only code what the vocabulary names. This script
-says what is worth naming next, and what each entry would buy.
-
-It collects every label the reports print, collapses the spellings that mean the same
-thing, ranks what is left by how many observations it covers, and writes a CSV whose
-`code` column is empty. Someone who knows the data fills it from the top and stops when
-the coverage is enough. Nothing here invents a code.
+The engine reads any report but can only code what the vocabulary names. This collects
+every label printed, collapses the spellings of one thing, ranks what is left by the
+observations it would unlock, and writes a CSV whose `code` column is empty. Nothing here
+invents a code.
 
     python scripts/harvest_vocabulary.py data/raw/*.pdf
     python scripts/harvest_vocabulary.py --from-csv run.csv
@@ -30,10 +27,8 @@ DIMENSIONS = {
     "INDICATOR": "INDICATOR_LABEL",
     "COMPOSITE_BREAKDOWN": "COMPOSITE_BREAKDOWN_LABEL",
 }
-# Two labels this close, once accents and case are folded away, are the same thing spelled
-# differently. The threshold is deliberately high: leaving two spellings apart costs one
-# extra row, merging two concepts destroys a distinction silently. At 90 "Bovins" swallowed
-# "Ovins", which is a different animal.
+# The threshold is high on purpose: an extra row costs one line, a wrong merge destroys a
+# distinction in silence.
 SAME_CONCEPT = 95
 # Our own placeholder for a label we could not name. It is not something a report printed.
 NOT_A_LABEL = {"UNKNOWN", ""}
@@ -106,10 +101,9 @@ def build_worklist(long: pd.DataFrame, known: pd.DataFrame) -> pd.DataFrame:
 
 
 def cluster(counts: pd.Series) -> list[tuple[str, list[str], int]]:
-    """Group spellings of the same thing, keeping the most frequent one as the name.
+    """Group spellings of one thing, keeping the most frequent as the name.
 
-    The most frequent spelling is the one worth naming: it is what the reports usually
-    print, and the fuzzy match in reshape will reach the others from it.
+    The fuzzy match in reshape reaches the others from it.
     """
     labels = [str(label) for label in counts.index if str(label) not in NOT_A_LABEL]
     taken: set[int] = set()
@@ -131,12 +125,7 @@ def cluster(counts: pd.Series) -> list[tuple[str, list[str], int]]:
 
 
 def _similarity(one: str, other: str) -> float:
-    """How close two labels are once written the way the pipeline would code them.
-
-    Comparing the raw text makes "Niébé" and "Niebe" look unrelated, because the accent
-    counts as a difference. Coding both first folds the accent away, which is the only
-    difference that never matters.
-    """
+    """How close two labels are once coded, which folds away accents and case."""
     return fuzz.ratio(reshape.sdmx_code(one), reshape.sdmx_code(other))
 
 

@@ -8,7 +8,7 @@ from pdf2sdmx.core.table import ExtractedTable
 
 METHOD = "pdfplumber"
 
-# Ruled tables first, then whitespace-aligned tables. Most INS tables have ruling lines.
+# Ruled tables first, then whitespace-aligned ones.
 _STRATEGIES = (
     {"vertical_strategy": "lines", "horizontal_strategy": "lines"},
     {"vertical_strategy": "text", "horizontal_strategy": "text"},

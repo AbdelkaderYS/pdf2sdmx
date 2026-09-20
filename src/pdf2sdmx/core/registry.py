@@ -1,12 +1,10 @@
 """Code lists fetched from the SDMX Global Registry, not written here.
 
-The lists this tool builds from its own output cannot fail: a code is allowed because we
-just declared it. Comparing against a list nobody here maintains is the only check that
-can say no, and it is what a receiving registry would do.
+A list built from a run's own output cannot fail, so it proves nothing. Comparing against
+one maintained elsewhere is the only check that can say no.
 
-Fetched once and kept on disk, because the network is not always there and a run must not
-depend on it. Without a cache and without a network the caller gets None and says so
-rather than pretending the check passed.
+Fetched once and kept on disk. With neither cache nor network the caller gets None and
+says so, which is not the same as passing.
 """
 
 import logging
@@ -18,13 +16,12 @@ log = logging.getLogger(__name__)
 
 BASE = "https://registry.sdmx.org/sdmx/v2/structure/codelist"
 AGENCY = "SDMX"
-# The cross-domain lists this tool uses. Each is maintained by the SDMX Technical Working
-# Group, which is the point: their content is not ours to decide.
+# Maintained by the SDMX Technical Working Group, which is the point: not ours to decide.
 WANTED = ("CL_FREQ", "CL_OBS_STATUS", "CL_UNIT_MULT", "CL_CONF_STATUS")
 
 
 def codelist(codelist_id: str, *, refresh: bool = False) -> dict[str, str] | None:
-    """Codes and names of an official list, or None when it is neither cached nor reachable."""
+    """Codes and names, or None when the list is neither cached nor reachable."""
     path = cache_path(codelist_id)
     if refresh or not path.exists():
         downloaded = _download(codelist_id, path)
@@ -38,11 +35,7 @@ def cache_path(codelist_id: str) -> Path:
 
 
 def unknown_codes(used: set[str], codelist_id: str) -> set[str] | None:
-    """Codes we emit that the official list does not contain. None when it is unavailable.
-
-    An empty set is the answer that means something: every value we wrote exists in a list
-    maintained elsewhere.
-    """
+    """Codes we emit that the official list does not contain, or None if it is unavailable."""
     official = codelist(codelist_id)
     if official is None:
         return None
