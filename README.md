@@ -70,12 +70,11 @@ make harvest          # ce qu'il reste à nommer dans le vocabulaire
 
 ## Mettre en ligne
 
-Le service tourne sur [Koyeb](https://www.koyeb.com), formule gratuite : 512 Mo, endormi
-après une heure sans visite, réveillé en quelques secondes.
+Le service tourne sur [Render](https://render.com), formule gratuite : 512 Mo, endormi
+après quinze minutes sans visite, réveillé en une minute environ.
 
-**Create Web Service** → **GitHub** → ce dépôt → builder **Buildpack**. Basculer
-l'interrupteur **Override** du champ **Run command** et saisir `python app.py`. Instance
-**Free**, région **Frankfurt**. Le port est passé dans `$PORT` et l'application le lit.
+[render.yaml](render.yaml) décrit le service. Sur render.com : **New** → **Blueprint** →
+ce dépôt. Le port est passé dans `$PORT` et l'application le lit.
 
 `requirements.txt` ne contient que l'étage texte : torch pèse 738 Mo et ne tient pas dans
 les 512 Mo. L'interface dit quels étages manquent, et un rapport avec une couche texte est

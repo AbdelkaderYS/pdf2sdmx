@@ -1,0 +1,23 @@
+# Render, free plan: 512 MB of memory, sleeps after 15 minutes without a visit and takes
+# about a minute to wake. Only the text stage fits; see requirements.txt for what that costs.
+#
+# Deploy: push this repository to GitHub, then New > Blueprint on render.com and point it
+# here. Nothing else to configure.
+services:
+  - type: web
+    name: pdf2sdmx
+    runtime: python
+    plan: free
+    region: frankfurt
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app.py
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12"
+      # The engine reads its settings from here as it would from .env.
+      - key: LOG_LEVEL
+        value: INFO
+      # The demo runs on the bundled sample; the full reports are not needed here.
+      - key: FETCH_SOURCES
+        value: "false"
