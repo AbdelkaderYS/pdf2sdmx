@@ -31,7 +31,7 @@ def test_regions_get_iso_codes_and_units_come_from_headers():
     )
     assert len(long) == 6
     assert set(long["REF_AREA"]) == {"NE-4", "NE-6", "NE"}
-    assert set(long["INDICATOR"]) == {"AREA_HA", "PROD_T"}
+    assert set(long["INDICATOR"]) == {"SUP", "PROD"}
     assert set(long["UNIT_MEASURE"]) == {"HA", "T"}  # units are SDMX codes, so upper case
     assert (long["TIME_PERIOD"] == "2024-A1").all()  # SDMX reporting year, start year
     assert (long["TIME_PERIOD_LABEL"] == "2024/2025").all()
@@ -54,7 +54,7 @@ def test_years_in_header_become_time_period():
     # The crops name what is measured, not the measure, so they sit in the breakdown and
     # INDICATOR says it could not name a measure rather than inventing one.
     assert set(long["INDICATOR"]) == {"_Z"}
-    assert set(long["COMPOSITE_BREAKDOWN"]) == {"MILLET", "SORGHUM"}
+    assert set(long["COMPOSITE_BREAKDOWN"]) == {"MIL", "SOR"}
     assert (long["REF_AREA"] == "NE").all()
 
 
@@ -70,7 +70,7 @@ def test_failed_check_flags_observation_status():
         source="s",
         checks=checks,
     )
-    flagged = long[(long["REF_AREA"] == "NE") & (long["INDICATOR"] == "PROD_T")]
+    flagged = long[(long["REF_AREA"] == "NE") & (long["INDICATOR"] == "PROD")]
     assert flagged["OBS_STATUS"].iloc[0] == "U"  # CL_OBS_STATUS: low reliability
     assert (long.drop(flagged.index)["OBS_STATUS"] == "A").all()
 
@@ -122,8 +122,8 @@ def test_regions_in_upper_case_columns_become_ref_area():
     )
     assert set(long["REF_AREA"]) == {"NE-1", "NE-6", "NE-8", "_T"}
     # One code per measure, one per crop, instead of one per combination of the two.
-    assert set(long["INDICATOR"]) == {"AREA_HA", "PROD_T"}
-    assert set(long["COMPOSITE_BREAKDOWN"]) == {"MILLET"}
+    assert set(long["INDICATOR"]) == {"SUP", "PROD"}
+    assert set(long["COMPOSITE_BREAKDOWN"]) == {"MIL"}
     assert set(long["UNIT_MEASURE"]) == {"HA", "T"}  # units are SDMX codes, so upper case
 
 
@@ -263,13 +263,13 @@ def test_the_measure_and_the_thing_measured_go_to_separate_dimensions():
     describes, and the shape the UN SDG structure uses.
     """
     measure, breakdown, unit = reshape._split_indicator("Mil / Superficie", MAPPING)
-    assert (measure.code, breakdown.code) == ("AREA_HA", "MILLET")
+    assert (measure.code, breakdown.code) == ("SUP", "MIL")
     assert unit == "ha"
 
 
 def test_a_measure_on_its_own_leaves_the_breakdown_total():
     measure, breakdown, _ = reshape._split_indicator("Production", MAPPING)
-    assert (measure.code, breakdown.code) == ("PROD_T", "_T")
+    assert (measure.code, breakdown.code) == ("PROD", "_T")
 
 
 def test_a_label_naming_no_measure_says_so_instead_of_inventing_one():

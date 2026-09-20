@@ -1,0 +1,1028 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--NSI Web Service v8.16.0.0-->
+<message:Structure xmlns:message="http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message" xmlns:structure="http://www.sdmx.org/resources/sdmxml/schemas/v2_1/structure" xmlns:common="http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common">
+  <message:Header>
+    <message:ID>IDREF19</message:ID>
+    <message:Test>false</message:Test>
+    <message:Prepared>2026-09-20T02:00:18.38699+00:00</message:Prepared>
+    <message:Sender id="Unknown" />
+    <message:Receiver id="Unknown" />
+  </message:Header>
+  <message:Structures>
+    <structure:Dataflows>
+      <structure:Dataflow id="DF_AGRI_PROD" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="AGRI_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DEFAULT">
+            <common:AnnotationTitle>FREQ=A</common:AnnotationTitle>
+            <common:AnnotationType>DEFAULT</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW">
+            <common:AnnotationTitle>REF_AREA,SPECULATION</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_COLUMN">
+            <common:AnnotationTitle>TIME_PERIOD,TYPE_CULTURE</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_COLUMN</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW_SECTION">
+            <common:AnnotationTitle>FREQ,INDIC_AGRI</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW_SECTION</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-15T15:00:48.219Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Production</common:Name>
+        <common:Name xml:lang="en">Production</common:Name>
+        <structure:Structure>
+          <Ref id="AGRI" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+    </structure:Dataflows>
+    <structure:Codelists>
+      <structure:Codelist id="CL_COMMENT_OBS" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Name xml:lang="en">Observation Comment</common:Name>
+        <common:Name xml:lang="fr">Commentaire sur l'observation</common:Name>
+        <structure:Code id="COMMENT_OBS">
+          <common:Name xml:lang="fr">Pour le riz, Il s'agit de la culture du riz hors aménagement hydro-agricole</common:Name>
+          <common:Name xml:lang="en">For rice, this refers to rice cultivation outside of hydro-agricultural development.</common:Name>
+        </structure:Code>
+        <structure:Code id="I">
+          <common:Name xml:lang="fr">Non compris production de la SOPAMIN</common:Name>
+          <common:Name xml:lang="en">Excluding SOPAMIN production</common:Name>
+        </structure:Code>
+        <structure:Code id="II">
+          <common:Name xml:lang="fr">y compris vente de la SOPAMIN</common:Name>
+          <common:Name xml:lang="en">Including SOPAMIN sales</common:Name>
+        </structure:Code>
+      </structure:Codelist>
+      <structure:Codelist id="CL_FREQ" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Name xml:lang="en">Frequency</common:Name>
+        <common:Name xml:lang="fr">Fréquence</common:Name>
+        <structure:Code id="A">
+          <common:Name xml:lang="fr">Annualle</common:Name>
+          <common:Name xml:lang="en">Annual</common:Name>
+        </structure:Code>
+        <structure:Code id="M">
+          <common:Name xml:lang="en">Monthly</common:Name>
+          <common:Name xml:lang="fr">Mensuel</common:Name>
+        </structure:Code>
+        <structure:Code id="Q">
+          <common:Name xml:lang="en">Quarterly</common:Name>
+          <common:Name xml:lang="fr">Trimestriel</common:Name>
+        </structure:Code>
+        <structure:Code id="S">
+          <common:Name xml:lang="fr">Semestrielle</common:Name>
+          <common:Name xml:lang="en">Half-yearly, semester</common:Name>
+        </structure:Code>
+        <structure:Code id="W">
+          <common:Name xml:lang="fr">Hebdomadaire</common:Name>
+          <common:Name xml:lang="en">Weekly</common:Name>
+        </structure:Code>
+        <structure:Code id="D">
+          <common:Name xml:lang="fr">Journalière</common:Name>
+          <common:Name xml:lang="en">Daily</common:Name>
+        </structure:Code>
+        <structure:Code id="H">
+          <common:Name xml:lang="fr">Horaire</common:Name>
+          <common:Name xml:lang="en">Hourly</common:Name>
+        </structure:Code>
+        <structure:Code id="B">
+          <common:Name xml:lang="fr">Quotidienne - semaine ouvrable</common:Name>
+          <common:Name xml:lang="en">Daily – business week</common:Name>
+        </structure:Code>
+        <structure:Code id="N">
+          <common:Name xml:lang="fr">Minute</common:Name>
+          <common:Name xml:lang="en">Minutely</common:Name>
+        </structure:Code>
+        <structure:Code id="A2">
+          <common:Name xml:lang="fr">Biennal</common:Name>
+          <common:Name xml:lang="en">Biennial</common:Name>
+        </structure:Code>
+        <structure:Code id="A3">
+          <common:Name xml:lang="fr">Triennal</common:Name>
+          <common:Name xml:lang="en">Triennial</common:Name>
+        </structure:Code>
+        <structure:Code id="A4">
+          <common:Name xml:lang="fr">Quadriennal</common:Name>
+          <common:Name xml:lang="en">Quadrennial</common:Name>
+        </structure:Code>
+        <structure:Code id="A5">
+          <common:Name xml:lang="fr">Quinquennal</common:Name>
+          <common:Name xml:lang="en">Quinquennial</common:Name>
+        </structure:Code>
+        <structure:Code id="A10">
+          <common:Name xml:lang="fr">Décennal</common:Name>
+          <common:Name xml:lang="en">Decennial</common:Name>
+        </structure:Code>
+        <structure:Code id="A20">
+          <common:Name xml:lang="fr">Bidécennal</common:Name>
+          <common:Name xml:lang="en">Bidecennial</common:Name>
+        </structure:Code>
+        <structure:Code id="A30">
+          <common:Name xml:lang="fr">Tridécennal</common:Name>
+          <common:Name xml:lang="en">Tridecennial</common:Name>
+        </structure:Code>
+        <structure:Code id="A_3">
+          <common:Name xml:lang="fr">Trois fois par an</common:Name>
+          <common:Name xml:lang="en">Three times a year</common:Name>
+        </structure:Code>
+        <structure:Code id="M2">
+          <common:Name xml:lang="fr">Bimensuel</common:Name>
+          <common:Name xml:lang="en">Bimonthly</common:Name>
+        </structure:Code>
+        <structure:Code id="M_2">
+          <common:Name xml:lang="fr">Bimensuel</common:Name>
+          <common:Name xml:lang="en">Semimonthly</common:Name>
+        </structure:Code>
+        <structure:Code id="M_3">
+          <common:Name xml:lang="fr">Trois fois par mois</common:Name>
+          <common:Name xml:lang="en">Three times a month</common:Name>
+        </structure:Code>
+        <structure:Code id="W2">
+          <common:Name xml:lang="fr">Bihebdomadaire</common:Name>
+          <common:Name xml:lang="en">Biweekly</common:Name>
+        </structure:Code>
+        <structure:Code id="W3">
+          <common:Name xml:lang="fr">Trihebdomadaire</common:Name>
+          <common:Name xml:lang="en">Triweekly</common:Name>
+        </structure:Code>
+        <structure:Code id="W4">
+          <common:Name xml:lang="fr">toutes les quatre semaines</common:Name>
+          <common:Name xml:lang="en">Four-weekly</common:Name>
+        </structure:Code>
+        <structure:Code id="W_2">
+          <common:Name xml:lang="fr">Deux fois par semaine</common:Name>
+          <common:Name xml:lang="en">Semiweekly</common:Name>
+        </structure:Code>
+        <structure:Code id="W_3">
+          <common:Name xml:lang="fr">Trois fois par semaine</common:Name>
+          <common:Name xml:lang="en">Three times a week</common:Name>
+        </structure:Code>
+        <structure:Code id="D_2">
+          <common:Name xml:lang="fr">Deux fois par jour</common:Name>
+          <common:Name xml:lang="en">Twice a day</common:Name>
+        </structure:Code>
+        <structure:Code id="H2">
+          <common:Name xml:lang="fr">toutes les deux heures</common:Name>
+          <common:Name xml:lang="en">Bihourly</common:Name>
+        </structure:Code>
+        <structure:Code id="H3">
+          <common:Name xml:lang="fr">tri-horaire</common:Name>
+          <common:Name xml:lang="en">Trihourly</common:Name>
+        </structure:Code>
+        <structure:Code id="I">
+          <common:Name xml:lang="fr">Irrégulier</common:Name>
+          <common:Name xml:lang="en">Irregular</common:Name>
+        </structure:Code>
+        <structure:Code id="OA">
+          <common:Name xml:lang="fr">Annuel occasionnel</common:Name>
+          <common:Name xml:lang="en">Occasional annual</common:Name>
+        </structure:Code>
+        <structure:Code id="OM">
+          <common:Name xml:lang="fr">Mensuel occasionnel</common:Name>
+          <common:Name xml:lang="en">Occasional monthly</common:Name>
+        </structure:Code>
+        <structure:Code id="_O">
+          <common:Name xml:lang="fr">Autre</common:Name>
+          <common:Name xml:lang="en">Other</common:Name>
+        </structure:Code>
+        <structure:Code id="_U">
+          <common:Name xml:lang="fr">Indéterminé</common:Name>
+          <common:Name xml:lang="en">Unspecified</common:Name>
+        </structure:Code>
+        <structure:Code id="_Z">
+          <common:Name xml:lang="fr">Non applicable</common:Name>
+          <common:Name xml:lang="en">Not applicable</common:Name>
+        </structure:Code>
+      </structure:Codelist>
+      <structure:Codelist id="CL_INDIC_AGRI" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="CHANGED">
+            <common:AnnotationType>CHANGED</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="en">Indicator</common:Name>
+        <common:Name xml:lang="fr">Indicateur</common:Name>
+        <structure:Code id="SUP">
+          <common:Name xml:lang="fr">Superficie cultivée</common:Name>
+          <common:Name xml:lang="en">Cultivated area</common:Name>
+        </structure:Code>
+        <structure:Code id="PROD">
+          <common:Name xml:lang="fr">Production</common:Name>
+          <common:Name xml:lang="en">Production</common:Name>
+        </structure:Code>
+        <structure:Code id="REND">
+          <common:Name xml:lang="fr">Rendement</common:Name>
+          <common:Name xml:lang="en">Yield</common:Name>
+        </structure:Code>
+      </structure:Codelist>
+      <structure:Codelist id="CL_REF_AREA" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="CHANGED">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>CHANGED</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="en">Geographical Areas</common:Name>
+        <common:Name xml:lang="fr">Zones géographiques</common:Name>
+        <structure:Code id="AFNER">
+          <common:Annotations>
+            <common:Annotation id="ORDER">
+              <common:AnnotationTitle>ORDER</common:AnnotationTitle>
+              <common:AnnotationType>ORDER</common:AnnotationType>
+              <common:AnnotationText xml:lang="en">1</common:AnnotationText>
+            </common:Annotation>
+          </common:Annotations>
+          <common:Name xml:lang="fr">Niger</common:Name>
+          <common:Name xml:lang="en">Niger</common:Name>
+        </structure:Code>
+        <structure:Code id="AFNER1">
+          <common:Annotations>
+            <common:Annotation id="ORDER">
+              <common:AnnotationTitle>ORDER</common:AnnotationTitle>
+              <common:AnnotationType>ORDER</common:AnnotationType>
+              <common:AnnotationText xml:lang="en">2</common:AnnotationText>
+            </common:Annotation>
+          </common:Annotations>
+          <common:Name xml:lang="fr">Agadez</common:Name>
+          <common:Name xml:lang="en">Agadez</common:Name>
+          <structure:Parent>
+            <Ref id="AFNER" />
+          </structure:Parent>
+        </structure:Code>
+        <structure:Code id="AFNER2">
+          <common:Annotations>
+            <common:Annotation id="ORDER">
+              <common:AnnotationTitle>ORDER</common:AnnotationTitle>
+              <common:AnnotationType>ORDER</common:AnnotationType>
+              <common:AnnotationText xml:lang="en">3</common:AnnotationText>
+            </common:Annotation>
+          </common:Annotations>
+          <common:Name xml:lang="fr">Diffa</common:Name>
+          <common:Name xml:lang="en">Diffa</common:Name>
+          <structure:Parent>
+            <Ref id="AFNER" />
+          </structure:Parent>
+        </structure:Code>
+        <structure:Code id="AFNER3">
+          <common:Annotations>
+            <common:Annotation id="ORDER">
+              <common:AnnotationTitle>ORDER</common:AnnotationTitle>
+              <common:AnnotationType>ORDER</common:AnnotationType>
+              <common:AnnotationText xml:lang="en">4</common:AnnotationText>
+            </common:Annotation>
+          </common:Annotations>
+          <common:Name xml:lang="fr">Dosso</common:Name>
+          <common:Name xml:lang="en">Dosso</common:Name>
+          <structure:Parent>
+            <Ref id="AFNER" />
+          </structure:Parent>
+        </structure:Code>
+        <structure:Code id="AFNER4">
+          <common:Annotations>
+            <common:Annotation id="ORDER">
+              <common:AnnotationTitle>ORDER</common:AnnotationTitle>
+              <common:AnnotationType>ORDER</common:AnnotationType>
+              <common:AnnotationText xml:lang="en">5</common:AnnotationText>
+            </common:Annotation>
+          </common:Annotations>
+          <common:Name xml:lang="fr">Maradi</common:Name>
+          <common:Name xml:lang="en">Maradi</common:Name>
+          <structure:Parent>
+            <Ref id="AFNER" />
+          </structure:Parent>
+        </structure:Code>
+        <structure:Code id="AFNER5">
+          <common:Annotations>
+            <common:Annotation id="ORDER">
+              <common:AnnotationTitle>ORDER</common:AnnotationTitle>
+              <common:AnnotationType>ORDER</common:AnnotationType>
+              <common:AnnotationText xml:lang="en">6</common:AnnotationText>
+            </common:Annotation>
+          </common:Annotations>
+          <common:Name xml:lang="fr">Tahoua</common:Name>
+          <common:Name xml:lang="en">Tahoua</common:Name>
+          <structure:Parent>
+            <Ref id="AFNER" />
+          </structure:Parent>
+        </structure:Code>
+        <structure:Code id="AFNER6">
+          <common:Annotations>
+            <common:Annotation id="ORDER">
+              <common:AnnotationTitle>ORDER</common:AnnotationTitle>
+              <common:AnnotationType>ORDER</common:AnnotationType>
+              <common:AnnotationText xml:lang="en">7</common:AnnotationText>
+            </common:Annotation>
+          </common:Annotations>
+          <common:Name xml:lang="fr">Tillaberi</common:Name>
+          <common:Name xml:lang="en">Tillaberi</common:Name>
+          <structure:Parent>
+            <Ref id="AFNER" />
+          </structure:Parent>
+        </structure:Code>
+        <structure:Code id="AFNER7">
+          <common:Annotations>
+            <common:Annotation id="ORDER">
+              <common:AnnotationTitle>ORDER</common:AnnotationTitle>
+              <common:AnnotationType>ORDER</common:AnnotationType>
+              <common:AnnotationText xml:lang="en">8</common:AnnotationText>
+            </common:Annotation>
+          </common:Annotations>
+          <common:Name xml:lang="fr">Zinder</common:Name>
+          <common:Name xml:lang="en">Zinder</common:Name>
+          <structure:Parent>
+            <Ref id="AFNER" />
+          </structure:Parent>
+        </structure:Code>
+        <structure:Code id="AFNER8">
+          <common:Annotations>
+            <common:Annotation id="ORDER">
+              <common:AnnotationTitle>ORDER</common:AnnotationTitle>
+              <common:AnnotationType>ORDER</common:AnnotationType>
+              <common:AnnotationText xml:lang="en">9</common:AnnotationText>
+            </common:Annotation>
+          </common:Annotations>
+          <common:Name xml:lang="fr">Niamey</common:Name>
+          <common:Name xml:lang="en">Niamey</common:Name>
+          <structure:Parent>
+            <Ref id="AFNER" />
+          </structure:Parent>
+        </structure:Code>
+        <structure:Code id="AFRNER">
+          <common:Annotations>
+            <common:Annotation id="ORDER">
+              <common:AnnotationTitle>ORDER</common:AnnotationTitle>
+              <common:AnnotationType>ORDER</common:AnnotationType>
+              <common:AnnotationText xml:lang="en">18</common:AnnotationText>
+            </common:Annotation>
+          </common:Annotations>
+          <common:Name xml:lang="fr">NIGER</common:Name>
+          <common:Name xml:lang="en">NIGER</common:Name>
+        </structure:Code>
+        <structure:Code id="AFRNER6">
+          <common:Annotations>
+            <common:Annotation id="ORDER">
+              <common:AnnotationTitle>ORDER</common:AnnotationTitle>
+              <common:AnnotationType>ORDER</common:AnnotationType>
+              <common:AnnotationText xml:lang="en">24</common:AnnotationText>
+            </common:Annotation>
+          </common:Annotations>
+          <common:Name xml:lang="fr">TILLABERI</common:Name>
+          <common:Name xml:lang="en">TILLABERI</common:Name>
+          <structure:Parent>
+            <Ref id="AFRNER" />
+          </structure:Parent>
+        </structure:Code>
+        <structure:Code id="AFRNER8">
+          <common:Annotations>
+            <common:Annotation id="ORDER">
+              <common:AnnotationTitle>ORDER</common:AnnotationTitle>
+              <common:AnnotationType>ORDER</common:AnnotationType>
+              <common:AnnotationText xml:lang="en">26</common:AnnotationText>
+            </common:Annotation>
+          </common:Annotations>
+          <common:Name xml:lang="fr">NIAMEY</common:Name>
+          <common:Name xml:lang="en">NIAMEY</common:Name>
+          <structure:Parent>
+            <Ref id="AFRNER" />
+          </structure:Parent>
+        </structure:Code>
+        <structure:Code id="AFRNER7">
+          <common:Annotations>
+            <common:Annotation id="ORDER">
+              <common:AnnotationTitle>ORDER</common:AnnotationTitle>
+              <common:AnnotationType>ORDER</common:AnnotationType>
+              <common:AnnotationText xml:lang="en">25</common:AnnotationText>
+            </common:Annotation>
+          </common:Annotations>
+          <common:Name xml:lang="fr">ZINDER</common:Name>
+          <common:Name xml:lang="en">ZINDER</common:Name>
+          <structure:Parent>
+            <Ref id="AFRNER" />
+          </structure:Parent>
+        </structure:Code>
+        <structure:Code id="AFRNER3">
+          <common:Annotations>
+            <common:Annotation id="ORDER">
+              <common:AnnotationTitle>ORDER</common:AnnotationTitle>
+              <common:AnnotationType>ORDER</common:AnnotationType>
+              <common:AnnotationText xml:lang="en">21</common:AnnotationText>
+            </common:Annotation>
+          </common:Annotations>
+          <common:Name xml:lang="fr">DOSSO</common:Name>
+          <common:Name xml:lang="en">DOSSO</common:Name>
+          <structure:Parent>
+            <Ref id="AFRNER" />
+          </structure:Parent>
+        </structure:Code>
+        <structure:Code id="AFRNER1">
+          <common:Annotations>
+            <common:Annotation id="ORDER">
+              <common:AnnotationTitle>ORDER</common:AnnotationTitle>
+              <common:AnnotationType>ORDER</common:AnnotationType>
+              <common:AnnotationText xml:lang="en">19</common:AnnotationText>
+            </common:Annotation>
+          </common:Annotations>
+          <common:Name xml:lang="fr">AGADEZ</common:Name>
+          <common:Name xml:lang="en">AGADEZ</common:Name>
+          <structure:Parent>
+            <Ref id="AFRNER" />
+          </structure:Parent>
+        </structure:Code>
+        <structure:Code id="AFRNER5">
+          <common:Annotations>
+            <common:Annotation id="ORDER">
+              <common:AnnotationTitle>ORDER</common:AnnotationTitle>
+              <common:AnnotationType>ORDER</common:AnnotationType>
+              <common:AnnotationText xml:lang="en">23</common:AnnotationText>
+            </common:Annotation>
+          </common:Annotations>
+          <common:Name xml:lang="fr">TAHOUA</common:Name>
+          <common:Name xml:lang="en">TAHOUA</common:Name>
+          <structure:Parent>
+            <Ref id="AFRNER" />
+          </structure:Parent>
+        </structure:Code>
+        <structure:Code id="AFRNER4">
+          <common:Annotations>
+            <common:Annotation id="ORDER">
+              <common:AnnotationTitle>ORDER</common:AnnotationTitle>
+              <common:AnnotationType>ORDER</common:AnnotationType>
+              <common:AnnotationText xml:lang="en">22</common:AnnotationText>
+            </common:Annotation>
+          </common:Annotations>
+          <common:Name xml:lang="fr">MARADI</common:Name>
+          <common:Name xml:lang="en">MARADI</common:Name>
+          <structure:Parent>
+            <Ref id="AFRNER" />
+          </structure:Parent>
+        </structure:Code>
+        <structure:Code id="AFRNER2">
+          <common:Annotations>
+            <common:Annotation id="ORDER">
+              <common:AnnotationTitle>ORDER</common:AnnotationTitle>
+              <common:AnnotationType>ORDER</common:AnnotationType>
+              <common:AnnotationText xml:lang="en">20</common:AnnotationText>
+            </common:Annotation>
+          </common:Annotations>
+          <common:Name xml:lang="fr">DIFFA</common:Name>
+          <common:Name xml:lang="en">DIFFA</common:Name>
+          <structure:Parent>
+            <Ref id="AFRNER" />
+          </structure:Parent>
+        </structure:Code>
+        <structure:Code id="AFNER01">
+          <common:Annotations>
+            <common:Annotation id="ORDER">
+              <common:AnnotationTitle>ORDER</common:AnnotationTitle>
+              <common:AnnotationType>ORDER</common:AnnotationType>
+              <common:AnnotationText xml:lang="en">10</common:AnnotationText>
+            </common:Annotation>
+          </common:Annotations>
+          <common:Name xml:lang="fr">Agadez</common:Name>
+          <common:Name xml:lang="en">Agadez</common:Name>
+          <structure:Parent>
+            <Ref id="AFNER" />
+          </structure:Parent>
+        </structure:Code>
+        <structure:Code id="AFNER02">
+          <common:Annotations>
+            <common:Annotation id="ORDER">
+              <common:AnnotationTitle>ORDER</common:AnnotationTitle>
+              <common:AnnotationType>ORDER</common:AnnotationType>
+              <common:AnnotationText xml:lang="en">11</common:AnnotationText>
+            </common:Annotation>
+          </common:Annotations>
+          <common:Name xml:lang="fr">Diffa</common:Name>
+          <common:Name xml:lang="en">Diffa</common:Name>
+          <structure:Parent>
+            <Ref id="AFNER" />
+          </structure:Parent>
+        </structure:Code>
+        <structure:Code id="AFNER03">
+          <common:Annotations>
+            <common:Annotation id="ORDER">
+              <common:AnnotationTitle>ORDER</common:AnnotationTitle>
+              <common:AnnotationType>ORDER</common:AnnotationType>
+              <common:AnnotationText xml:lang="en">12</common:AnnotationText>
+            </common:Annotation>
+          </common:Annotations>
+          <common:Name xml:lang="fr">Dosso</common:Name>
+          <common:Name xml:lang="en">Dosso</common:Name>
+          <structure:Parent>
+            <Ref id="AFNER" />
+          </structure:Parent>
+        </structure:Code>
+        <structure:Code id="AFNER04">
+          <common:Annotations>
+            <common:Annotation id="ORDER">
+              <common:AnnotationTitle>ORDER</common:AnnotationTitle>
+              <common:AnnotationType>ORDER</common:AnnotationType>
+              <common:AnnotationText xml:lang="en">13</common:AnnotationText>
+            </common:Annotation>
+          </common:Annotations>
+          <common:Name xml:lang="fr">Maradi</common:Name>
+          <common:Name xml:lang="en">Maradi</common:Name>
+          <structure:Parent>
+            <Ref id="AFNER" />
+          </structure:Parent>
+        </structure:Code>
+        <structure:Code id="AFNER05">
+          <common:Annotations>
+            <common:Annotation id="ORDER">
+              <common:AnnotationTitle>ORDER</common:AnnotationTitle>
+              <common:AnnotationType>ORDER</common:AnnotationType>
+              <common:AnnotationText xml:lang="en">14</common:AnnotationText>
+            </common:Annotation>
+          </common:Annotations>
+          <common:Name xml:lang="fr">Tahoua</common:Name>
+          <common:Name xml:lang="en">Tahoua</common:Name>
+          <structure:Parent>
+            <Ref id="AFNER" />
+          </structure:Parent>
+        </structure:Code>
+        <structure:Code id="AFNER06">
+          <common:Annotations>
+            <common:Annotation id="ORDER">
+              <common:AnnotationTitle>ORDER</common:AnnotationTitle>
+              <common:AnnotationType>ORDER</common:AnnotationType>
+              <common:AnnotationText xml:lang="en">15</common:AnnotationText>
+            </common:Annotation>
+          </common:Annotations>
+          <common:Name xml:lang="fr">Tillaberi</common:Name>
+          <common:Name xml:lang="en">Tillaberi</common:Name>
+          <structure:Parent>
+            <Ref id="AFNER" />
+          </structure:Parent>
+        </structure:Code>
+        <structure:Code id="AFNER07">
+          <common:Annotations>
+            <common:Annotation id="ORDER">
+              <common:AnnotationTitle>ORDER</common:AnnotationTitle>
+              <common:AnnotationType>ORDER</common:AnnotationType>
+              <common:AnnotationText xml:lang="en">16</common:AnnotationText>
+            </common:Annotation>
+          </common:Annotations>
+          <common:Name xml:lang="fr">Zinder</common:Name>
+          <common:Name xml:lang="en">Zinder</common:Name>
+          <structure:Parent>
+            <Ref id="AFNER" />
+          </structure:Parent>
+        </structure:Code>
+        <structure:Code id="AFNER08">
+          <common:Annotations>
+            <common:Annotation id="ORDER">
+              <common:AnnotationTitle>ORDER</common:AnnotationTitle>
+              <common:AnnotationType>ORDER</common:AnnotationType>
+              <common:AnnotationText xml:lang="en">17</common:AnnotationText>
+            </common:Annotation>
+          </common:Annotations>
+          <common:Name xml:lang="fr">Niamey</common:Name>
+          <common:Name xml:lang="en">Niamey</common:Name>
+          <structure:Parent>
+            <Ref id="AFNER" />
+          </structure:Parent>
+        </structure:Code>
+      </structure:Codelist>
+      <structure:Codelist id="CL_SOURCE" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Name xml:lang="en">Source</common:Name>
+        <common:Name xml:lang="fr">Source</common:Name>
+        <structure:Code id="MAE">
+          <common:Name xml:lang="fr">Source : Ministère de l’Agriculture et de l’Elevage / Rapports EPER</common:Name>
+          <common:Name xml:lang="en">Source: Ministry of Agriculture and Livestock / EPER Reports</common:Name>
+        </structure:Code>
+        <structure:Code id="INS_PROJ_DEM">
+          <common:Name xml:lang="en">INS/Demographic Projection 2012-2025</common:Name>
+          <common:Name xml:lang="fr">INS/Projection Démographique 2012-2025</common:Name>
+        </structure:Code>
+        <structure:Code id="INS_TBS">
+          <common:Name xml:lang="en">INS/Social Dashboard</common:Name>
+          <common:Name xml:lang="fr">INS/Tableau de Bord Social</common:Name>
+        </structure:Code>
+        <structure:Code id="DS_MEH_A">
+          <common:Name xml:lang="fr">Source: Direction des Statistiques du Ministère de l'Environnement, de l'Hydraulique et de l'Assainissement</common:Name>
+        </structure:Code>
+        <structure:Code id="MENAPL_AFNER">
+          <common:Name xml:lang="fr">Source:Ministère de l'Education Nationale, de l'Alphabétisation et de la Promotion des Langues</common:Name>
+        </structure:Code>
+        <structure:Code id="DSI_MM">
+          <common:Name xml:lang="en">Source: Ministère des Mines</common:Name>
+          <common:Name xml:lang="fr">Source: Ministry of Mines</common:Name>
+        </structure:Code>
+        <structure:Code id="DS_ME">
+          <common:Name xml:lang="en">Source: Ministère de l'Energie</common:Name>
+          <common:Name xml:lang="fr">Source: Ministry of Energy</common:Name>
+        </structure:Code>
+        <structure:Code id="ANN_STAT_MESRIT">
+          <common:Name xml:lang="fr">Annuaires Statistiques du Ministére de l'Enseignement Supérieur de la Recherche et de l'Innovation Technologique</common:Name>
+        </structure:Code>
+        <structure:Code id="INS_NGR">
+          <common:Name xml:lang="en">Source: Institut National de la statistique - INS Niger</common:Name>
+          <common:Name xml:lang="fr">Source: Institut National de la statistique - INS Niger</common:Name>
+        </structure:Code>
+        <structure:Code id="DHIS2">
+          <common:Name xml:lang="fr">DHIS2</common:Name>
+          <common:Name xml:lang="en">DHIS2</common:Name>
+        </structure:Code>
+        <structure:Code id="MCTI">
+          <common:Name xml:lang="en">Source:Ministère de la Communication et des Nouvelles Technologies de l'Information</common:Name>
+          <common:Name xml:lang="fr">Source: Ministère de la Communication et des Nouvelles Technologies de l'Information</common:Name>
+        </structure:Code>
+        <structure:Code id="DSSI_MJDH_CRI_NER">
+          <common:Name xml:lang="en">Source: Directorate of Statistics and Information Systems of the Ministry of Justice and Human Rights, in charge of Relations with Institutions</common:Name>
+          <common:Name xml:lang="fr">Source: Direction des Statistiques et des Systèmes d'Information du Ministère de la Justice et des Droits de l'Homme, Chargé des Relations avec les Institutions</common:Name>
+        </structure:Code>
+        <structure:Code id="INS">
+          <common:Name xml:lang="fr">Institut National de la Statistique</common:Name>
+          <common:Name xml:lang="en">National Institute of Statistics</common:Name>
+        </structure:Code>
+        <structure:Code id="MAGEL">
+          <common:Name xml:lang="en">Ministry of Agriculture and Livestock</common:Name>
+          <common:Name xml:lang="fr">Ministère de l"Agriculture et de l'Elevage</common:Name>
+        </structure:Code>
+        <structure:Code id="BASE_COM_EXT">
+          <common:Name xml:lang="en">Foreign Trade Base</common:Name>
+          <common:Name xml:lang="fr">Base Commerce Extérieur</common:Name>
+        </structure:Code>
+        <structure:Code id="INS_NGE">
+          <common:Name xml:lang="en">Source: Institut National de la statistique - INS Niger</common:Name>
+          <common:Name xml:lang="fr">Source: Institut National de la statistique - INS Niger</common:Name>
+        </structure:Code>
+      </structure:Codelist>
+      <structure:Codelist id="CL_SPECULATION" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="CHANGED">
+            <common:AnnotationType>CHANGED</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="en">Speculation</common:Name>
+        <common:Name xml:lang="fr">Spéculation</common:Name>
+        <structure:Code id="ARA">
+          <common:Name xml:lang="fr">Arachide</common:Name>
+          <common:Name xml:lang="en">Peanut</common:Name>
+        </structure:Code>
+        <structure:Code id="OIG">
+          <common:Name xml:lang="fr">Oignon</common:Name>
+          <common:Name xml:lang="en">Onion</common:Name>
+        </structure:Code>
+        <structure:Code id="GOM">
+          <common:Name xml:lang="fr">Gombo</common:Name>
+          <common:Name xml:lang="en">Okra</common:Name>
+        </structure:Code>
+        <structure:Code id="PIM">
+          <common:Name xml:lang="fr">Piment</common:Name>
+          <common:Name xml:lang="en">Pepper</common:Name>
+        </structure:Code>
+        <structure:Code id="TOM">
+          <common:Name xml:lang="fr">Tomate</common:Name>
+          <common:Name xml:lang="en">Tomato</common:Name>
+        </structure:Code>
+        <structure:Code id="MIL">
+          <common:Name xml:lang="fr">MIL</common:Name>
+          <common:Name xml:lang="en">MIL</common:Name>
+        </structure:Code>
+        <structure:Code id="SOR">
+          <common:Name xml:lang="fr">Sorgho</common:Name>
+          <common:Name xml:lang="en">Sorghum</common:Name>
+        </structure:Code>
+        <structure:Code id="RIZ">
+          <common:Name xml:lang="fr">Riz</common:Name>
+          <common:Name xml:lang="en">Rice</common:Name>
+        </structure:Code>
+        <structure:Code id="MAI">
+          <common:Name xml:lang="fr">Maïs</common:Name>
+          <common:Name xml:lang="en">But</common:Name>
+        </structure:Code>
+        <structure:Code id="NIE">
+          <common:Name xml:lang="fr">Niébé</common:Name>
+          <common:Name xml:lang="en">Cowpea</common:Name>
+        </structure:Code>
+        <structure:Code id="ENS">
+          <common:Name xml:lang="fr">Ensemble</common:Name>
+          <common:Name xml:lang="en">Ensemble</common:Name>
+        </structure:Code>
+        <structure:Code id="CER">
+          <common:Name xml:lang="fr">Céréales</common:Name>
+          <common:Name xml:lang="en">Cereals</common:Name>
+          <structure:Parent>
+            <Ref id="ENS" />
+          </structure:Parent>
+        </structure:Code>
+        <structure:Code id="FON">
+          <common:Name xml:lang="fr">Fonio</common:Name>
+          <common:Name xml:lang="en">Fonio</common:Name>
+          <structure:Parent>
+            <Ref id="ENS" />
+          </structure:Parent>
+        </structure:Code>
+        <structure:Code id="LEG">
+          <common:Name xml:lang="fr">Légumineuses</common:Name>
+          <common:Name xml:lang="en">Legumes</common:Name>
+          <structure:Parent>
+            <Ref id="ENS" />
+          </structure:Parent>
+        </structure:Code>
+        <structure:Code id="VOA">
+          <common:Name xml:lang="fr">Voandzou</common:Name>
+          <common:Name xml:lang="en">Voandzou</common:Name>
+          <structure:Parent>
+            <Ref id="ENS" />
+          </structure:Parent>
+        </structure:Code>
+        <structure:Code id="TUB">
+          <common:Name xml:lang="fr">Tubercules</common:Name>
+          <common:Name xml:lang="en">Tubers</common:Name>
+          <structure:Parent>
+            <Ref id="ENS" />
+          </structure:Parent>
+        </structure:Code>
+        <structure:Code id="MAN">
+          <common:Name xml:lang="fr">Manioc</common:Name>
+          <common:Name xml:lang="en">Cassava</common:Name>
+          <structure:Parent>
+            <Ref id="ENS" />
+          </structure:Parent>
+        </structure:Code>
+        <structure:Code id="PAT">
+          <common:Name xml:lang="fr">Patate douce</common:Name>
+          <common:Name xml:lang="en">Sweet potato</common:Name>
+          <structure:Parent>
+            <Ref id="ENS" />
+          </structure:Parent>
+        </structure:Code>
+        <structure:Code id="POM">
+          <common:Name xml:lang="fr">Pomme de terre</common:Name>
+          <common:Name xml:lang="en">Potato</common:Name>
+          <structure:Parent>
+            <Ref id="ENS" />
+          </structure:Parent>
+        </structure:Code>
+      </structure:Codelist>
+      <structure:Codelist id="CL_TYPE_CULTURE" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="CHANGED">
+            <common:AnnotationType>CHANGED</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="en">Type of culture</common:Name>
+        <common:Name xml:lang="fr">Type de culture</common:Name>
+        <structure:Code id="CUL_IND">
+          <common:Name xml:lang="fr">Cultures industrielles</common:Name>
+          <common:Name xml:lang="en">Industrial crops</common:Name>
+        </structure:Code>
+        <structure:Code id="CUL_MAR">
+          <common:Name xml:lang="fr">Cultures maraîchères</common:Name>
+          <common:Name xml:lang="en">Market gardening</common:Name>
+        </structure:Code>
+        <structure:Code id="CUL_VIV">
+          <common:Name xml:lang="fr">Cultures vivrières</common:Name>
+          <common:Name xml:lang="en">Food crops</common:Name>
+        </structure:Code>
+      </structure:Codelist>
+    </structure:Codelists>
+    <structure:Concepts>
+      <structure:ConceptScheme id="AGRI" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Name xml:lang="en">Agriculture</common:Name>
+        <common:Name xml:lang="fr">Agriculture</common:Name>
+        <structure:Concept id="FREQ">
+          <common:Name xml:lang="en">Frequency</common:Name>
+          <common:Name xml:lang="fr">Fréquence</common:Name>
+        </structure:Concept>
+        <structure:Concept id="REF_AREA">
+          <common:Name xml:lang="en">Geographical Areas</common:Name>
+          <common:Name xml:lang="fr">Zones géographiques</common:Name>
+        </structure:Concept>
+        <structure:Concept id="SPECULATION">
+          <common:Name xml:lang="en">Speculation</common:Name>
+          <common:Name xml:lang="fr">Spéculation</common:Name>
+        </structure:Concept>
+        <structure:Concept id="TYPE_CULTURE">
+          <common:Name xml:lang="en">Type of culture</common:Name>
+          <common:Name xml:lang="fr">Type de culture</common:Name>
+        </structure:Concept>
+        <structure:Concept id="INDIC_AGRI">
+          <common:Name xml:lang="en">Indicator</common:Name>
+          <common:Name xml:lang="fr">Indicateur</common:Name>
+        </structure:Concept>
+        <structure:Concept id="SOURCE">
+          <common:Name xml:lang="en">Source</common:Name>
+          <common:Name xml:lang="fr">Source</common:Name>
+        </structure:Concept>
+        <structure:Concept id="UNIT">
+          <common:Name xml:lang="en">Unit</common:Name>
+          <common:Name xml:lang="fr">Unité</common:Name>
+        </structure:Concept>
+        <structure:Concept id="OBS_STATUS">
+          <common:Name xml:lang="en">Observation Status</common:Name>
+          <common:Name xml:lang="fr">Statut de l'observation</common:Name>
+        </structure:Concept>
+        <structure:Concept id="COMMENT_OBS">
+          <common:Name xml:lang="en">Observation Comment</common:Name>
+          <common:Name xml:lang="fr">Commentaire sur l'observation</common:Name>
+        </structure:Concept>
+        <structure:Concept id="COMMENT_TS">
+          <common:Name xml:lang="en">Time Series Comment</common:Name>
+          <common:Name xml:lang="fr">Commentaire sur la série chronologique</common:Name>
+        </structure:Concept>
+        <structure:Concept id="COMMENT_INDIC">
+          <common:Name xml:lang="en">Indicator Comment</common:Name>
+          <common:Name xml:lang="fr">Commentaire sur l'indicateur</common:Name>
+        </structure:Concept>
+        <structure:Concept id="COMMENT_DS">
+          <common:Name xml:lang="en">Dataset Comment</common:Name>
+          <common:Name xml:lang="fr">Commentaire sur l'ensemble de données</common:Name>
+        </structure:Concept>
+        <structure:Concept id="TIME_PERIOD">
+          <common:Name xml:lang="en">Period</common:Name>
+          <common:Name xml:lang="fr">Période</common:Name>
+        </structure:Concept>
+        <structure:Concept id="OBS_VALUE">
+          <common:Name xml:lang="en">Value</common:Name>
+          <common:Name xml:lang="fr">Valeur</common:Name>
+        </structure:Concept>
+      </structure:ConceptScheme>
+    </structure:Concepts>
+    <structure:DataStructures>
+      <structure:DataStructure id="AGRI" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="AGRI_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_GEO_IDS">
+            <common:AnnotationTitle>REF_AREA</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_GEO_IDS</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="en">Agriculture</common:Name>
+        <common:Name xml:lang="fr">Agriculture</common:Name>
+        <structure:DataStructureComponents>
+          <structure:DimensionList id="DimensionDescriptor">
+            <structure:Dimension id="FREQ" position="1">
+              <structure:ConceptIdentity>
+                <Ref id="FREQ" maintainableParentID="AGRI" maintainableParentVersion="1.0" agencyID="NE1" package="conceptscheme" class="Concept" />
+              </structure:ConceptIdentity>
+              <structure:LocalRepresentation>
+                <structure:Enumeration>
+                  <Ref id="CL_FREQ" version="1.0" agencyID="NE1" package="codelist" class="Codelist" />
+                </structure:Enumeration>
+              </structure:LocalRepresentation>
+            </structure:Dimension>
+            <structure:Dimension id="REF_AREA" position="2">
+              <structure:ConceptIdentity>
+                <Ref id="REF_AREA" maintainableParentID="AGRI" maintainableParentVersion="1.0" agencyID="NE1" package="conceptscheme" class="Concept" />
+              </structure:ConceptIdentity>
+              <structure:LocalRepresentation>
+                <structure:Enumeration>
+                  <Ref id="CL_REF_AREA" version="1.0" agencyID="NE1" package="codelist" class="Codelist" />
+                </structure:Enumeration>
+              </structure:LocalRepresentation>
+            </structure:Dimension>
+            <structure:Dimension id="SPECULATION" position="3">
+              <structure:ConceptIdentity>
+                <Ref id="SPECULATION" maintainableParentID="AGRI" maintainableParentVersion="1.0" agencyID="NE1" package="conceptscheme" class="Concept" />
+              </structure:ConceptIdentity>
+              <structure:LocalRepresentation>
+                <structure:Enumeration>
+                  <Ref id="CL_SPECULATION" version="1.0" agencyID="NE1" package="codelist" class="Codelist" />
+                </structure:Enumeration>
+              </structure:LocalRepresentation>
+            </structure:Dimension>
+            <structure:Dimension id="TYPE_CULTURE" position="4">
+              <structure:ConceptIdentity>
+                <Ref id="TYPE_CULTURE" maintainableParentID="AGRI" maintainableParentVersion="1.0" agencyID="NE1" package="conceptscheme" class="Concept" />
+              </structure:ConceptIdentity>
+              <structure:LocalRepresentation>
+                <structure:Enumeration>
+                  <Ref id="CL_TYPE_CULTURE" version="1.0" agencyID="NE1" package="codelist" class="Codelist" />
+                </structure:Enumeration>
+              </structure:LocalRepresentation>
+            </structure:Dimension>
+            <structure:Dimension id="INDIC_AGRI" position="5">
+              <common:Annotations>
+                <common:Annotation id="MAIN_MEASURE">
+                  <common:AnnotationTitle>MAIN_MEASURE</common:AnnotationTitle>
+                  <common:AnnotationType>MAIN_MEASURE</common:AnnotationType>
+                  <common:AnnotationText xml:lang="en">MAIN_MEASURE</common:AnnotationText>
+                </common:Annotation>
+              </common:Annotations>
+              <structure:ConceptIdentity>
+                <Ref id="INDIC_AGRI" maintainableParentID="AGRI" maintainableParentVersion="1.0" agencyID="NE1" package="conceptscheme" class="Concept" />
+              </structure:ConceptIdentity>
+              <structure:LocalRepresentation>
+                <structure:Enumeration>
+                  <Ref id="CL_INDIC_AGRI" version="1.0" agencyID="NE1" package="codelist" class="Codelist" />
+                </structure:Enumeration>
+              </structure:LocalRepresentation>
+            </structure:Dimension>
+            <structure:TimeDimension id="TIME_PERIOD" position="6">
+              <structure:ConceptIdentity>
+                <Ref id="TIME_PERIOD" maintainableParentID="AGRI" maintainableParentVersion="1.0" agencyID="NE1" package="conceptscheme" class="Concept" />
+              </structure:ConceptIdentity>
+              <structure:LocalRepresentation>
+                <structure:TextFormat textType="ObservationalTimePeriod" />
+              </structure:LocalRepresentation>
+            </structure:TimeDimension>
+          </structure:DimensionList>
+          <structure:AttributeList id="AttributeDescriptor">
+            <structure:Attribute id="SOURCE" assignmentStatus="Conditional">
+              <structure:ConceptIdentity>
+                <Ref id="SOURCE" maintainableParentID="AGRI" maintainableParentVersion="1.0" agencyID="NE1" package="conceptscheme" class="Concept" />
+              </structure:ConceptIdentity>
+              <structure:LocalRepresentation>
+                <structure:Enumeration>
+                  <Ref id="CL_SOURCE" version="1.0" agencyID="NE1" package="codelist" class="Codelist" />
+                </structure:Enumeration>
+              </structure:LocalRepresentation>
+              <structure:AttributeRelationship>
+                <structure:None />
+              </structure:AttributeRelationship>
+            </structure:Attribute>
+            <structure:Attribute id="UNIT" assignmentStatus="Conditional">
+              <structure:ConceptIdentity>
+                <Ref id="UNIT" maintainableParentID="AGRI" maintainableParentVersion="1.0" agencyID="NE1" package="conceptscheme" class="Concept" />
+              </structure:ConceptIdentity>
+              <structure:AttributeRelationship>
+                <structure:Dimension>
+                  <Ref id="SPECULATION" />
+                </structure:Dimension>
+                <structure:Dimension>
+                  <Ref id="TYPE_CULTURE" />
+                </structure:Dimension>
+                <structure:Dimension>
+                  <Ref id="INDIC_AGRI" />
+                </structure:Dimension>
+              </structure:AttributeRelationship>
+            </structure:Attribute>
+            <structure:Attribute id="OBS_STATUS" assignmentStatus="Conditional">
+              <structure:ConceptIdentity>
+                <Ref id="OBS_STATUS" maintainableParentID="AGRI" maintainableParentVersion="1.0" agencyID="NE1" package="conceptscheme" class="Concept" />
+              </structure:ConceptIdentity>
+              <structure:AttributeRelationship>
+                <structure:PrimaryMeasure>
+                  <Ref id="OBS_VALUE" />
+                </structure:PrimaryMeasure>
+              </structure:AttributeRelationship>
+            </structure:Attribute>
+            <structure:Attribute id="COMMENT_OBS" assignmentStatus="Conditional">
+              <structure:ConceptIdentity>
+                <Ref id="COMMENT_OBS" maintainableParentID="AGRI" maintainableParentVersion="1.0" agencyID="NE1" package="conceptscheme" class="Concept" />
+              </structure:ConceptIdentity>
+              <structure:LocalRepresentation>
+                <structure:Enumeration>
+                  <Ref id="CL_COMMENT_OBS" version="1.0" agencyID="NE1" package="codelist" class="Codelist" />
+                </structure:Enumeration>
+              </structure:LocalRepresentation>
+              <structure:AttributeRelationship>
+                <structure:PrimaryMeasure>
+                  <Ref id="OBS_VALUE" />
+                </structure:PrimaryMeasure>
+              </structure:AttributeRelationship>
+            </structure:Attribute>
+            <structure:Attribute id="COMMENT_TS" assignmentStatus="Conditional">
+              <structure:ConceptIdentity>
+                <Ref id="COMMENT_TS" maintainableParentID="AGRI" maintainableParentVersion="1.0" agencyID="NE1" package="conceptscheme" class="Concept" />
+              </structure:ConceptIdentity>
+              <structure:AttributeRelationship>
+                <structure:None />
+              </structure:AttributeRelationship>
+            </structure:Attribute>
+            <structure:Attribute id="COMMENT_INDIC" assignmentStatus="Conditional">
+              <structure:ConceptIdentity>
+                <Ref id="COMMENT_INDIC" maintainableParentID="AGRI" maintainableParentVersion="1.0" agencyID="NE1" package="conceptscheme" class="Concept" />
+              </structure:ConceptIdentity>
+              <structure:AttributeRelationship>
+                <structure:None />
+              </structure:AttributeRelationship>
+            </structure:Attribute>
+            <structure:Attribute id="COMMENT_DS" assignmentStatus="Conditional">
+              <structure:ConceptIdentity>
+                <Ref id="COMMENT_DS" maintainableParentID="AGRI" maintainableParentVersion="1.0" agencyID="NE1" package="conceptscheme" class="Concept" />
+              </structure:ConceptIdentity>
+              <structure:AttributeRelationship>
+                <structure:None />
+              </structure:AttributeRelationship>
+            </structure:Attribute>
+          </structure:AttributeList>
+          <structure:MeasureList id="MeasureDescriptor">
+            <structure:PrimaryMeasure id="OBS_VALUE">
+              <structure:ConceptIdentity>
+                <Ref id="OBS_VALUE" maintainableParentID="AGRI" maintainableParentVersion="1.0" agencyID="NE1" package="conceptscheme" class="Concept" />
+              </structure:ConceptIdentity>
+            </structure:PrimaryMeasure>
+          </structure:MeasureList>
+        </structure:DataStructureComponents>
+      </structure:DataStructure>
+    </structure:DataStructures>
+  </message:Structures>
+</message:Structure>

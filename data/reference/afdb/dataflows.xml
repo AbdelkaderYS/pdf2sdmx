@@ -1,0 +1,1789 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--NSI Web Service v8.16.0.0-->
+<message:Structure xmlns:message="http://www.sdmx.org/resources/sdmxml/schemas/v2_1/message" xmlns:structure="http://www.sdmx.org/resources/sdmxml/schemas/v2_1/structure" xmlns:common="http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common">
+  <message:Header>
+    <message:ID>IDREF20</message:ID>
+    <message:Test>false</message:Test>
+    <message:Prepared>2026-09-20T02:00:19.0286008+00:00</message:Prepared>
+    <message:Sender id="Unknown" />
+    <message:Receiver id="Unknown" />
+  </message:Header>
+  <message:Structures>
+    <structure:Dataflows>
+      <structure:Dataflow id="DF_AGRI_PROD" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="AGRI_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DEFAULT">
+            <common:AnnotationTitle>FREQ=A</common:AnnotationTitle>
+            <common:AnnotationType>DEFAULT</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW">
+            <common:AnnotationTitle>REF_AREA,SPECULATION</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_COLUMN">
+            <common:AnnotationTitle>TIME_PERIOD,TYPE_CULTURE</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_COLUMN</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW_SECTION">
+            <common:AnnotationTitle>FREQ,INDIC_AGRI</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW_SECTION</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-15T15:00:48.219Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Production</common:Name>
+        <common:Name xml:lang="en">Production</common:Name>
+        <structure:Structure>
+          <Ref id="AGRI" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="DF_AGRI_REND" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="AGRI_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DEFAULT">
+            <common:AnnotationTitle>FREQ=A</common:AnnotationTitle>
+            <common:AnnotationType>DEFAULT</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW">
+            <common:AnnotationTitle>REF_AREA,SPECULATION</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_COLUMN">
+            <common:AnnotationTitle>TIME_PERIOD,TYPE_CULTURE</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_COLUMN</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW_SECTION">
+            <common:AnnotationTitle>FREQ,INDIC_AGRI</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW_SECTION</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-15T15:00:48.219Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Rendement</common:Name>
+        <common:Name xml:lang="en">Yield</common:Name>
+        <structure:Structure>
+          <Ref id="AGRI" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="DF_AGRI_SUP" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="AGRI_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW">
+            <common:AnnotationTitle>REF_AREA,SPECULATION</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_COLUMN">
+            <common:AnnotationTitle>TIME_PERIOD</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_COLUMN</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_FILTER">
+            <common:AnnotationTitle>FREQ,TYPE_CULTURE</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_FILTER</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW_SECTION">
+            <common:AnnotationTitle>INDIC_AGRI</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW_SECTION</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DEFAULT">
+            <common:AnnotationTitle>FREQ=A,INDIC_AGRI=SUP,LAST_N_PERIOD=10</common:AnnotationTitle>
+            <common:AnnotationType>DEFAULT</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="NOT_DISPLAYED">
+            <common:AnnotationTitle>FREQ=A</common:AnnotationTitle>
+            <common:AnnotationType>NOT_DISPLAYED</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-17T12:22:15.236Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Superficie cultivée</common:Name>
+        <common:Name xml:lang="en">Cultivated area</common:Name>
+        <structure:Structure>
+          <Ref id="AGRI" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="DF_BASE_MESRIT" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="EDUC_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DEFAULT">
+            <common:AnnotationTitle>FREQ=A</common:AnnotationTitle>
+            <common:AnnotationType>DEFAULT</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW">
+            <common:AnnotationTitle>INDIC_EDUC_ENSUP,SEXE,STATUT</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_COLUMN">
+            <common:AnnotationTitle>TIME_PERIOD</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_COLUMN</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW_SECTION">
+            <common:AnnotationTitle>FREQ,REF_AREA</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW_SECTION</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-16T11:08:55.559Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Indicateurs de base de l'enseignement supérieur</common:Name>
+        <structure:Structure>
+          <Ref id="EDUC" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="DF_COM_EXT" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="CUBE_COM_EXT_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="NOT_DISPLAYED">
+            <common:AnnotationTitle>FREQ=A,REF_AREA=AFRNER</common:AnnotationTitle>
+            <common:AnnotationType>NOT_DISPLAYED</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DEFAULT">
+            <common:AnnotationTitle>LAST_N_PERIOD=10</common:AnnotationTitle>
+            <common:AnnotationType>DEFAULT</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW">
+            <common:AnnotationTitle>INDIC_COM_EXT</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_COLUMN">
+            <common:AnnotationTitle>TIME_PERIOD</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_COLUMN</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_FILTER">
+            <common:AnnotationTitle>FREQ,REF_AREA</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_FILTER</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-17T02:15:49.160Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Commerce Extérieur</common:Name>
+        <common:Name xml:lang="en">Foreign Trade</common:Name>
+        <structure:Structure>
+          <Ref id="CUBE_COM_EXT" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="DF_COM_TEL" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="COM_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DEFAULT">
+            <common:AnnotationTitle>FREQ=A</common:AnnotationTitle>
+            <common:AnnotationType>DEFAULT</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW">
+            <common:AnnotationTitle>INDIC_COM</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_COLUMN">
+            <common:AnnotationTitle>TIME_PERIOD</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_COLUMN</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW_SECTION">
+            <common:AnnotationTitle>FREQ,REF_AREA</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW_SECTION</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-16T20:39:23.263Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Chiffres clés sur le téléphone</common:Name>
+        <common:Name xml:lang="en">Key figures on the phone</common:Name>
+        <structure:Structure>
+          <Ref id="COM" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="DF_DET_COND_INFRAC" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="JUSTICE_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DEFAULT">
+            <common:AnnotationTitle>FREQ=A</common:AnnotationTitle>
+            <common:AnnotationType>DEFAULT</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW">
+            <common:AnnotationTitle>INFRACTION</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_COLUMN">
+            <common:AnnotationTitle>TIME_PERIOD,JURIDICTION</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_COLUMN</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW_SECTION">
+            <common:AnnotationTitle>FREQ,REF_AREA,INDIC_DET_COND</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW_SECTION</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-16T21:49:13.605Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Effectif des condamnés par nature d'infractions</common:Name>
+        <common:Name xml:lang="en">Number of Convicted Persons by Type of Offense</common:Name>
+        <structure:Structure>
+          <Ref id="JUSTICE" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="DF_EDU_NBELEV" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="EDUC_NGR_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DEFAULT">
+            <common:AnnotationTitle>FREQ=A</common:AnnotationTitle>
+            <common:AnnotationType>DEFAULT</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW">
+            <common:AnnotationTitle>EDUC_TYPE</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_COLUMN">
+            <common:AnnotationTitle>TIME_PERIOD</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_COLUMN</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW_SECTION">
+            <common:AnnotationTitle>FREQ,REF_AREA,INDIC_EDUC_DEP,EDUC_LEVEL</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW_SECTION</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-15T19:55:42.205Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Nombre d'élèves</common:Name>
+        <common:Name xml:lang="en">Number of students</common:Name>
+        <structure:Structure>
+          <Ref id="EDUC_NGR" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="DF_EDU_NBELEV_ENS" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="EDUC_NGR_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DEFAULT">
+            <common:AnnotationTitle>FREQ=A</common:AnnotationTitle>
+            <common:AnnotationType>DEFAULT</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW">
+            <common:AnnotationTitle>EDUC_TYPE</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_COLUMN">
+            <common:AnnotationTitle>TIME_PERIOD</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_COLUMN</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW_SECTION">
+            <common:AnnotationTitle>FREQ,REF_AREA,INDIC_EDUC_DEP,EDUC_LEVEL</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW_SECTION</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-15T19:57:42.431Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Nombre d'élèves par enseignant</common:Name>
+        <common:Name xml:lang="en">Number of students per teacher</common:Name>
+        <structure:Structure>
+          <Ref id="EDUC_NGR" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="DF_EDU_NBELEV_SC" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="EDUC_NGR_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DEFAULT">
+            <common:AnnotationTitle>FREQ=A</common:AnnotationTitle>
+            <common:AnnotationType>DEFAULT</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW">
+            <common:AnnotationTitle>EDUC_TYPE</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_COLUMN">
+            <common:AnnotationTitle>TIME_PERIOD</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_COLUMN</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW_SECTION">
+            <common:AnnotationTitle>FREQ,REF_AREA,INDIC_EDUC_DEP,EDUC_LEVEL</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW_SECTION</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-15T19:56:45.028Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Nombre d'élèves par classe</common:Name>
+        <common:Name xml:lang="en">Number of students per class</common:Name>
+        <structure:Structure>
+          <Ref id="EDUC_NGR" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="DF_EDU_NBENS" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="EDUC_NGR_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DEFAULT">
+            <common:AnnotationTitle>FREQ=A</common:AnnotationTitle>
+            <common:AnnotationType>DEFAULT</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW">
+            <common:AnnotationTitle>EDUC_TYPE</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_COLUMN">
+            <common:AnnotationTitle>TIME_PERIOD</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_COLUMN</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW_SECTION">
+            <common:AnnotationTitle>FREQ,REF_AREA,INDIC_EDUC_DEP,EDUC_LEVEL</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW_SECTION</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-15T19:54:45.150Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Nombre d'enseignants</common:Name>
+        <common:Name xml:lang="en">Number of teachers</common:Name>
+        <structure:Structure>
+          <Ref id="EDUC_NGR" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="DF_EDU_NBETAB" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="EDUC_NGR_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DEFAULT">
+            <common:AnnotationTitle>FREQ=A</common:AnnotationTitle>
+            <common:AnnotationType>DEFAULT</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW">
+            <common:AnnotationTitle>EDUC_TYPE</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_COLUMN">
+            <common:AnnotationTitle>TIME_PERIOD</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_COLUMN</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW_SECTION">
+            <common:AnnotationTitle>FREQ,REF_AREA,INDIC_EDUC_DEP,EDUC_LEVEL</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW_SECTION</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-15T19:52:36.114Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Nombre d'établissements</common:Name>
+        <common:Name xml:lang="en">Number of establishments</common:Name>
+        <structure:Structure>
+          <Ref id="EDUC_NGR" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="DF_EDU_NBSC" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="EDUC_NGR_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DEFAULT">
+            <common:AnnotationTitle>FREQ=A</common:AnnotationTitle>
+            <common:AnnotationType>DEFAULT</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW">
+            <common:AnnotationTitle>EDUC_TYPE</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_COLUMN">
+            <common:AnnotationTitle>TIME_PERIOD</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_COLUMN</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW_SECTION">
+            <common:AnnotationTitle>FREQ,REF_AREA,INDIC_EDUC_DEP,EDUC_LEVEL</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW_SECTION</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-15T19:53:42.905Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Nombre de Salles de Classe</common:Name>
+        <common:Name xml:lang="en">Number of Classrooms</common:Name>
+        <structure:Structure>
+          <Ref id="EDUC_NGR" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="DF_ENV_LONG_BF" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="ENV_FB_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DEFAULT">
+            <common:AnnotationTitle>FREQ=A</common:AnnotationTitle>
+            <common:AnnotationType>DEFAULT</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW">
+            <common:AnnotationTitle>REF_AREA</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_COLUMN">
+            <common:AnnotationTitle>TIME_PERIOD</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_COLUMN</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW_SECTION">
+            <common:AnnotationTitle>FREQ,IND_ENV_FB</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW_SECTION</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-15T18:47:40.005Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Longueur de bande pare-feu réalisée</common:Name>
+        <common:Name xml:lang="en">Firewall strip length achieved</common:Name>
+        <structure:Structure>
+          <Ref id="ENV_FB" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="DF_ENV_NBR_FB" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="ENV_FB_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DEFAULT">
+            <common:AnnotationTitle>FREQ=A</common:AnnotationTitle>
+            <common:AnnotationType>DEFAULT</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW">
+            <common:AnnotationTitle>REF_AREA</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_COLUMN">
+            <common:AnnotationTitle>TIME_PERIOD</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_COLUMN</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW_SECTION">
+            <common:AnnotationTitle>FREQ,IND_ENV_FB</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW_SECTION</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-15T18:45:59.203Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Nombre de cas de feu de brousse enregistrés</common:Name>
+        <common:Name xml:lang="en">Number of recorded bushfire cases</common:Name>
+        <structure:Structure>
+          <Ref id="ENV_FB" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="DF_ENV_REC_FAU" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="ENV_MOB_RES_FIN_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DEFAULT">
+            <common:AnnotationTitle>FREQ=A</common:AnnotationTitle>
+            <common:AnnotationType>DEFAULT</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW">
+            <common:AnnotationTitle>REF_AREA</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_COLUMN">
+            <common:AnnotationTitle>TIME_PERIOD</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_COLUMN</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW_SECTION">
+            <common:AnnotationTitle>FREQ,IND_ENV_MOB_RES_FIN</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW_SECTION</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-16T08:58:20.185Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Recettes fauniques</common:Name>
+        <common:Name xml:lang="en">Wildlife Recipes</common:Name>
+        <structure:Structure>
+          <Ref id="ENV_MOB_RES_FIN" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="DF_ENV_REC_FOR" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="ENV_MOB_RES_FIN_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DEFAULT">
+            <common:AnnotationTitle>FREQ=A</common:AnnotationTitle>
+            <common:AnnotationType>DEFAULT</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW">
+            <common:AnnotationTitle>REF_AREA</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_COLUMN">
+            <common:AnnotationTitle>TIME_PERIOD</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_COLUMN</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW_SECTION">
+            <common:AnnotationTitle>FREQ,IND_ENV_MOB_RES_FIN</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW_SECTION</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-16T08:55:28.952Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Recettes forestières</common:Name>
+        <common:Name xml:lang="en">Forestry recipes</common:Name>
+        <structure:Structure>
+          <Ref id="ENV_MOB_RES_FIN" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="DF_ENV_REC_PIS" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="ENV_MOB_RES_FIN_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DEFAULT">
+            <common:AnnotationTitle>FREQ=A</common:AnnotationTitle>
+            <common:AnnotationType>DEFAULT</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW">
+            <common:AnnotationTitle>REF_AREA</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_COLUMN">
+            <common:AnnotationTitle>TIME_PERIOD</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_COLUMN</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW_SECTION">
+            <common:AnnotationTitle>FREQ,IND_ENV_MOB_RES_FIN</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW_SECTION</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-16T08:57:15.320Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Recettes piscicoles</common:Name>
+        <common:Name xml:lang="en">Fish  recipes</common:Name>
+        <structure:Structure>
+          <Ref id="ENV_MOB_RES_FIN" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="DF_ENV_SUP_FB" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="ENV_FB_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DEFAULT">
+            <common:AnnotationTitle>FREQ=A</common:AnnotationTitle>
+            <common:AnnotationType>DEFAULT</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW">
+            <common:AnnotationTitle>REF_AREA</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_COLUMN">
+            <common:AnnotationTitle>TIME_PERIOD</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_COLUMN</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW_SECTION">
+            <common:AnnotationTitle>FREQ,IND_ENV_FB</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW_SECTION</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-15T18:44:44.391Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Superficies affectées par les feux de brousses</common:Name>
+        <common:Name xml:lang="en">Areas affected by bushfires</common:Name>
+        <structure:Structure>
+          <Ref id="ENV_FB" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="DF_EXPORT" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="CUBE_COM_EXT_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="NOT_DISPLAYED">
+            <common:AnnotationTitle>FREQ=A,REF_AREA=AFRNER</common:AnnotationTitle>
+            <common:AnnotationType>NOT_DISPLAYED</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DEFAULT">
+            <common:AnnotationTitle>LAST_N_PERIOD=10</common:AnnotationTitle>
+            <common:AnnotationType>DEFAULT</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW">
+            <common:AnnotationTitle>INDIC_COM_EXT</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_COLUMN">
+            <common:AnnotationTitle>TIME_PERIOD</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_COLUMN</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_FILTER">
+            <common:AnnotationTitle>FREQ,REF_AREA</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_FILTER</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-17T02:00:57.430Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Exportation</common:Name>
+        <common:Name xml:lang="en">Export</common:Name>
+        <structure:Structure>
+          <Ref id="CUBE_COM_EXT" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="DF_IHPC_2023" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="IHPC_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW">
+            <common:AnnotationTitle>PRODUCT</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_COLUMN">
+            <common:AnnotationTitle>TIME_PERIOD</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_COLUMN</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW_SECTION">
+            <common:AnnotationTitle>FREQ,REF_AREA,BASE_PER</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW_SECTION</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DEFAULT">
+            <common:AnnotationTitle>FREQ=M,LAST_N_PERIOD=12</common:AnnotationTitle>
+            <common:AnnotationType>DEFAULT</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-17T00:59:29.309Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Indice Harmonisé des Prix à la Consommation (13 Divisions)</common:Name>
+        <structure:Structure>
+          <Ref id="IHPC" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="DF_IMP" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="CUBE_COM_EXT_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="NOT_DISPLAYED">
+            <common:AnnotationTitle>FREQ=A,REF_AREA=AFRNER</common:AnnotationTitle>
+            <common:AnnotationType>NOT_DISPLAYED</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DEFAULT">
+            <common:AnnotationTitle>LAST_N_PERIOD=10</common:AnnotationTitle>
+            <common:AnnotationType>DEFAULT</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW">
+            <common:AnnotationTitle>INDIC_COM_EXT</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_COLUMN">
+            <common:AnnotationTitle>TIME_PERIOD</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_COLUMN</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_FILTER">
+            <common:AnnotationTitle>FREQ,REF_AREA</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_FILTER</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-17T02:05:09.690Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Importation</common:Name>
+        <common:Name xml:lang="en">Import</common:Name>
+        <structure:Structure>
+          <Ref id="CUBE_COM_EXT" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="DF_MOBILE_KEYS_INDIC" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="KEY_INDICATORS_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-15T14:07:27.297Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Principaux indicateurs pour mobile</common:Name>
+        <common:Name xml:lang="en">Mobile Keys Indicators</common:Name>
+        <structure:Structure>
+          <Ref id="KEY_INDICATORS" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="DF_PAUVRETE" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="CUBE_PAUVRETE_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="NOT_DISPLAYED">
+            <common:AnnotationTitle>FREQ=A,PAUVRETE_GROUPE_SOCIOECO=ENS</common:AnnotationTitle>
+            <common:AnnotationType>NOT_DISPLAYED</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW">
+            <common:AnnotationTitle>REF_AREA,INDIC_PAUVRETE,RESIDENCE</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_COLUMN">
+            <common:AnnotationTitle>TIME_PERIOD</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_COLUMN</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_FILTER">
+            <common:AnnotationTitle>FREQ,PAUVRETE_GROUPE_SOCIOECO</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_FILTER</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DEFAULT">
+            <common:AnnotationTitle>INDIC_PAUVRETE=INC_PAUV+PROF_PAUV+SEV_PAUV,RESIDENCE=U+R+_T,REF_AREA=AFRNER+AFRNER6+AFRNER8+AFRNER7+AFRNER3+AFRNER1+AFRNER5+AFRNER4+AFRNER2,PAUVRETE_GROUPE_SOCIOECO=ENS</common:AnnotationTitle>
+            <common:AnnotationType>DEFAULT</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-17T03:51:28.730Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Principaux indicateurs sur la pauvreté</common:Name>
+        <common:Name xml:lang="en">Key indicators on poverty</common:Name>
+        <structure:Structure>
+          <Ref id="CUBE_PAUVRETE" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="DF_POP_NE" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="POP_NE_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DEFAULT">
+            <common:AnnotationTitle>FREQ=A</common:AnnotationTitle>
+            <common:AnnotationType>DEFAULT</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW">
+            <common:AnnotationTitle>AGE</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_COLUMN">
+            <common:AnnotationTitle>TIME_PERIOD,SEXE</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_COLUMN</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW_SECTION">
+            <common:AnnotationTitle>FREQ,REF_AREA,INDIC_POP_NE</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW_SECTION</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-17T08:09:13.148Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Répartition de la populaion par groupes d'ages et par sexe</common:Name>
+        <common:Name xml:lang="en">Population distribution by age group and sex</common:Name>
+        <structure:Structure>
+          <Ref id="POP_NE" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="DF_PRO_UOC" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="MINE_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DEFAULT">
+            <common:AnnotationTitle>FREQ=A</common:AnnotationTitle>
+            <common:AnnotationType>DEFAULT</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW">
+            <common:AnnotationTitle>INDIC_MINE</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_COLUMN">
+            <common:AnnotationTitle>TIME_PERIOD</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_COLUMN</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW_SECTION">
+            <common:AnnotationTitle>FREQ,REF_AREA</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW_SECTION</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-16T07:44:50.794Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Production d'uranium, d'or et de charbon</common:Name>
+        <common:Name xml:lang="en">Uranium, gold and coal production</common:Name>
+        <structure:Structure>
+          <Ref id="MINE" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="DF_SAN_ACC" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="SAN_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DEFAULT">
+            <common:AnnotationTitle>FREQ=A</common:AnnotationTitle>
+            <common:AnnotationType>DEFAULT</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW">
+            <common:AnnotationTitle>REF_AREA</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_COLUMN">
+            <common:AnnotationTitle>TIME_PERIOD</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_COLUMN</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW_SECTION">
+            <common:AnnotationTitle>FREQ,INDIC_SAN</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW_SECTION</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-16T16:33:14.008Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Nombre d'accouchements</common:Name>
+        <common:Name xml:lang="en">Number of births</common:Name>
+        <structure:Structure>
+          <Ref id="SAN" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="DF_SAN_ADM_MAT" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="SAN_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DEFAULT">
+            <common:AnnotationTitle>FREQ=A</common:AnnotationTitle>
+            <common:AnnotationType>DEFAULT</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW">
+            <common:AnnotationTitle>REF_AREA</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_COLUMN">
+            <common:AnnotationTitle>TIME_PERIOD</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_COLUMN</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW_SECTION">
+            <common:AnnotationTitle>FREQ,INDIC_SAN</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW_SECTION</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-16T16:38:25.813Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Admissions dans les maternités</common:Name>
+        <common:Name xml:lang="en">Admissions to maternity wards</common:Name>
+        <structure:Structure>
+          <Ref id="SAN" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="DF_SAN_CN" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation>
+            <common:AnnotationType>NonProductionDataflow</common:AnnotationType>
+            <common:AnnotationText xml:lang="en">true</common:AnnotationText>
+          </common:Annotation>
+          <common:Annotation id="SAN_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-16T16:06:29.869Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Consultations des nourrissons</common:Name>
+        <common:Name xml:lang="en">Infant checkups</common:Name>
+        <structure:Structure>
+          <Ref id="SAN" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="DF_SAN_CN_C" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="SAN_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DEFAULT">
+            <common:AnnotationTitle>FREQ=A</common:AnnotationTitle>
+            <common:AnnotationType>DEFAULT</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW">
+            <common:AnnotationTitle>REF_AREA</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_COLUMN">
+            <common:AnnotationTitle>TIME_PERIOD</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_COLUMN</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW_SECTION">
+            <common:AnnotationTitle>FREQ,INDIC_SAN</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW_SECTION</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-16T20:10:55.170Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Couverture (%)</common:Name>
+        <common:Name xml:lang="en">Blanket (%)</common:Name>
+        <structure:Structure>
+          <Ref id="SAN" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="DF_SAN_CN_EY0" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation>
+            <common:AnnotationType>NonProductionDataflow</common:AnnotationType>
+            <common:AnnotationText xml:lang="en">true</common:AnnotationText>
+          </common:Annotation>
+          <common:Annotation id="SAN_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-16T16:06:30.928Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Nombre enfants 0-11 mois</common:Name>
+        <common:Name xml:lang="en">Number of children 0-11 months</common:Name>
+        <structure:Structure>
+          <Ref id="SAN" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="DF_SAN_CN_IY0" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="SAN_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DEFAULT">
+            <common:AnnotationTitle>FREQ=A</common:AnnotationTitle>
+            <common:AnnotationType>DEFAULT</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW">
+            <common:AnnotationTitle>REF_AREA</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_COLUMN">
+            <common:AnnotationTitle>TIME_PERIOD</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_COLUMN</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW_SECTION">
+            <common:AnnotationTitle>FREQ,INDIC_SAN</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW_SECTION</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-16T20:07:48.859Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Inscrits de moins d'un an</common:Name>
+        <common:Name xml:lang="en">Registered for less than one year</common:Name>
+        <structure:Structure>
+          <Ref id="SAN" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="DF_SAN_CN_NP" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="SAN_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DEFAULT">
+            <common:AnnotationTitle>FREQ=A</common:AnnotationTitle>
+            <common:AnnotationType>DEFAULT</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW">
+            <common:AnnotationTitle>REF_AREA</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_COLUMN">
+            <common:AnnotationTitle>TIME_PERIOD</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_COLUMN</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW_SECTION">
+            <common:AnnotationTitle>FREQ,INDIC_SAN</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW_SECTION</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-16T20:08:58.029Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Nombre de pesées</common:Name>
+        <common:Name xml:lang="en">Number of weighings</common:Name>
+        <structure:Structure>
+          <Ref id="SAN" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="DF_SAN_CPN" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation>
+            <common:AnnotationType>NonProductionDataflow</common:AnnotationType>
+            <common:AnnotationText xml:lang="en">true</common:AnnotationText>
+          </common:Annotation>
+          <common:Annotation id="SAN_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-16T16:06:28.075Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Consultations prénatales</common:Name>
+        <common:Name xml:lang="en">Prenatal consultations</common:Name>
+        <structure:Structure>
+          <Ref id="SAN" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="DF_SAN_CPN_CCPN" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="SAN_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DEFAULT">
+            <common:AnnotationTitle>FREQ=A</common:AnnotationTitle>
+            <common:AnnotationType>DEFAULT</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW">
+            <common:AnnotationTitle>REF_AREA</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_COLUMN">
+            <common:AnnotationTitle>TIME_PERIOD</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_COLUMN</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW_SECTION">
+            <common:AnnotationTitle>FREQ,INDIC_SAN</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW_SECTION</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-16T20:05:50.566Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Couverture CPN (%)</common:Name>
+        <common:Name xml:lang="en">CPN Coverage (%)</common:Name>
+        <structure:Structure>
+          <Ref id="SAN" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="DF_SAN_CPN_GA" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="SAN_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DEFAULT">
+            <common:AnnotationTitle>FREQ=A</common:AnnotationTitle>
+            <common:AnnotationType>DEFAULT</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW">
+            <common:AnnotationTitle>REF_AREA</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_COLUMN">
+            <common:AnnotationTitle>TIME_PERIOD</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_COLUMN</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW_SECTION">
+            <common:AnnotationTitle>FREQ,INDIC_SAN</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW_SECTION</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-16T20:04:00.437Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Grossesses attendues*</common:Name>
+        <common:Name xml:lang="en">Expected pregnancies*</common:Name>
+        <structure:Structure>
+          <Ref id="SAN" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="DF_SAN_CPN_NI" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="SAN_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DEFAULT">
+            <common:AnnotationTitle>FREQ=A</common:AnnotationTitle>
+            <common:AnnotationType>DEFAULT</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW">
+            <common:AnnotationTitle>REF_AREA</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_COLUMN">
+            <common:AnnotationTitle>TIME_PERIOD</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_COLUMN</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW_SECTION">
+            <common:AnnotationTitle>FREQ,INDIC_SAN</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW_SECTION</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-16T16:43:39.404Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Nouvelles inscrites</common:Name>
+        <common:Name xml:lang="en">New members</common:Name>
+        <structure:Structure>
+          <Ref id="SAN" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="DF_SAN_DEC_ENF" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="SAN_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DEFAULT">
+            <common:AnnotationTitle>FREQ=A</common:AnnotationTitle>
+            <common:AnnotationType>DEFAULT</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW">
+            <common:AnnotationTitle>REF_AREA</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_COLUMN">
+            <common:AnnotationTitle>TIME_PERIOD</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_COLUMN</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW_SECTION">
+            <common:AnnotationTitle>FREQ,INDIC_SAN</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW_SECTION</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-16T16:37:06.783Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Nombre de décès d'enfants</common:Name>
+        <common:Name xml:lang="en">Number of child deaths</common:Name>
+        <structure:Structure>
+          <Ref id="SAN" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="DF_SAN_DEC_MER" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="SAN_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DEFAULT">
+            <common:AnnotationTitle>FREQ=A</common:AnnotationTitle>
+            <common:AnnotationType>DEFAULT</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW">
+            <common:AnnotationTitle>REF_AREA</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_COLUMN">
+            <common:AnnotationTitle>TIME_PERIOD</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_COLUMN</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW_SECTION">
+            <common:AnnotationTitle>FREQ,INDIC_SAN</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW_SECTION</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-16T16:34:16.010Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Nombre de décès de mères</common:Name>
+        <common:Name xml:lang="en">Number of maternal deaths</common:Name>
+        <structure:Structure>
+          <Ref id="SAN" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="DF_SAN_HBT_LIT" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="SAN_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DEFAULT">
+            <common:AnnotationTitle>FREQ=A</common:AnnotationTitle>
+            <common:AnnotationType>DEFAULT</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW">
+            <common:AnnotationTitle>REF_AREA</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_COLUMN">
+            <common:AnnotationTitle>TIME_PERIOD</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_COLUMN</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW_SECTION">
+            <common:AnnotationTitle>FREQ,INDIC_SAN</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW_SECTION</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-16T16:40:21.948Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Nombre d'habitants par lit</common:Name>
+        <common:Name xml:lang="en">Number of inhabitants per bed</common:Name>
+        <structure:Structure>
+          <Ref id="SAN" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="DF_SAN_LIT_HOP" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="SAN_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DEFAULT">
+            <common:AnnotationTitle>FREQ=A</common:AnnotationTitle>
+            <common:AnnotationType>DEFAULT</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW">
+            <common:AnnotationTitle>REF_AREA</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_COLUMN">
+            <common:AnnotationTitle>TIME_PERIOD</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_COLUMN</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW_SECTION">
+            <common:AnnotationTitle>FREQ,INDIC_SAN</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW_SECTION</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-16T16:39:32.582Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Nombre de lits des hôpitaux de districts</common:Name>
+        <common:Name xml:lang="en">Number of beds in district hospitals</common:Name>
+        <structure:Structure>
+          <Ref id="SAN" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="DF_SAN_MN" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="SAN_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="NOT_DISPLAYED">
+            <common:AnnotationTitle>FREQ=A</common:AnnotationTitle>
+            <common:AnnotationType>NOT_DISPLAYED</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DEFAULT">
+            <common:AnnotationTitle>REF_AREA=AFNER+AFNER01+AFNER02+AFNER03+AFNER04+AFNER05+AFNER06+AFNER07+AFNER08</common:AnnotationTitle>
+            <common:AnnotationType>DEFAULT</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW">
+            <common:AnnotationTitle>REF_AREA</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_COLUMN">
+            <common:AnnotationTitle>TIME_PERIOD</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_COLUMN</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW_SECTION">
+            <common:AnnotationTitle>FREQ,INDIC_SAN</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW_SECTION</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-16T16:11:55.356Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Mort-nés</common:Name>
+        <common:Name xml:lang="en">Stillborn</common:Name>
+        <structure:Structure>
+          <Ref id="SAN" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="DF_SAN_NV" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="SAN_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DEFAULT">
+            <common:AnnotationTitle>FREQ=A</common:AnnotationTitle>
+            <common:AnnotationType>DEFAULT</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW">
+            <common:AnnotationTitle>REF_AREA</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_COLUMN">
+            <common:AnnotationTitle>TIME_PERIOD</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_COLUMN</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW_SECTION">
+            <common:AnnotationTitle>FREQ,INDIC_SAN</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW_SECTION</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-16T16:13:18.197Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Naissances vivantes</common:Name>
+        <common:Name xml:lang="en">Live births</common:Name>
+        <structure:Structure>
+          <Ref id="SAN" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="DF_SAN_POP" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="SAN_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DEFAULT">
+            <common:AnnotationTitle>FREQ=A</common:AnnotationTitle>
+            <common:AnnotationType>DEFAULT</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW">
+            <common:AnnotationTitle>REF_AREA</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_COLUMN">
+            <common:AnnotationTitle>TIME_PERIOD</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_COLUMN</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW_SECTION">
+            <common:AnnotationTitle>FREQ,INDIC_SAN</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW_SECTION</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-16T16:41:17.058Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Population</common:Name>
+        <common:Name xml:lang="en">Population</common:Name>
+        <structure:Structure>
+          <Ref id="SAN" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="DF_SOLDE_COM" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="CUBE_COM_EXT_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="NOT_DISPLAYED">
+            <common:AnnotationTitle>FREQ=A,REF_AREA=AFRNER</common:AnnotationTitle>
+            <common:AnnotationType>NOT_DISPLAYED</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DEFAULT">
+            <common:AnnotationTitle>LAST_N_PERIOD=10</common:AnnotationTitle>
+            <common:AnnotationType>DEFAULT</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW">
+            <common:AnnotationTitle>INDIC_COM_EXT</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_COLUMN">
+            <common:AnnotationTitle>TIME_PERIOD</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_COLUMN</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_FILTER">
+            <common:AnnotationTitle>FREQ,REF_AREA</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_FILTER</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-17T02:13:01.205Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Solde Commercial</common:Name>
+        <common:Name xml:lang="en">Trade Balance</common:Name>
+        <structure:Structure>
+          <Ref id="CUBE_COM_EXT" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="ELEV_ABAT_CONT" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="CUBE_ELEVAGE_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="NOT_DISPLAYED">
+            <common:AnnotationTitle>FREQ=A</common:AnnotationTitle>
+            <common:AnnotationType>NOT_DISPLAYED</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DEFAULT">
+            <common:AnnotationTitle>INDIC_ELEV=NBR_ABAT_CONT,LAST_N_PERIOD=10</common:AnnotationTitle>
+            <common:AnnotationType>DEFAULT</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW">
+            <common:AnnotationTitle>REF_AREA,TYPE_BETAIL</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_COLUMN">
+            <common:AnnotationTitle>TIME_PERIOD</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_COLUMN</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_FILTER">
+            <common:AnnotationTitle>FREQ</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_FILTER</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW_SECTION">
+            <common:AnnotationTitle>INDIC_ELEV</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW_SECTION</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-17T00:47:07.644Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Abattages contrôlés</common:Name>
+        <common:Name xml:lang="en">Controlled slaughter</common:Name>
+        <structure:Structure>
+          <Ref id="CUBE_ELEVAGE" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="ELEV_COND_CUIRS_PEAUX" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="CUBE_ELEVAGE_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="NOT_DISPLAYED">
+            <common:AnnotationTitle>FREQ=A</common:AnnotationTitle>
+            <common:AnnotationType>NOT_DISPLAYED</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DEFAULT">
+            <common:AnnotationTitle>INDIC_ELEV=QTE_CUIRS_PEAUX_COND,LAST_N_PERIOD=10</common:AnnotationTitle>
+            <common:AnnotationType>DEFAULT</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW">
+            <common:AnnotationTitle>REF_AREA,TYPE_BETAIL</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_COLUMN">
+            <common:AnnotationTitle>TIME_PERIOD</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_COLUMN</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_FILTER">
+            <common:AnnotationTitle>FREQ,INDIC_ELEV</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_FILTER</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-17T00:35:50.476Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Conditionnement des cuirs et peaux</common:Name>
+        <common:Name xml:lang="en">Leather and hide conditioning</common:Name>
+        <structure:Structure>
+          <Ref id="CUBE_ELEVAGE" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+      <structure:Dataflow id="ELEV_REP_CHEP" agencyID="NE1" version="1.0" isFinal="true">
+        <common:Annotations>
+          <common:Annotation id="CUBE_ELEVAGE_E24F06546F">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>AssociatedCube</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DDBDataflow">
+            <common:AnnotationTitle>E24F06546F67A430CADE9BA850CC1DE4</common:AnnotationTitle>
+            <common:AnnotationType>DDBDataflow</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW">
+            <common:AnnotationTitle>REF_AREA,TYPE_BETAIL</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_COLUMN">
+            <common:AnnotationTitle>TIME_PERIOD</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_COLUMN</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_FILTER">
+            <common:AnnotationTitle>FREQ</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_FILTER</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAYOUT_ROW_SECTION">
+            <common:AnnotationTitle>INDIC_ELEV</common:AnnotationTitle>
+            <common:AnnotationType>LAYOUT_ROW_SECTION</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="NOT_DISPLAYED">
+            <common:AnnotationTitle>FREQ=A</common:AnnotationTitle>
+            <common:AnnotationType>NOT_DISPLAYED</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="DEFAULT">
+            <common:AnnotationTitle>INDIC_ELEV=EFF_CHEP,LAST_N_PERIOD=10</common:AnnotationTitle>
+            <common:AnnotationType>DEFAULT</common:AnnotationType>
+          </common:Annotation>
+          <common:Annotation id="LAST_UPDATE">
+            <common:AnnotationTitle>2026-04-17T00:45:20.683Z</common:AnnotationTitle>
+            <common:AnnotationType>LAST_UPDATE</common:AnnotationType>
+          </common:Annotation>
+        </common:Annotations>
+        <common:Name xml:lang="fr">Repartition du cheptel</common:Name>
+        <common:Name xml:lang="en">Livestock distribution</common:Name>
+        <structure:Structure>
+          <Ref id="CUBE_ELEVAGE" version="1.0" agencyID="NE1" package="datastructure" class="DataStructure" />
+        </structure:Structure>
+      </structure:Dataflow>
+    </structure:Dataflows>
+  </message:Structures>
+</message:Structure>

@@ -20,8 +20,8 @@ def long_table() -> pd.DataFrame:
             {
                 "FREQ": "A",
                 "REF_AREA": "NE_AGADEZ",
-                "INDICATOR": "AREA_HA",
-                "COMPOSITE_BREAKDOWN": "MILLET",
+                "INDICATOR": "SUP",
+                "COMPOSITE_BREAKDOWN": "MIL",
                 "TIME_PERIOD": "2024-A1",
                 "OBS_VALUE": 1234.0,
                 "UNIT_MEASURE": "HA",
@@ -37,7 +37,7 @@ def long_table() -> pd.DataFrame:
             {
                 "FREQ": "A",
                 "REF_AREA": "NE_DIFFA",
-                "INDICATOR": "PROD_T",
+                "INDICATOR": "PROD",
                 "COMPOSITE_BREAKDOWN": "_T",
                 "TIME_PERIOD": "2024-A1",
                 "OBS_VALUE": 987.0,
