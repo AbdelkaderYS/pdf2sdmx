@@ -1,15 +1,3 @@
----
-title: pdf2sdmx
-emoji: 📄
-colorFrom: gray
-colorTo: green
-sdk: gradio
-sdk_version: 6.17.3
-app_file: app.py
-pinned: false
-license: mit
----
-
 # pdf2sdmx
 
 Lire les tableaux imprimés dans un rapport statistique en PDF et les écrire en SDMX, avec
