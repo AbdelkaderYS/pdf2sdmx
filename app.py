@@ -20,13 +20,17 @@ log = logging.getLogger("pdf2sdmx")
 
 
 def _warm_up() -> None:
-    """Fetch the sample PDFs, install the SDMX schemas and load the Table Transformer
-    models, in the background. The Space must still serve stage 1 if any of them fails."""
-    sources = pd.read_csv(settings.sources_file, dtype=str).fillna("")
+    """Fetch what the app needs, in the background.
+
+    Every step is optional: the service must answer with stage one even if all of them
+    fail. An image that baked them in at build time finds the work already done.
+    """
+    sources = pd.DataFrame()
     try:
+        sources = pd.read_csv(settings.sources_file, dtype=str).fillna("")
         refresh.fetch_missing(sources)
     except Exception as exc:
-        log.warning("sample download failed: %s", exc)
+        log.warning("source list unreadable or sample download failed: %s", exc)
     try:
         _install_sdmx_schemas()
     except Exception as exc:
@@ -38,8 +42,8 @@ def _warm_up() -> None:
     except Exception as exc:
         log.warning("code list download failed, codes will read 'not checked': %s", exc)
     try:
-        first = sources.iloc[0]
-        log.info(camelot_stage.warm_up(settings.data_raw / first["file"], int(first["page"])))
+        sample = settings.data_raw.parent / "samples" / "ins_bulletin_3T25_p20-23.pdf"
+        log.info(camelot_stage.warm_up(sample, 2))
     except Exception as exc:
         log.warning("camelot ml warm-up failed: %s", exc)
 
