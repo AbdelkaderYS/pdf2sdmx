@@ -131,3 +131,11 @@ def test_the_observations_say_what_a_row_is_and_how_many():
 
 def test_nothing_is_said_about_observations_before_a_run():
     assert ui.observations_note(pd.DataFrame()) == ""
+
+
+def test_the_unit_printed_under_a_caption_reaches_the_observations():
+    """Roughly a third of units are on a line under the caption, not in a column header."""
+    headings = pipeline.captions_on_page(SAMPLE, 4)
+    assert [unit for _, unit in headings] == ["Nombre", "Nombre"]
+    result = pipeline.run_page(SAMPLE, 4)
+    assert set(result.long["UNIT_MEASURE"]) == {"NOMBRE"}

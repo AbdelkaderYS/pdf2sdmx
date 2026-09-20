@@ -15,7 +15,9 @@ from pdf2sdmx.core.validate import Check
 PERIOD_IN_TEXT = re.compile(r"\b((?:19|20)\d{2}\s*[/-]\s*(?:19|20)?\d{2}|(?:19|20)\d{2})\b")
 
 # The caption printed above a table: a number, then the title.
-CAPTION = re.compile(r"^tableau\s*n?[°o]?\s*[\d.]+\s*:", re.I)
+CAPTION = re.compile(r"^tableau\s*n?[°o]?\s*[\d.]+(?:[a-z]\.?)?\s*:", re.I)
+# The unit line a report often prints under the caption, for the whole table at once.
+UNIT_LINE = re.compile(r"^unit[ée]s?\s*:\s*(.+)$", re.I)
 
 
 @dataclass
@@ -87,21 +89,21 @@ def run_page(
     subject = (subject or "").strip() or "UNKNOWN"
     mapping = reshape.load_mapping(mapping_path or settings.mapping_file)
 
-    titles = captions_on_page(pdf_path, page)
+    headings = captions_on_page(pdf_path, page)
     tables = []
     for position, resolved in enumerate(result.tables):
+        title, printed_unit = headings[position] if position < len(headings) else ("", "")
         checks = validate.run_checks(resolved.frame)
         long = reshape.to_long(
             resolved.frame,
             mapping=mapping,
             time_period=period,
-            unit=unit,
+            unit=printed_unit or unit,
             method=resolved.row_methods,
             source=source,
             checks=checks,
             subject=subject,
         )
-        title = titles[position] if position < len(titles) else ""
         tables.append(TableResult(resolved.frame, checks, long, resolved.resolved_by, title))
 
     page_result = PageResult(
@@ -121,20 +123,27 @@ def run_page(
     return page_result
 
 
-def captions_on_page(pdf_path: Path, page: int) -> list[str]:
-    """Table titles printed on this page, in reading order, exactly as the report writes them.
+def captions_on_page(pdf_path: Path, page: int) -> list[tuple[str, str]]:
+    """(title, unit) for each table on this page, in reading order, as the report writes them.
 
-    A caption reads "Tableau 03.01. : <title>" and sits above its table. The same lines
-    appear again in the list of tables opening a chapter, but such a page carries no table,
-    so nothing is paired with them. Tables are matched to captions by position, and a table
-    whose caption sits on the previous page gets none rather than a wrong one.
+    A caption reads "Tableau 03.01. : <title>" and sits above its table, sometimes followed
+    by "Unité : Nombre" which holds for that whole table. Roughly a third of units are
+    printed there rather than in a column header, so a header that names none is not a
+    table without a unit. The same caption lines appear again in the list of tables opening
+    a chapter, but such a page carries no table, so nothing is paired with them. Tables are
+    matched by position, and a table whose caption sits on the previous page gets none
+    rather than a wrong one.
     """
-    titles = []
+    found: list[tuple[str, str]] = []
     for line in pdfplumber_stage.page_text(pdf_path, page).splitlines():
         line = line.strip()
         if CAPTION.match(line):
-            titles.append(line)
-    return titles
+            found.append((line, ""))
+            continue
+        unit = UNIT_LINE.match(line)
+        if unit and found and not found[-1][1]:
+            found[-1] = (found[-1][0], unit.group(1).strip())
+    return found
 
 
 def detect_period(pdf_path: Path, page: int) -> str:
