@@ -42,7 +42,15 @@ COUNTRY_LABEL = settings.country_name
 # the total over that dimension, _Z when the label could not be identified at all.
 TOTAL = "_T"
 NOT_IDENTIFIED = "_Z"
+# A total is a convention of every dimension, not a member of any one of them. Recognised
+# by pattern rather than by a vocabulary row, so that a label carrying the word does not
+# make its axis look geographical.
+TOTAL_LABEL = re.compile(r"\b(total|totaux|ensemble|toutes?|tous)\b", re.I)
+# A total written beside something else, as in "2020 Total", which is the year 2020.
+TOTAL_MARKER = re.compile(r"\s*\b(total|totaux|ensemble)\b\s*", re.I)
 NOT_IDENTIFIED_LABEL = "not identified"
+# What a caller passes when it has no subject to give. It is not something a report printed.
+PLACEHOLDER = "UNKNOWN"
 # A unit sits in trailing parentheses, or after "en" in a title or a column name.
 UNIT_IN_HEADER = re.compile(r"\(([^)]+)\)\s*$")
 UNIT_AFTER_EN = re.compile(r"\ben\s+([^,;()]{1,28}?)(?=\s+(?:de|du|des|par|dans|pour)\b|[,;)]|$)", re.I)
@@ -133,7 +141,7 @@ def to_long(
     method: str | dict[str, str],
     source: str,
     checks: list[Check],
-    subject: str = "UNKNOWN",
+    subject: str = "",
     title: str = "",
 ) -> pd.DataFrame:
     """One observation per numeric cell.
@@ -190,7 +198,7 @@ def sdmx_time_period(printed: str) -> str:
     stock date becomes a calendar day. Anything else comes back unchanged and will not
     validate.
     """
-    text = _without_footnote(printed.strip())
+    text = _without_footnote(TOTAL_MARKER.sub(" ", printed).strip())
     if PLAIN_YEAR.match(text):
         return text
     split = SPLIT_YEAR.match(text)
@@ -232,9 +240,14 @@ def _four_digit_year(year: str) -> str:
 def _axis_kind(labels: list[str], mapping: pd.DataFrame) -> str:
     """ "area", "year" or "other", by majority. "year" covers any period, quarters included."""
     clean = [_strip_suffix(lb) for lb in labels]
-    if clean and sum(bool(PERIOD_HEADER.match(lb.strip())) for lb in clean) / len(clean) >= 0.5:
+    if not clean:
+        return "other"
+    periods = sum(bool(PERIOD_HEADER.match(TOTAL_MARKER.sub(" ", lb).strip())) for lb in clean)
+    if periods / len(clean) >= 0.5:
         return "year"
-    if _share_matching(clean, mapping, "REF_AREA") >= 0.5:
+    # A total says nothing about which dimension it totals, so it is not evidence of areas.
+    named = [lb for lb in clean if not TOTAL_LABEL.fullmatch(lb.strip())]
+    if named and _share_matching(named, mapping, "REF_AREA") >= 0.5:
         return "area"
     return "other"
 
@@ -265,7 +278,7 @@ def _kind_of_label(label: str, axis_kind: str) -> str:
 
     A table of periods often ends with a variation column, which is not a period.
     """
-    if axis_kind == "year" and not PERIOD_HEADER.match(label):
+    if axis_kind == "year" and not PERIOD_HEADER.match(TOTAL_MARKER.sub(" ", label).strip()):
         return "other"
     return axis_kind
 
@@ -295,7 +308,7 @@ def _split_indicator(label: str, mapping: pd.DataFrame, title: str = "") -> tupl
     unit = ""
     for part in label.split(LABEL_JOIN):
         part = part.strip()
-        if not part:
+        if not part or part == PLACEHOLDER or TOTAL_LABEL.fullmatch(part):
             continue
         code, part_unit = _code_for(part, mapping, "INDICATOR")
         if code and not measure.code:
@@ -353,6 +366,8 @@ def _resolve_area(label: str, mapping: pd.DataFrame) -> tuple[str, str]:
     """
     parts = label.split(LABEL_JOIN)
     for position, part in enumerate(parts):
+        if TOTAL_LABEL.fullmatch(part.strip()):
+            return TOTAL, LABEL_JOIN.join(parts[:position] + parts[position + 1 :])
         code, _ = _code_for(part, mapping, "REF_AREA")
         if code:
             return code, LABEL_JOIN.join(parts[:position] + parts[position + 1 :])

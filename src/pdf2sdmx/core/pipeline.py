@@ -86,7 +86,7 @@ def run_page(
     source = pdf_path.name
     period = (time_period or "").strip() or detect_period(pdf_path, page)
     unit = (unit or "").strip()  # empty, not "UNKNOWN": reshape falls back last, after the caption
-    subject = (subject or "").strip() or "UNKNOWN"
+    subject = (subject or "").strip()
     mapping = reshape.load_mapping(mapping_path or settings.mapping_file)
 
     headings = captions_on_page(pdf_path, page)

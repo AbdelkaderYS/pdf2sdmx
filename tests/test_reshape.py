@@ -341,3 +341,37 @@ def test_an_unidentified_measure_says_so_instead_of_leaving_a_blank():
     long = reshape.to_long(frame, mapping=MAPPING, time_period="2024", unit="", method="m", source="s", checks=[])
     assert long["INDICATOR"].iloc[0] == "_Z"
     assert long["INDICATOR_LABEL"].iloc[0] == "not identified"
+
+
+def test_a_total_is_not_a_place():
+    """The word makes any axis carrying it look geographical, and the periods are lost."""
+    columns = ["2020 Total", "2021 Total", "2022 Total", "2023 Total", "2024 1 T24"]
+    assert reshape._axis_kind(columns, MAPPING) == "year"
+    assert reshape.sdmx_time_period("2020 Total") == "2020"
+
+
+def test_a_total_still_resolves_wherever_it_is_looked_for():
+    assert reshape._resolve_area("Ensemble", MAPPING) == ("_T", "")
+    assert reshape._resolve_area("Total / Bovins", MAPPING) == ("_T", "Bovins")
+
+
+def test_a_placeholder_never_becomes_a_code():
+    """ "UNKNOWN" is what a caller passes when it has nothing, not something a report printed."""
+    measure, breakdown, _ = reshape._split_indicator("UNKNOWN", MAPPING)
+    assert (measure.code, breakdown.code) == ("_Z", "_T")
+
+
+def test_a_period_marked_total_is_still_that_period():
+    """Two header rows merge into "2020 Total", which is the year 2020 and not a place."""
+    frame = pd.DataFrame(
+        {
+            "Désignation": ["Serie A"],
+            "2020 Total": ["10"],
+            "2021 Total": ["20"],
+            "2022 Total": ["30"],
+            "2023 Total": ["40"],
+        }
+    )
+    long = reshape.to_long(frame, mapping=MAPPING, time_period="2024", unit="", method="m", source="s", checks=[])
+    assert set(long["TIME_PERIOD"]) == {"2020", "2021", "2022", "2023"}
+    assert set(long["REF_AREA"]) == {"NE"}

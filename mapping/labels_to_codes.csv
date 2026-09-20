@@ -1,7 +1,5 @@
 label,code,dimension,unit,note
 Niger,NE,REF_AREA,,AfDB NE1:CL_REF_AREA = AFNER
-Total,_T,REF_AREA,,SDMX convention for totals
-Ensemble,_T,REF_AREA,,
 National,NE,REF_AREA,,AfDB NE1:CL_REF_AREA = AFNER
 Agadez,NE-1,REF_AREA,,AfDB NE1:CL_REF_AREA = AFNER1
 Diffa,NE-2,REF_AREA,,AfDB NE1:CL_REF_AREA = AFNER2
