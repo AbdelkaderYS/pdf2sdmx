@@ -14,6 +14,6 @@ data/reference/afdb/dsd
 
 # Working files and private notes.
 mapping/to_name.csv
-CLAUDE.md
+NOTES.md
 tests
 truth
