@@ -68,26 +68,10 @@ make audit            # comparaison avec le portail open data
 make harvest          # ce qu'il reste à nommer dans le vocabulaire
 ```
 
-## Mettre en ligne
-
-Le service tourne sur [Render](https://render.com), formule gratuite : 512 Mo, endormi
-après quinze minutes sans visite, réveillé en une minute environ.
-
-[render.yaml](render.yaml) décrit le service. Sur render.com : **New** → **Blueprint** →
-ce dépôt. Le port est passé dans `$PORT` et l'application le lit.
-
-`requirements.txt` ne contient que l'étage texte : torch pèse 738 Mo et ne tient pas dans
-les 512 Mo. L'interface dit quels étages manquent, et un rapport avec une couche texte est
-lu quand même. Pour la cascade complète, `requirements-full.txt` ou le `Dockerfile`, sur un
-hôte disposant de 2 Go.
-
 ## Réglages
 
 Tout ce qu'on peut dire à l'outil est dans [.env.example](.env.example) : qui publie, quel
 vocabulaire, ce qui compte comme un tableau, comme une correspondance, comme une erreur.
-
-Lire les rapports d'un autre institut se fait depuis ce fichier, pas depuis le code. Les
-seuils ont été mesurés sur un seul éditeur ; un autre voudra les siens.
 
 ## Où regarder
 
