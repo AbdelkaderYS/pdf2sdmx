@@ -98,6 +98,9 @@ Le contrôle ne dit pas laquelle des deux éditions a tort. Il liste les deux.
 - **82 à 86 % des observations ont une mesure identifiée.** Le reste porte `_Z`, faute de
   vocabulaire. Ça monte en remplissant `mapping/labels_to_codes.csv`, sans toucher au code.
 - Les tableaux en paysage, et ceux qui courent sur deux pages, ne sont pas traités.
+- Un tableau sans chiffres (liste de noms, annuaire) n'est pas converti : SDMX publie des
+  nombres. L'interface compte ces pages et le dit, au lieu d'annoncer qu'aucun tableau
+  n'a été trouvé.
 - La conformité est vérifiée contre les schémas XSD, qui valident la forme du message. Ils
   ne vérifient pas qu'un code existe dans sa liste ni qu'une période est réelle. Un registre
   comme FMR le ferait.

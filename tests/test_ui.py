@@ -4,6 +4,8 @@ A demo that answers "no table found" with no reason is the thing these tests gua
 against.
 """
 
+from collections import Counter
+
 import pandas as pd
 
 from pdf2sdmx.config import settings
@@ -139,3 +141,27 @@ def test_the_unit_printed_under_a_caption_reaches_the_observations():
     assert [unit for _, unit in headings] == ["Nombre", "Nombre"]
     result = pipeline.run_page(SAMPLE, 4)
     assert set(result.long["UNIT_MEASURE"]) == {"NUMBER"}
+
+
+def test_a_table_of_text_is_named_as_such_and_explained():
+    gate = GateResult(False, 0.0, "numeric share 3%", {"numeric_share": 0.03})
+    result = page_result([Attempt("pdfplumber", 1, gate, 0.2)])
+    assert ui.skip_kind(result) == ui.TEXT_TABLE
+    summary = ui.skipped_summary(Counter({ui.TEXT_TABLE: 2, ui.NO_FIGURES: 1}))
+    assert "2 pages with a table of text" in summary
+    assert ui.FIGURES_ONLY in summary
+
+
+def test_a_page_without_figures_is_not_called_a_table_of_text():
+    result = page_result([Attempt("text_scan", 0, None, 0.0, error="fewer than 100 digits")])
+    assert ui.skip_kind(result) == ui.NO_FIGURES
+    assert ui.skipped_summary(Counter({ui.NO_FIGURES: 1})).startswith(" 1 page with no figures")
+    assert ui.FIGURES_ONLY not in ui.skipped_summary(Counter({ui.UNREADABLE: 1}))
+
+
+def test_each_table_comes_with_its_csv():
+    result = pipeline.run_page(SAMPLE, 3)
+    buttons = [slot for slot in ui.table_slots(result)[1::2] if slot.get("visible")]
+    assert buttons
+    first = pd.read_csv(buttons[0]["value"])
+    assert first.shape == result.tables[0].frame.shape

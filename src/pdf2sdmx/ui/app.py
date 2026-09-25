@@ -5,10 +5,12 @@ as figures rather than sentences, and a page that yields nothing says why in the
 line rather than in a panel nobody opens.
 """
 
+import hashlib
 import html
 import tempfile
 import time
 import zipfile
+from collections import Counter
 from pathlib import Path
 
 import gradio as gr
@@ -78,6 +80,12 @@ FORMATS = (
     "already has the data structure. **SDMX-ML** carries the structure itself, so a registry "
     "can validate the data against it."
 )
+# The complete files behind the SDMX tab. Its two previews are cut, so they are no source to copy.
+SDMX_FILES = (("_sdmx.csv", "SDMX-CSV"), ("_structure.xml", "SDMX-ML structure"), ("_data.xml", "SDMX-ML data"))
+NO_FIGURES = "with no figures to read"
+TEXT_TABLE = "with a table of text"
+UNREADABLE = "unreadable"
+FIGURES_ONLY = "SDMX publishes figures, so a table of names or text is not converted."
 
 
 def process(file):
@@ -89,6 +97,7 @@ def process(file):
 
     started = time.perf_counter()
     found: list[dict] = []  # one entry per page with a table: result and its rendered preview
+    skipped: Counter[str] = Counter()  # why the other pages gave nothing
     preview = None
     for page in range(1, n_pages + 1):
         preview = pipeline.render_page(pdf_path, page)
@@ -98,19 +107,22 @@ def process(file):
             found.append({"result": result, "preview": preview})
             note = _table_count(len(result.tables))
         else:
-            note = f"no table, {no_table_reason(result)}"
+            skipped[skip_kind(result)] += 1
+            note = f"nothing to convert, {no_table_reason(result)}"
         yield _state(preview, f"Page {page} of {n_pages}: {note}", found, result)
 
     # Gradio may drop intermediate yields, so the last one carries the full final state.
     elapsed = f"{time.perf_counter() - started:.0f} s"
     if not found:
-        yield _state(preview, f"Done in {elapsed}: {n_pages} pages read, no table found", found, None)
+        summary = f"Done in {elapsed}: {_pages(n_pages)} read, no table of figures.{skipped_summary(skipped)}"
+        yield _state(preview, summary, found, None)
         return
     results = [f["result"] for f in found]
     files = _output_files(pdf_path, results)
     archive = _write_archive(pdf_path, files)
     last = found[-1]
-    yield _state(last["preview"], f"Done in {elapsed}, {n_pages} pages read", found, last["result"], archive, files)
+    summary = f"Done in {elapsed}, {_pages(n_pages)} read, {len(found)} with tables.{skipped_summary(skipped)}"
+    yield _state(last["preview"], summary, found, last["result"], archive, files)
 
 
 def no_table_reason(result: PageResult) -> str:
@@ -128,6 +140,30 @@ def no_table_reason(result: PageResult) -> str:
         if attempt.error:
             return attempt.error
     return "nothing that looks like a table"
+
+
+def skip_kind(result: PageResult) -> str:
+    """Which of three reasons a page gave nothing for, so a run can count them."""
+    for attempt in result.attempts:
+        if attempt.method == "text_scan":
+            return NO_FIGURES
+        gate = attempt.gate
+        if gate is not None and gate.stats.get("numeric_share", 1) < settings.gate_min_numeric_share:
+            return TEXT_TABLE
+    return UNREADABLE
+
+
+def skipped_summary(skipped: Counter) -> str:
+    """The pages that gave nothing, by reason, and what a page of names or text means for SDMX."""
+    if not skipped:
+        return ""
+    parts = ", ".join(f"{_pages(n)} {kind}" for kind, n in skipped.most_common())
+    note = f" {FIGURES_ONLY}" if skipped[TEXT_TABLE] or skipped[NO_FIGURES] else ""
+    return f" {parts}.{note}"
+
+
+def _pages(n: int) -> str:
+    return f"{n} page{'s' if n > 1 else ''}"
 
 
 def show_page(found: list[dict], evt: gr.SelectData):
@@ -161,6 +197,7 @@ def _state(preview, progress, found, current, archive=None, files=None):
         observations_frame(long),
         _preview_text(files, "_sdmx.csv"),
         _preview_text(files, "_data.xml"),
+        *_sdmx_downloads(archive, files),
         checks_frame(results),
     )
 
@@ -308,21 +345,47 @@ def _preview_text(files: dict[str, str | bytes], suffix: str, max_lines: int = 6
 
 
 def table_slots(current: PageResult | None) -> list:
-    """One dataframe per table on the current page, under the title the report gives it.
+    """One dataframe per table on the current page, under the title the report gives it, and its CSV.
 
     Hidden while a page is read so Gradio remounts them at the new height.
     """
+    hidden = [gr.update(visible=False), gr.update(visible=False)]
     if current is None or not current.tables:
-        return [gr.update(visible=False) for _ in range(TABLE_SLOTS)]
+        return hidden * TABLE_SLOTS
     slots = []
     for i in range(TABLE_SLOTS):
         if i < len(current.tables):
             table = current.tables[i]
             title = table.title or f"Page {current.page}, table {i + 1} of {len(current.tables)}"
             slots.append(gr.update(value=table.frame, label=f"{title} · read by {table.resolved_by}", visible=True))
+            slots.append(gr.update(value=_table_csv(current, i), label="CSV of this table", visible=True))
         else:
-            slots.append(gr.update(visible=False))
+            slots += hidden
     return slots
+
+
+def _table_csv(result: PageResult, index: int) -> str:
+    """The table as printed, in a file named after its page.
+
+    The folder is named after the content, so two documents never share a file.
+    """
+    text = result.tables[index].frame.to_csv(index=False)
+    folder = Path(tempfile.gettempdir()) / "pdf2sdmx" / hashlib.sha1(text.encode()).hexdigest()[:12]
+    folder.mkdir(parents=True, exist_ok=True)
+    path = folder / f"{Path(result.source).stem}_p{result.page}_table{index + 1}.csv"
+    path.write_text(text, encoding="utf-8")
+    return str(path)
+
+
+def _sdmx_downloads(archive: str | None, files: dict[str, str | bytes]) -> list:
+    """One button per complete SDMX file, taken from the folder the zip was written to."""
+    folder = Path(archive).parent if archive else None
+    updates = []
+    for suffix, _ in SDMX_FILES:
+        name = next((k for k in files if k.endswith(suffix)), None)
+        visible = folder is not None and name is not None
+        updates.append(gr.update(value=str(folder / name), visible=True) if visible else gr.update(visible=False))
+    return updates
 
 
 def checks_frame(results: list[PageResult]) -> pd.DataFrame:
@@ -351,10 +414,14 @@ def _output_files(pdf_path: Path, results: list[PageResult]) -> dict[str, str | 
 
 
 def _write_archive(pdf_path: Path, files: dict[str, str | bytes]) -> str:
-    out = Path(tempfile.mkdtemp(prefix="pdf2sdmx_")) / f"{pdf_path.stem}_sdmx.zip"
+    """Every file on its own, for the download buttons, and all of them in one zip."""
+    folder = Path(tempfile.mkdtemp(prefix="pdf2sdmx_"))
+    out = folder / f"{pdf_path.stem}_sdmx.zip"
     with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as zf:
         for name, content in files.items():
-            zf.writestr(name, content if isinstance(content, bytes) else content.encode())
+            data = content if isinstance(content, bytes) else content.encode()
+            (folder / name).write_bytes(data)
+            zf.writestr(name, data)
     return str(out)
 
 
@@ -443,18 +510,40 @@ def build() -> gr.Blocks:
                 found = gr.State([])
                 with gr.Tabs():
                     with gr.Tab("Tables"):
-                        tables = [
-                            gr.Dataframe(wrap=True, interactive=False, max_height=600, visible=False)
-                            for _ in range(TABLE_SLOTS)
-                        ]
+                        tables = []  # a dataframe then its CSV button, for each slot
+                        for _ in range(TABLE_SLOTS):
+                            tables.append(
+                                gr.Dataframe(
+                                    wrap=True,
+                                    interactive=False,
+                                    max_height=600,
+                                    visible=False,
+                                    buttons=["copy", "fullscreen"],
+                                )
+                            )
+                            tables.append(gr.DownloadButton("CSV of this table", size="sm", visible=False))
                     with gr.Tab("Observations"):
                         observations_note_box = gr.Markdown(elem_id="formats")
                         long = gr.Dataframe(interactive=False, wrap=True, max_height=680)
                     with gr.Tab("SDMX"):
                         gr.Markdown(FORMATS, elem_id="formats")
-                        sdmx_csv = gr.Code(label="SDMX-CSV 2.0", language=None, interactive=False, max_lines=18)
+                        with gr.Row():
+                            sdmx_downloads = [
+                                gr.DownloadButton(label, size="sm", visible=False) for _, label in SDMX_FILES
+                            ]
+                        sdmx_csv = gr.Code(
+                            label="SDMX-CSV 2.0, first lines",
+                            language=None,
+                            interactive=False,
+                            max_lines=18,
+                            buttons=[],
+                        )
                         sdmx_xml = gr.Code(
-                            label="SDMX-ML 2.1 data message", language=None, interactive=False, max_lines=18
+                            label="SDMX-ML 2.1 data message, first lines",
+                            language=None,
+                            interactive=False,
+                            max_lines=18,
+                            buttons=[],
                         )
                 with gr.Accordion("Cells to review, and how the pages were read", open=False):
                     checks = gr.Dataframe(interactive=False, wrap=True)
@@ -474,6 +563,7 @@ def build() -> gr.Blocks:
             long,
             sdmx_csv,
             sdmx_xml,
+            *sdmx_downloads,
             checks,
         ]
         # The page loop reports its own progress; Gradio's elapsed-time overlay would only add noise.
