@@ -1,5 +1,6 @@
 """Stage 1: read the PDF text layer with pdfplumber. Deterministic, no model."""
 
+import functools
 from pathlib import Path
 
 import pdfplumber
@@ -32,6 +33,9 @@ def page_count(pdf_path: Path) -> int:
         return len(pdf.pages)
 
 
+@functools.lru_cache(maxsize=512)
 def page_text(pdf_path: Path, page_number: int) -> str:
+    """Kept once read: the digit count, the period and the captions all need it, and on a
+    dense page one reading takes a second."""
     with pdfplumber.open(pdf_path) as pdf:
         return pdf.pages[page_number - 1].extract_text() or ""

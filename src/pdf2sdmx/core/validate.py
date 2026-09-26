@@ -28,6 +28,9 @@ SUM_TOLERANCE = settings.sum_tolerance
 PRODUCT_TOLERANCE = settings.product_tolerance
 ABSOLUTE_TOLERANCE = settings.absolute_tolerance
 JUMP_FACTOR = settings.jump_factor
+# A series is every dimension but time, in one unit. Two series never make a jump.
+SERIES_KEYS = ["FREQ", "REF_AREA", "INDICATOR", "COMPOSITE_BREAKDOWN", "UNIT_MEASURE", "UNIT_MULT"]
+PERIOD_IN_TITLE = re.compile(r"(?:19|20)\d{2}(?:\s*[/-]\s*(?:19|20)?\d{2})?")
 UPPER_BOUND = settings.upper_bound
 
 
@@ -227,18 +230,60 @@ def _first_matching(columns, pattern: re.Pattern) -> str | None:
 
 
 def check_period_jumps(long: pd.DataFrame) -> list[Check]:
-    """Same area and indicator across documents: flag a jump above a factor of 5 between periods.
+    """One series across periods: flag a jump above a factor of 5.
 
-    A single table cannot catch a value that is wrong but consistent with its own totals.
-    Comparing editions can. The check cannot tell which edition is wrong, so it warns.
+    Values printed on the wrong rows keep every total right, since a permutation does not
+    change a sum. Following each series through time is the check that can see them, within
+    a report that prints several periods or across editions. It cannot tell which period is
+    wrong, so it warns and names both pages.
     """
     out = []
-    keys = ["REF_AREA", "INDICATOR"]
-    ordered = long[long["OBS_STATUS"] == "A"].sort_values(keys + ["TIME_PERIOD"])
-    for (area, indicator), group in ordered.groupby(keys):
-        rows = group[["TIME_PERIOD", "OBS_VALUE"]].to_numpy()
-        for (t0, v0), (t1, v1) in zip(rows[:-1], rows[1:], strict=True):
+    checked = long[long["OBS_STATUS"] == "A"].assign(_TABLE=lambda df: _table_family(df))
+    keys = [k for k in SERIES_KEYS if k in long.columns] + ["_TABLE"]
+    ordered = checked.sort_values(keys + ["TIME_PERIOD"])
+    for _, group in ordered.groupby(keys, dropna=False):
+        if group["TIME_PERIOD"].duplicated().any():
+            continue  # two values for one period: the codes do not single out one series
+        rows = group.to_dict("records")
+        for before, after in zip(rows[:-1], rows[1:], strict=True):
+            v0, v1 = before["OBS_VALUE"], after["OBS_VALUE"]
             if v0 > 0 and v1 > 0 and (v1 / v0 > JUMP_FACTOR or v0 / v1 > JUMP_FACTOR):
-                detail = f"{v0:,.0f} in {t0} vs {v1:,.0f} in {t1}"
-                out.append(Check("period_jump", "warn", detail, f"{area} {indicator}", t1))
+                detail = f"{v0:,.0f} in {_when(before)} vs {v1:,.0f} in {_when(after)}"
+                out.append(Check("period_jump", "warn", detail, _series_label(after), after["TIME_PERIOD"]))
     return out
+
+
+def _table_family(long: pd.DataFrame) -> pd.Series:
+    """Which table each observation belongs to, the same for one table printed for two years.
+
+    A series is only followed within one table: two tables can share every code and still
+    count different things. A caption stripped of its number and its period names the table
+    across years; a table without a caption is only compared with itself.
+    """
+    titles = long["TABLE_TITLE"] if "TABLE_TITLE" in long.columns else pd.Series("", index=long.index)
+    words = titles.fillna("").astype(str).map(_title_words)
+    page = long["PAGE"].astype(str) if "PAGE" in long.columns else ""
+    table = long["TABLE"].astype(str) if "TABLE" in long.columns else ""
+    return words.where(words != "", page + ":" + table)
+
+
+def _title_words(title: str) -> str:
+    """'Table 4.2: X by region in 2025' becomes 'x by region in'."""
+    text = PERIOD_IN_TITLE.sub(" ", title.split(":", 1)[-1])
+    return " ".join(re.findall(r"[^\W\d_]+", text.casefold()))
+
+
+def _when(obs: dict) -> str:
+    page = obs.get("PAGE")
+    return f"{obs['TIME_PERIOD']} (p. {page})" if page is not None else str(obs["TIME_PERIOD"])
+
+
+def _series_label(obs: dict) -> str:
+    """The series in the report's own words where it gave them, in codes otherwise."""
+    parts = []
+    for key in ("REF_AREA", "INDICATOR", "COMPOSITE_BREAKDOWN"):
+        label, code = obs.get(f"{key}_LABEL"), obs.get(key)
+        text = label if isinstance(label, str) and label else code
+        if isinstance(text, str) and text and text != "_Z":
+            parts.append(text)
+    return " / ".join(parts)

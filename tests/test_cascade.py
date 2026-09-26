@@ -120,3 +120,28 @@ def test_paddleocr_stage_reads_html_and_markdown_tables_from_the_model_output():
     }
     grids = paddleocr_stage.tables_in(result)
     assert grids == [[["Région", "Bovins"], ["Agadez", "55 507"]], [["Région", "Ovins"], ["Diffa", "1 142 557"]]]
+
+
+def test_rows_read_as_one_are_spread_back_into_the_blank_rows_below():
+    from pdf2sdmx.core.table import unstack_rows
+
+    cells = [
+        ["Item", "Measure 1", "290\n22 955\n6 657", "-\n-\n-", "1 266"],
+        [None, "Measure 2", None, None, "21 232"],
+        [None, "Measure 3", None, None, "26 880"],
+    ]
+    out = unstack_rows(cells)
+    assert [row[2] for row in out] == ["290", "22 955", "6 657"]
+    assert [row[3] for row in out] == ["-", "-", "-"]
+    assert [row[4] for row in out] == ["1 266", "21 232", "26 880"]
+
+
+def test_a_wrapped_label_or_an_irregular_stack_is_left_alone():
+    from pdf2sdmx.core.table import unstack_rows
+
+    wrapped = [["Wrapped\nlabel", "Measure 1", "11 013"], [None, "Measure 2", "20 791"]]
+    assert unstack_rows(wrapped) == wrapped
+    uneven = [["A", "1\n2", "3\n4\n5"], ["B", None, None], ["C", None, None]]
+    assert unstack_rows(uneven) == uneven
+    occupied = [["A", "1\n2"], ["B", "9"]]
+    assert unstack_rows(occupied) == occupied

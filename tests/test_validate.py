@@ -1,7 +1,7 @@
 import pandas as pd
 
 from pdf2sdmx.core.table import ExtractedTable
-from pdf2sdmx.core.validate import check_header, run_checks
+from pdf2sdmx.core.validate import check_header, check_period_jumps, run_checks
 
 
 def agri_table(production_maradi="240 000"):
@@ -76,3 +76,64 @@ def test_a_data_row_glued_into_the_header_is_a_failure():
 def test_a_period_or_a_unit_in_a_column_name_is_not_a_glued_row():
     clean = pd.DataFrame(columns=["Désignation", "31 déc.22", "2024", "Superficie (ha)", "1 T24"])
     assert check_header(clean)[0].status == "pass"
+
+
+def _obs(area, species, year, value, page, title=""):
+    return {
+        "TABLE_TITLE": title or f"Table {page}: X in {year}",
+        "FREQ": "A",
+        "REF_AREA": area,
+        "INDICATOR": "HEAD",
+        "COMPOSITE_BREAKDOWN": species,
+        "UNIT_MEASURE": "NUMBER",
+        "UNIT_MULT": "0",
+        "TIME_PERIOD": year,
+        "OBS_VALUE": value,
+        "OBS_STATUS": "A",
+        "PAGE": page,
+    }
+
+
+def test_values_printed_on_the_wrong_rows_are_caught_across_periods():
+    # The second year swaps two regions: the column total is unchanged, the series jump.
+    long = pd.DataFrame(
+        [
+            _obs("R1", "B1", "2024", 4_068_336, 4),
+            _obs("R2", "B1", "2024", 110_664, 4),
+            _obs("R1", "B1", "2025", 117_304, 4),
+            _obs("R2", "B1", "2025", 4_312_436, 4),
+        ]
+    )
+    jumps = check_period_jumps(long)
+    assert {c.row for c in jumps} == {"R1 / HEAD / B1", "R2 / HEAD / B1"}
+    assert "(p. 4)" in jumps[0].detail
+
+
+def test_two_breakdowns_of_one_area_are_not_one_series():
+    long = pd.DataFrame([_obs("R1", "B1", "2025", 4_000_000, 1), _obs("R1", "B2", "2025", 55, 1)])
+    assert check_period_jumps(long) == []
+
+
+def test_a_caption_gives_its_table_the_period_it_names():
+    from pdf2sdmx.core.pipeline import period_in
+
+    assert period_in("Table 3.6: X by region in 2025") == "2025"
+    assert period_in("Table 2.1: X, season 2024/2025") == "2024/2025"
+    assert period_in("Table 1.3: X from 2022 to 2025") == ""  # two periods: the axes decide
+    assert period_in("Table 4.1: X") == ""
+    assert period_in("Tableau 5.2 : X (base 100 en 2014), 2025") == "2025"  # a base year is no period
+
+
+def test_a_series_is_not_followed_from_one_table_into_another():
+    long = pd.DataFrame(
+        [
+            _obs("R1", "B1", "2024", 4_000_000, 1, "Table 1: X in 2024"),
+            _obs("R1", "B1", "2025", 40_000, 2, "Table 9: Y in 2025"),
+        ]
+    )
+    assert check_period_jumps(long) == []
+
+
+def test_a_key_holding_two_values_for_one_period_is_not_a_series():
+    long = pd.DataFrame([_obs("R1", "B1", "2024", 1_004, 1), _obs("R1", "B1", "2024", 5, 1)])
+    assert check_period_jumps(long) == []

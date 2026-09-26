@@ -1,17 +1,17 @@
 {
   "model_score": 1.0,
-  "baseline_score": 0.8936,
+  "baseline_score": 1.0,
   "baseline_name": "pdfplumber alone",
   "metric": "share of hand-typed truth cells recovered exactly",
-  "evaluated_on": "1 pages, 94 cells, 2026-09-20",
+  "evaluated_on": "1 pages, 94 cells, 2026-09-26",
   "pages": [
     {
       "file": "bulletin_3T25.pdf",
       "page": 21,
       "truth_cells": 94,
-      "baseline_hits": 84,
+      "baseline_hits": 94,
       "cascade_hits": 94,
-      "resolved_by": "pdfplumber+camelot_ml",
+      "resolved_by": "pdfplumber",
       "checks_failed": 0
     }
   ]

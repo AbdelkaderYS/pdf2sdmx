@@ -3,6 +3,8 @@
 import re
 from dataclasses import dataclass
 
+from pdf2sdmx.config import settings
+
 # Thousands are separated by a regular, non-breaking or narrow space, sometimes mixed.
 _SPACES = re.compile(r"[\s   ]+")
 # The dashes are data, not punctuation: a table prints one where a value is missing.
@@ -49,6 +51,26 @@ def _normalise_separators(text: str) -> str:
     if re.fullmatch(r"[+-]?\d{1,3}(?:\.\d{3})+", text):
         return text.replace(".", "")
     return text
+
+
+# Signs of each way of printing numbers. "1,234" alone could be either, so it is not one.
+_ENGLISH = re.compile(r"\d,\d{3}(?:,\d{3}|\.\d)|(?<![\d.,])\d+\.\d{1,2}(?![\d.,])")
+_FRENCH = re.compile(r"\d[ \u00a0\u202f]\d{3}(?!\d)|(?<![\d.,])\d+,\d{1,2}(?![\d.,])")
+_ENGLISH_NUMBER = re.compile(r"^\(?[+-]?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?\)?[*%]?$")
+
+
+def english_page(text: str) -> bool:
+    """Whether a page prints "1,234.5" rather than "1 234,5", by the more frequent sign."""
+    english, french = len(_ENGLISH.findall(text)), len(_FRENCH.findall(text))
+    return english > french if english != french else settings.number_format == "en"
+
+
+def to_french(cell: object) -> object:
+    """An English number as the parser reads it: "1,234.5" becomes "1234,5". Text is kept."""
+    if not isinstance(cell, str):
+        return cell
+    lines = cell.split("\n")
+    return "\n".join(s.replace(",", "").replace(".", ",") if _ENGLISH_NUMBER.match(s.strip()) else s for s in lines)
 
 
 def looks_numeric(raw: object) -> bool:

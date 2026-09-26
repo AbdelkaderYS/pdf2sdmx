@@ -8,7 +8,7 @@ across stages by their data column headers and the overlap of their row labels.
 import logging
 import time
 from collections.abc import Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 
 import pandas as pd
@@ -16,7 +16,7 @@ import pandas as pd
 from pdf2sdmx.config import settings
 from pdf2sdmx.core import validate
 from pdf2sdmx.core.ingest import camelot_stage, paddleocr_stage, pdfplumber_stage
-from pdf2sdmx.core.numbers import parse_number
+from pdf2sdmx.core.numbers import english_page, parse_number, to_french
 from pdf2sdmx.core.quality import GateResult, gate_table
 from pdf2sdmx.core.table import ExtractedTable
 
@@ -31,6 +31,7 @@ STAGES: list[tuple[str, Stage]] = [
 ]
 
 MIN_DIGITS_FOR_A_TABLE = settings.min_digits_for_a_table
+NO_TEXT_LAYER = "no_text_layer"
 
 
 @dataclass
@@ -94,17 +95,32 @@ def run(pdf_path: Path, page_number: int, stages: list[tuple[str, Stage]] | None
     per_stage: dict[str, list[Candidate]] = {}
     best_rejected: Candidate | None = None
 
-    if stages is None and not _looks_like_a_table_page(pdf_path, page_number):
-        attempts.append(Attempt("text_scan", 0, None, 0.0, error=f"fewer than {MIN_DIGITS_FOR_A_TABLE} digits"))
-        return CascadeResult([], attempts)
-
+    # The text stage reads every page: it costs milliseconds, and a small table it can read
+    # must not be lost to a threshold. The digit count only decides whether a page it found
+    # nothing on is worth the seconds of the model stages.
+    scanned = sparse = english = False  # stages passed in by a caller run as given
+    if stages is None:
+        text = pdfplumber_stage.page_text(pdf_path, page_number)
+        english = english_page(text)
+        # A page with no text layer is a scan, which only the vision stage can read.
+        scanned = not text.strip()
+        sparse = not scanned and sum(c.isdigit() for c in text) < MIN_DIGITS_FOR_A_TABLE
+    if scanned:
+        attempts.append(Attempt(NO_TEXT_LAYER, 0, None, 0.0, error="no text layer, a scanned page"))
     for name, stage in stages or STAGES:
+        if scanned and name != paddleocr_stage.METHOD:
+            continue
+        if sparse and not per_stage and name != pdfplumber_stage.METHOD:
+            attempts.append(Attempt("text_scan", 0, None, 0.0, error=f"fewer than {MIN_DIGITS_FOR_A_TABLE} digits"))
+            break
         if name == paddleocr_stage.METHOD and not paddleocr_stage.available():
             attempts.append(Attempt(name, 0, None, 0.0, error="not installed"))
             continue
         started = time.perf_counter()
         try:
             tables = stage(pdf_path, page_number)
+            if english:
+                tables = [replace(t, cells=[[to_french(c) for c in row] for row in t.cells]) for t in tables]
         except Exception as exc:  # a broken stage must not stop the cascade
             log.warning("stage %s failed on page %s: %s", name, page_number, exc)
             attempts.append(Attempt(name, 0, None, time.perf_counter() - started, error=str(exc)[:200]))
@@ -134,11 +150,6 @@ def run(pdf_path: Path, page_number: int, stages: list[tuple[str, Stage]] | None
         frame, row_methods = repair_rows(candidate, [donor] if donor else [])
         resolved.append(ResolvedTable(frame, candidate.gate, winner, row_methods))
     return CascadeResult(resolved, attempts)
-
-
-def _looks_like_a_table_page(pdf_path: Path, page_number: int) -> bool:
-    text = pdfplumber_stage.page_text(pdf_path, page_number)
-    return sum(c.isdigit() for c in text) >= MIN_DIGITS_FOR_A_TABLE
 
 
 def _gate_all(method: str, tables: list[ExtractedTable]) -> tuple[list[Candidate], Candidate | None]:

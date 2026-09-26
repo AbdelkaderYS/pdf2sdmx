@@ -45,12 +45,46 @@ class ExtractedTable:
 
     def to_frame(self) -> pd.DataFrame:
         """Rectangular frame: header rows merged into column names, label columns merged into column 0."""
-        grid = _pad(self.cells, self.n_cols)
+        grid = _pad(unstack_rows(self.cells), self.n_cols)
         n_header = _count_header_rows(grid)
         header = _merge_header_rows(grid[:n_header]) if n_header else _default_header(self.n_cols)
         frame = pd.DataFrame(grid[n_header:], columns=_dedupe(header))
         frame = frame.loc[:, (frame != "").any(axis=0)]  # ruling lines leave empty border columns
         return merge_label_columns(frame)
+
+
+def unstack_rows(cells: list[list]) -> list[list]:
+    """Spread cells holding several printed rows into the blank rows below them.
+
+    Without a rule between rows, a reader can return three rows as one: each value cell
+    holds three lines and the next two rows are blank in those columns. Only values are
+    spread, and only when every stacked value in the row has the same number of lines and
+    the rows below are blank where they go. A label wrapped on two lines stays one label,
+    and anything less regular is left for the number parser to reject.
+    """
+    out = [list(row) for row in cells]
+    for i, row in enumerate(out):
+        stacked = {j: lines for j, cell in enumerate(row) if len(lines := _value_lines(cell)) > 1}
+        if len({len(lines) for lines in stacked.values()}) != 1:
+            continue
+        depth = len(next(iter(stacked.values())))
+        below = out[i + 1 : i + depth]
+        fits = len(below) == depth - 1 and all(j < len(r) and not clean_cell(r[j]) for r in below for j in stacked)
+        if not fits:
+            continue
+        for j, lines in stacked.items():
+            row[j] = lines[0]
+            for target, line in zip(below, lines[1:], strict=True):
+                target[j] = line
+    return out
+
+
+def _value_lines(cell: object) -> list[str]:
+    """The lines of a cell when every one is a number or a missing marker, else nothing."""
+    lines = [line.strip() for line in str(cell or "").splitlines() if line.strip()]
+    if all(looks_numeric(line) or is_missing_marker(line) for line in lines):
+        return lines
+    return []
 
 
 def clean_cell(value: object) -> str:

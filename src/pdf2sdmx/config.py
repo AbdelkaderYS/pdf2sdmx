@@ -47,6 +47,8 @@ class Settings(BaseSettings):
     fetch_sources: bool = True
     request_timeout: int = 120
     max_pdf_mb: int = 50
+    max_pages: int = 0  # 0 reads every page; a small host reads this many from the page shown
+    number_format: str = "fr"  # when a page gives no sign of "1 234,5" or "1,234.5"
 
     api_url: str = "http://localhost:8000"
     log_level: str = "INFO"

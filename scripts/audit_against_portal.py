@@ -23,7 +23,7 @@ SAMPLE = settings.data_raw.parent / "samples" / "ins_bulletin_3T25_p20-23.pdf"
 # The portal has its own area scheme; ours is ISO 3166-2. This is the pairing, as a join
 # needs it. The vocabulary file records the same thing for a reader.
 THEIR_AREA = {
-    "AFNER": "_T",
+    "AFNER": "NE",  # the country, as the report codes a total over every region
     "AFNER1": "NE-1",
     "AFNER2": "NE-2",
     "AFNER3": "NE-3",

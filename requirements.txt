@@ -2,8 +2,8 @@
 #
 # Camelot needs torch, which is 738 MB on disk before a model is even downloaded, so it
 # does not fit a free tier. The cascade reports the stage as absent rather than hiding it,
-# and a report with a text layer is still read: 84 of 94 cells on the page measured with
-# ground truth, against 94 with the full cascade.
+# and a report with a text layer is still read: 94 of 94 cells on the page measured with
+# ground truth, the same as the full cascade there.
 #
 # For the full cascade, use requirements-full.txt, or the Dockerfile, on a host with 2 GB.
 pandas>=2.2

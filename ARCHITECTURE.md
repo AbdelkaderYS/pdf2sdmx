@@ -43,7 +43,8 @@ same page can be consistent with its own total.
 
 Donor rows must share the data column headers. `EXTRACTION_METHOD` is written per
 observation, so a repaired page reads `pdfplumber` on most rows and `camelot_ml` on the
-repaired ones. Result on that page: 94 of 94 truth cells, against 84 for stage 1 alone.
+repaired ones. That page now needs no repair: stage 1 reads its 94 truth cells on its own,
+since rows printed without a rule between them are split back at reading (`table.unstack_rows`).
 
 ## Why these three stages
 

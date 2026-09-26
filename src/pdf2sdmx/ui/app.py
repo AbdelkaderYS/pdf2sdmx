@@ -17,8 +17,8 @@ import gradio as gr
 import pandas as pd
 
 from pdf2sdmx.config import settings
-from pdf2sdmx.core import pipeline, sdmx_out
-from pdf2sdmx.core.ingest import paddleocr_stage
+from pdf2sdmx.core import pipeline, sdmx_out, validate
+from pdf2sdmx.core.ingest import cascade, paddleocr_stage
 from pdf2sdmx.core.pipeline import PageResult
 from pdf2sdmx.core.reshape import NOT_IDENTIFIED, TOTAL
 
@@ -73,8 +73,13 @@ DISPLAY_COLUMNS = [
     "SOURCE",
 ]
 
-INTRO = "Tables printed in a statistical PDF report, read, checked and written as SDMX."
+INTRO = (
+    "Tables printed in a statistical PDF report, read, checked and written as SDMX. "
+    f"Set up for {settings.country_name} ({settings.agency}): a label outside its vocabulary is kept and coded _Z."
+)
 PLACEHOLDER = "Drop a PDF on the left, browse it with the page slider, then press Start."
+if settings.max_pages:
+    PLACEHOLDER += f" This demo reads {settings.max_pages} pages from the page shown."
 FORMATS = (
     "**SDMX-CSV** is one observation per line, readable in Excel, and assumes the receiver "
     "already has the data structure. **SDMX-ML** carries the structure itself, so a registry "
@@ -84,22 +89,26 @@ FORMATS = (
 SDMX_FILES = (("_sdmx.csv", "SDMX-CSV"), ("_structure.xml", "SDMX-ML structure"), ("_data.xml", "SDMX-ML data"))
 NO_FIGURES = "with no figures to read"
 TEXT_TABLE = "with a table of text"
-UNREADABLE = "unreadable"
+SCANNED = "scanned, with no text layer"
+UNREADABLE = "where no table was found"
 FIGURES_ONLY = "SDMX publishes figures, so a table of names or text is not converted."
 
 
-def process(file):
+def process(file, shown=1):
     """Generator: yields UI updates as pages are processed."""
     if file is None:
         raise gr.Error("Drop a PDF first")
     pdf_path = Path(file)
     n_pages = pipeline.page_count(pdf_path)
+    first = int(shown or 1) if settings.max_pages else 1
+    end = min(first + settings.max_pages - 1, n_pages) if settings.max_pages else n_pages
+    pages = range(first, end + 1)
 
     started = time.perf_counter()
     found: list[dict] = []  # one entry per page with a table: result and its rendered preview
     skipped: Counter[str] = Counter()  # why the other pages gave nothing
     preview = None
-    for page in range(1, n_pages + 1):
+    for page in pages:
         preview = pipeline.render_page(pdf_path, page)
         yield _state(preview, f"Reading page {page} of {n_pages}...", found, None)
         result = pipeline.run_page(pdf_path, page)
@@ -114,15 +123,19 @@ def process(file):
     # Gradio may drop intermediate yields, so the last one carries the full final state.
     elapsed = f"{time.perf_counter() - started:.0f} s"
     if not found:
-        summary = f"Done in {elapsed}: {_pages(n_pages)} read, no table of figures.{skipped_summary(skipped)}"
+        summary = f"Done in {elapsed}: {_pages(len(pages))} read, no table of figures.{skipped_summary(skipped)}"
         yield _state(preview, summary, found, None)
         return
     results = [f["result"] for f in found]
-    files = _output_files(pdf_path, results)
+    jumps = validate.check_period_jumps(pipeline.combine(results))
+    files = _output_files(pdf_path, results, jumps)
     archive = _write_archive(pdf_path, files)
     last = found[-1]
-    summary = f"Done in {elapsed}, {_pages(n_pages)} read, {len(found)} with tables.{skipped_summary(skipped)}"
-    yield _state(last["preview"], summary, found, last["result"], archive, files)
+    summary = f"Done in {elapsed}, {_pages(len(pages))} read, {len(found)} with tables.{skipped_summary(skipped)}"
+    if jumps:
+        factor = f"{validate.JUMP_FACTOR:g}"
+        summary += f" {len(jumps)} values change by more than {factor} times between periods, see Cells to review."
+    yield _state(last["preview"], summary, found, last["result"], archive, files, jumps)
 
 
 def no_table_reason(result: PageResult) -> str:
@@ -145,6 +158,8 @@ def no_table_reason(result: PageResult) -> str:
 def skip_kind(result: PageResult) -> str:
     """Which of three reasons a page gave nothing for, so a run can count them."""
     for attempt in result.attempts:
+        if attempt.method == cascade.NO_TEXT_LAYER:
+            return SCANNED
         if attempt.method == "text_scan":
             return NO_FIGURES
         gate = attempt.gate
@@ -159,6 +174,8 @@ def skipped_summary(skipped: Counter) -> str:
         return ""
     parts = ", ".join(f"{_pages(n)} {kind}" for kind, n in skipped.most_common())
     note = f" {FIGURES_ONLY}" if skipped[TEXT_TABLE] or skipped[NO_FIGURES] else ""
+    if skipped[SCANNED] and not paddleocr_stage.available():
+        note += " A scanned page needs the vision stage, which is not installed here."
     return f" {parts}.{note}"
 
 
@@ -178,7 +195,7 @@ def show_page(found: list[dict], evt: gr.SelectData):
     )
 
 
-def _state(preview, progress, found, current, archive=None, files=None):
+def _state(preview, progress, found, current, archive=None, files=None, jumps=()):
     """Values for every output component, in the order declared in build()."""
     files = files or {}
     results = [f["result"] for f in found]
@@ -198,7 +215,7 @@ def _state(preview, progress, found, current, archive=None, files=None):
         _preview_text(files, "_sdmx.csv"),
         _preview_text(files, "_data.xml"),
         *_sdmx_downloads(archive, files),
-        checks_frame(results),
+        checks_frame(results, jumps),
     )
 
 
@@ -369,11 +386,11 @@ def _table_csv(result: PageResult, index: int) -> str:
 
     The folder is named after the content, so two documents never share a file.
     """
-    text = result.tables[index].frame.to_csv(index=False)
-    folder = Path(tempfile.gettempdir()) / "pdf2sdmx" / hashlib.sha1(text.encode()).hexdigest()[:12]
+    data = _for_excel(result.tables[index].frame)
+    folder = Path(tempfile.gettempdir()) / "pdf2sdmx" / hashlib.sha1(data).hexdigest()[:12]
     folder.mkdir(parents=True, exist_ok=True)
     path = folder / f"{Path(result.source).stem}_p{result.page}_table{index + 1}.csv"
-    path.write_text(text, encoding="utf-8")
+    path.write_bytes(data)
     return str(path)
 
 
@@ -388,29 +405,42 @@ def _sdmx_downloads(archive: str | None, files: dict[str, str | bytes]) -> list:
     return updates
 
 
-def checks_frame(results: list[PageResult]) -> pd.DataFrame:
+def checks_frame(results: list[PageResult], jumps=()) -> pd.DataFrame:
+    """Failed checks page by page, then the jumps between periods, which the run computes
+    once at the end: across the whole document, they would cost more at every page."""
     rows = [
         {"page": r.page, "check": c.name, "row": c.row, "column": c.column, "detail": c.detail}
         for r in results
         for c in r.checks
         if c.status in ("fail", "warn")
     ]
+    rows += [{"page": None, "check": c.name, "row": c.row, "column": c.column, "detail": c.detail} for c in jumps]
     return pd.DataFrame(rows, columns=["page", "check", "row", "column", "detail"])
 
 
-def _output_files(pdf_path: Path, results: list[PageResult]) -> dict[str, str | bytes]:
-    """Long CSV, SDMX-CSV, SDMX-ML structure and data, cells to review, for the whole document."""
+def _output_files(pdf_path: Path, results: list[PageResult], jumps: list | None = None) -> dict[str, str | bytes]:
+    """Long CSV, SDMX-CSV, SDMX-ML structure and data, cells to review, for the whole document.
+
+    The CSVs meant for a person carry a byte order mark, without which Excel reads UTF-8 as
+    Windows-1252 and prints "é" as "Ã©". SDMX-CSV is for machines and holds only codes.
+    """
     long = pipeline.combine(results)
     structure_xml, data_xml = sdmx_out.to_sdmx_ml(long)
-    to_review = pd.concat([r.to_review.assign(page=r.page) for r in results], ignore_index=True)
+    per_page = [r.to_review.assign(page=r.page) for r in results]
+    across = pd.DataFrame([c.__dict__ for c in jumps or []])
+    to_review = pd.concat([*per_page, across], ignore_index=True)
     stem = pdf_path.stem
     return {
-        f"{stem}_long.csv": long.to_csv(index=False),
+        f"{stem}_long.csv": _for_excel(long),
         f"{stem}_sdmx.csv": sdmx_out.to_sdmx_csv(long),
         f"{stem}_structure.xml": structure_xml,
         f"{stem}_data.xml": data_xml,
-        f"{stem}_to_review.csv": to_review.to_csv(index=False),
+        f"{stem}_to_review.csv": _for_excel(to_review),
     }
+
+
+def _for_excel(frame: pd.DataFrame) -> bytes:
+    return frame.to_csv(index=False).encode("utf-8-sig")
 
 
 def _write_archive(pdf_path: Path, files: dict[str, str | bytes]) -> str:
@@ -567,7 +597,7 @@ def build() -> gr.Blocks:
             checks,
         ]
         # The page loop reports its own progress; Gradio's elapsed-time overlay would only add noise.
-        run_event = start.click(process, file, outputs, show_progress="hidden")
+        run_event = start.click(process, [file, page], outputs, show_progress="hidden")
         stop.click(None, cancels=[run_event])
         gallery.select(show_page, found, [preview, page, progress, *tables], show_progress="hidden")
         sample.click(load_sample, outputs=[file, preview, page, progress], show_progress="hidden")

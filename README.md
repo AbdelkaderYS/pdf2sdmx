@@ -1,45 +1,44 @@
 # pdf2sdmx
 
-Lire les tableaux imprimés dans un rapport statistique en PDF et les écrire en SDMX, avec
-un taux d'erreur mesuré.
+Lit les tableaux d'un rapport statistique en PDF et les écrit en SDMX 2.1. Chaque valeur
+est contrôlée. Une valeur illisible est refusée et listée, jamais devinée.
 
-## La question
+Démo : https://pdf2sdmx.onrender.com. Hébergement gratuit : le premier chargement peut
+prendre une minute, seul l'étage texte y tourne, et elle lit 10 pages à partir de celle
+affichée.
 
-Au départ : le détail que les instituts publient en PDF peut-il être récupéré
-automatiquement ?
+## Résultats
 
-En cours de route, le portail open data de la banque de développement s'est avéré contenir
-les mêmes séries, **de 1990 à 2024**. La prémisse ne tenait pas.
+Mesurés sur les bulletins trimestriels de l'Institut National de la Statistique du Niger.
 
-La question est devenue : **ce qu'un institut imprime concorde-t-il avec ce que son portail
-publie, et qu'apporte le rapport en plus ?** À celle-là on peut répondre par des chiffres.
+| Mesure | Résultat | Document |
+|---|---|---|
+| Cellules exactes contre une saisie à la main | **94 / 94**, aucune valeur fausse | 3e trim. 2025, tableau 03.01, page 21 du PDF |
+| Concordance avec le portail open data de la BAD | **56 / 58 (97 %)**, et 65 valeurs absentes du portail | même tableau, production, contre les séries 2024 du portail |
+| SDMX-ML 2.1 contre les schémas XSD officiels | valide | 1er trim. 2024 et 3e trim. 2025, entiers, 71 pages chacun |
+| Observations produites | 5 948 et 5 947 | les mêmes |
+| Touchées par un contrôle arithmétique | 11 % | les mêmes |
+| Erreur trouvée dans la source | quatre régions imprimées sur les mauvaises lignes, totaux justes | 3e trim. 2025, tableau 03.06, page 23 du PDF |
 
-Sur la page comparée : **97 % des valeurs concordent** avec le portail, et **65 valeurs du
-rapport n'y figurent pas**. Le détail est dans [MESURES.md](MESURES.md).
+Les deux écarts avec le portail sont des totaux nationaux dont le périmètre diffère. Le
+détail et les limites sont dans [MESURES.md](MESURES.md).
 
 ## Comment ça marche
 
-Trois outils passent l'un après l'autre sur chaque page :
-
 ```
-pdfplumber      la couche texte du PDF, rapide et exacte quand elle existe
+pdfplumber      la couche texte du PDF
 Camelot 2.0     un modèle qui retrouve les bords que pdfplumber rate
-PaddleOCR-VL    un modèle de vision, pour les pages scannées
+PaddleOCR-VL    un modèle de vision pour les pages scannées, câblé mais pas installé
 ```
 
-Celui qui produit le moins d'échecs arithmétiques gagne. Ses lignes cassées sont réparées
-depuis les autres quand ça fait baisser le compte. Chaque observation garde le nom de
-l'étage qui l'a lue.
-
-Ensuite chaque tableau est contrôlé (totaux, produits, sauts entre périodes), codé contre
-un vocabulaire, et écrit en SDMX-CSV et SDMX-ML 2.1. Les deux messages XML passent les
-schémas officiels du SDMX Technical Working Group, pas notre propre lecteur.
-
-Une valeur illisible n'est jamais devinée : elle est refusée et listée.
+L'étage qui laisse le moins d'échecs arithmétiques gagne, et ses lignes cassées sont
+réparées depuis les autres. Chaque tableau est ensuite contrôlé (totaux, produits, suivi
+d'une série d'une période à l'autre), codé contre un vocabulaire, et écrit en SDMX-CSV et
+SDMX-ML 2.1. Les choix techniques sont dans [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ## Ce qui sort
 
-Un zip de cinq fichiers pour le document entier.
+Un CSV par tableau, et pour le document entier un zip de cinq fichiers :
 
 | Fichier | Contenu |
 |---|---|
@@ -53,39 +52,18 @@ Un zip de cinq fichiers pour le document entier.
 
 ```bash
 uv venv && source .venv/bin/activate
-make install-ml       # pdfplumber, Camelot ml, torch CPU, environ 400 Mo
+make install-ml       # pdfplumber, Camelot, torch CPU
 make schemas          # les schémas SDMX officiels, une fois
 make reference        # les codelists officielles du registre SDMX
 python app.py         # interface et API sur http://localhost:7860
-```
 
-Le bouton « Load the sample » ouvre un extrait de quatre pages, environ 40 s sur CPU.
-
-```bash
-make test             # 90 tests
+make test             # les tests
 make evaluate         # exactitude contre la vérité terrain
 make audit            # comparaison avec le portail open data
-make harvest          # ce qu'il reste à nommer dans le vocabulaire
 ```
 
-## Réglages
-
-Tout ce qu'on peut dire à l'outil est dans [.env.example](.env.example) : qui publie, quel
-vocabulaire, ce qui compte comme un tableau, comme une correspondance, comme une erreur.
-
-## Où regarder
-
-```
-src/pdf2sdmx/core/    extraction, contrôles, codage, écriture SDMX
-src/pdf2sdmx/ui/      interface Gradio
-src/pdf2sdmx/api/     routes FastAPI
-mapping/              le vocabulaire, une ligne par libellé imprimé
-truth/                la vérité terrain tapée à la main
-scripts/              évaluation, audit, moisson du vocabulaire
-```
-
-[MESURES.md](MESURES.md) pour les chiffres et les limites,
-[ARCHITECTURE.md](ARCHITECTURE.md) pour les choix techniques.
+Qui publie, quel vocabulaire, quels seuils : tout se règle dans [.env.example](.env.example),
+pas dans le code.
 
 ## Les normes suivies
 

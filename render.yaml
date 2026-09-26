@@ -21,3 +21,6 @@ services:
       # The demo runs on the bundled sample; the full reports are not needed here.
       - key: FETCH_SOURCES
         value: "false"
+      # 0.1 CPU reads a page in about 30 s: a whole report would outlast a visitor.
+      - key: MAX_PAGES
+        value: "10"

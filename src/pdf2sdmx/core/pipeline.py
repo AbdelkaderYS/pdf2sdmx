@@ -13,9 +13,11 @@ from pdf2sdmx.core.validate import Check
 
 # A period in the page text: a range such as "2024/2025" or "2023-2024", or a lone year.
 PERIOD_IN_TEXT = re.compile(r"\b((?:19|20)\d{2}\s*[/-]\s*(?:19|20)?\d{2}|(?:19|20)\d{2})\b")
+# "base 100 en 2014", "base 2014 = 100": the year an index is set to, not the table's period.
+BASE_YEAR = re.compile(r"\bbase\s*(?:100\s*)?(?:=|en|in)?\s*(?:19|20)\d{2}(?:\s*=\s*100)?", re.I)
 
 # The caption printed above a table: a number, then the title.
-CAPTION = re.compile(r"^tableau\s*n?[°o]?\s*[\d.]+(?:[a-z]\.?)?\s*:", re.I)
+CAPTION = re.compile(r"^tabl(?:eau|e)\s*n?[°o]?\s*[\d.]+(?:[a-z]\.?)?\s*:", re.I)
 # The unit line a report often prints under the caption, for the whole table at once.
 UNIT_LINE = re.compile(r"^unit[ée]s?\s*:\s*(.+)$", re.I)
 
@@ -54,7 +56,7 @@ class PageResult:
 
     @property
     def long(self) -> pd.DataFrame:
-        frames = [t.long.assign(TABLE=i) for i, t in enumerate(self.tables, 1)]
+        frames = [t.long.assign(TABLE=i, TABLE_TITLE=t.title) for i, t in enumerate(self.tables, 1)]
         return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
 
     @property
@@ -84,7 +86,8 @@ def run_page(
     """
     result = cascade.run(pdf_path, page)
     source = pdf_path.name
-    period = (time_period or "").strip() or detect_period(pdf_path, page)
+    given = (time_period or "").strip()
+    period = given or detect_period(pdf_path, page)
     unit = (unit or "").strip()  # empty, not "UNKNOWN": reshape falls back last, after the caption
     subject = (subject or "").strip()
     mapping = reshape.load_mapping(mapping_path or settings.mapping_file)
@@ -97,7 +100,8 @@ def run_page(
         long = reshape.to_long(
             resolved.frame,
             mapping=mapping,
-            time_period=period,
+            # A period printed in the table itself wins over both; reshape reads it from the axes.
+            time_period=given or period_in(title) or period,
             # A caption with no unit line often names the unit in its own words.
             unit=printed_unit or unit or title,
             method=resolved.row_methods,
@@ -142,6 +146,13 @@ def captions_on_page(pdf_path: Path, page: int) -> list[tuple[str, str]]:
         if unit and found and not found[-1][1]:
             found[-1] = (found[-1][0], unit.group(1).strip())
     return found
+
+
+def period_in(caption: str) -> str:
+    """The period a caption names, when it names exactly one. One page can hold tables of
+    different years, so the caption knows a table's period better than the page does."""
+    found = {re.sub(r"\s+", "", m) for m in PERIOD_IN_TEXT.findall(BASE_YEAR.sub(" ", caption))}
+    return found.pop() if len(found) == 1 else ""
 
 
 def detect_period(pdf_path: Path, page: int) -> str:

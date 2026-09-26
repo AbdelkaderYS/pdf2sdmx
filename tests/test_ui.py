@@ -5,11 +5,13 @@ against.
 """
 
 from collections import Counter
+from pathlib import Path
 
 import pandas as pd
 
 from pdf2sdmx.config import settings
 from pdf2sdmx.core import pipeline
+from pdf2sdmx.core.ingest import cascade, paddleocr_stage
 from pdf2sdmx.core.ingest.cascade import Attempt
 from pdf2sdmx.core.pipeline import PageResult
 from pdf2sdmx.core.quality import GateResult
@@ -120,7 +122,8 @@ def test_each_code_is_shown_next_to_the_label_it_stands_for():
 def test_the_written_files_keep_the_sdmx_column_order():
     """The reordering is for the screen. A file must stay in the order SDMX expects."""
     result = pipeline.run_page(SAMPLE, 2)
-    header = ui._output_files(SAMPLE, [result])[f"{SAMPLE.stem}_long.csv"].splitlines()[0]
+    written = ui._output_files(SAMPLE, [result])[f"{SAMPLE.stem}_long.csv"]
+    header = written.decode("utf-8-sig").splitlines()[0]
     assert header.startswith("FREQ,REF_AREA,INDICATOR,COMPOSITE_BREAKDOWN,TIME_PERIOD,OBS_VALUE")
 
 
@@ -163,5 +166,23 @@ def test_each_table_comes_with_its_csv():
     result = pipeline.run_page(SAMPLE, 3)
     buttons = [slot for slot in ui.table_slots(result)[1::2] if slot.get("visible")]
     assert buttons
+    assert Path(buttons[0]["value"]).read_bytes().startswith(b"\xef\xbb\xbf")  # Excel reads the accents
     first = pd.read_csv(buttons[0]["value"])
     assert first.shape == result.tables[0].frame.shape
+
+
+def test_a_scanned_page_is_named_as_such():
+    result = page_result([Attempt(cascade.NO_TEXT_LAYER, 0, None, 0.0, error="no text layer, a scanned page")])
+    assert ui.skip_kind(result) == ui.SCANNED
+    if not paddleocr_stage.available():
+        assert "vision stage" in ui.skipped_summary(Counter({ui.SCANNED: 2}))
+
+
+def test_a_small_host_reads_only_its_share_of_pages(monkeypatch):
+    monkeypatch.setattr(settings, "max_pages", 1)
+    *_, last = ui.process(str(SAMPLE), 1)
+    assert "1 page read" in last[1]
+
+
+def test_an_english_caption_is_a_caption():
+    assert pipeline.CAPTION.match("Table 2.1: X by region, 2025")
