@@ -73,10 +73,7 @@ DISPLAY_COLUMNS = [
     "SOURCE",
 ]
 
-INTRO = (
-    "Tables printed in a statistical PDF report, read, checked and written as SDMX. "
-    f"Set up for {settings.country_name} ({settings.agency}): a label outside its vocabulary is kept and coded _Z."
-)
+INTRO = "Tables printed in a statistical PDF report, read, checked and written as SDMX."
 PLACEHOLDER = "Drop a PDF on the left, browse it with the page slider, then press Start."
 if settings.max_pages:
     PLACEHOLDER += f" This demo reads {settings.max_pages} pages from the page shown."
